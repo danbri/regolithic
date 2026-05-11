@@ -1,24 +1,24 @@
 // WubWub — acoustic chromatic aberrations.
 //
 // FFT of an audio input (mic or uploaded file) drives:
-//   • a chromatic-aberration SVG filter applied to the splat canvas
-//     (R and B channels offset proportionally to bass + treble)
-//   • a per-axis non-uniform scale on the splat entity (squash/stretch
-//     in time with bass / mid / treble bands)
+//   • a 3-channel chromatic-aberration SVG filter where R, G, B each
+//     offset in their own direction (default 120° apart) with amplitude
+//     driven by bass / mid / treble respectively,
+//   • stacked CSS filters (hue-rotate, saturate, contrast) on the splat
+//     canvas, so peaks shift the entire colour space too,
+//   • per-axis non-uniform scale on the splat entity (squash/stretch).
 //
 // Implementation choices:
-//   • SVG filter is the cheapest way to get true per-channel pixel offset
-//     in the browser without writing a postprocess shader.
-//   • Whole-entity scaling stands in for per-particle position deformation.
-//     A more faithful version would inject a chunk into PlayCanvas's
-//     gsplat material vertex shader, but the chunk override API is invasive
-//     and not portable across engine minor versions; whole-entity scale
-//     is a robust first cut.
+//   • SVG filter is the cheapest way to get per-channel pixel offset in
+//     the browser without writing a postprocess shader.
+//   • Whole-entity scaling stands in for per-particle position
+//     deformation; an upgrade path is a GSplat material chunk override.
 
 import * as pc from 'playcanvas';
 
 const FFT_SIZE = 1024;
-const SMOOTHING = 0.6;
+const SMOOTHING = 0.55;
+const TAU = Math.PI * 2;
 
 export class WubWub {
   constructor(scene) {
@@ -31,8 +31,11 @@ export class WubWub {
     this._sourceLabel = 'idle';
     this._gain = 1.0;
     this._intensity = 1.0;
-    this._chromAmount = 6; // max channel offset in CSS pixels
-    this._squashAmount = 0.15; // max per-axis scale deviation
+    this._chromAmount = 32;    // max per-channel offset in CSS px
+    this._hueAmount = 180;     // max hue rotation in deg
+    this._satAmount = 1.5;     // max +saturation (1 + this)
+    this._contrastAmount = 0.6;// max +contrast (1 + this)
+    this._squashAmount = 0.25; // max per-axis scale deviation
     this._handlers = {};
     this._filterEl = null;
     this._baseScale = new pc.Vec3(1, 1, 1);
@@ -46,7 +49,6 @@ export class WubWub {
     this.scene.addEventListener('scene-loaded', this._onSceneLoaded = () => {
       if (this.scene.splatEntity) this._baseScale.copy(this.scene.splatEntity.getLocalScale());
     });
-    // If no source picked yet, default to mic on first user gesture
     this._handlers.kick = async () => {
       if (this._source) return;
       await this._useMic().catch(err => console.warn('[wubwub] mic denied:', err));
@@ -82,8 +84,7 @@ export class WubWub {
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
     // iOS Safari's Files picker greys out audio files when `accept` is
-    // just `audio/*`. Combining explicit extensions with the wildcard
-    // restores normal behaviour without breaking desktop browsers.
+    // just `audio/*`. Explicit extensions + wildcard fixes it.
     fileInput.accept = '.mp3,.wav,.m4a,.aac,.ogg,.flac,.opus,audio/*';
     fileInput.style.display = 'none';
     fileInput.addEventListener('change', async () => {
@@ -98,9 +99,12 @@ export class WubWub {
     sourceRow.appendChild(fileInput);
     host.appendChild(sourceRow);
 
-    host.appendChild(slider('Intensity', 0, 2, 0.01, this._intensity, v => this._intensity = v));
-    host.appendChild(slider('Chrom. abb. px', 0, 24, 0.5, this._chromAmount, v => this._chromAmount = v));
-    host.appendChild(slider('Squash/stretch', 0, 0.6, 0.01, this._squashAmount, v => this._squashAmount = v));
+    host.appendChild(slider('Intensity',       0, 3,   0.01, this._intensity,       v => this._intensity = v));
+    host.appendChild(slider('Chrom. abb. px',  0, 150, 1,    this._chromAmount,     v => this._chromAmount = v));
+    host.appendChild(slider('Hue rotate deg',  0, 360, 1,    this._hueAmount,       v => this._hueAmount = v));
+    host.appendChild(slider('Saturation +',    0, 4,   0.05, this._satAmount,       v => this._satAmount = v));
+    host.appendChild(slider('Contrast +',      0, 2,   0.05, this._contrastAmount,  v => this._contrastAmount = v));
+    host.appendChild(slider('Squash/stretch',  0, 0.8, 0.01, this._squashAmount,    v => this._squashAmount = v));
   }
 
   // ── Sources ──────────────────────────────────────────────────────────
@@ -134,7 +138,7 @@ export class WubWub {
     src.buffer = audioBuf;
     src.loop = true;
     src.connect(this._analyser);
-    this._analyser.connect(this._audioCtx.destination); // monitor playback
+    this._analyser.connect(this._audioCtx.destination);
     src.start();
     this._source = { node: src, stop: () => { try { src.stop(); } catch {} } };
     this._sourceLabel = file.name;
@@ -154,27 +158,47 @@ export class WubWub {
     this._analyser.getByteFrequencyData(this._buf);
 
     const bins = this._buf.length;
-    const bass   = avg(this._buf, 0,            Math.floor(bins * 0.05)) / 255;
-    const mid    = avg(this._buf, Math.floor(bins * 0.05), Math.floor(bins * 0.3)) / 255;
-    const treble = avg(this._buf, Math.floor(bins * 0.3),  bins) / 255;
+    const bass   = avg(this._buf, 0,                           Math.floor(bins * 0.05)) / 255;
+    const mid    = avg(this._buf, Math.floor(bins * 0.05),     Math.floor(bins * 0.3))  / 255;
+    const treble = avg(this._buf, Math.floor(bins * 0.3),      bins) / 255;
 
     const k = this._intensity;
-    const chrom = (bass + treble) * 0.5 * this._chromAmount * k;
-    const offR = chrom;
-    const offB = -chrom * 0.9;
-    if (this._filterRChan && this._filterBChan) {
-      this._filterRChan.setAttribute('dx', String(offR.toFixed(2)));
-      this._filterBChan.setAttribute('dx', String(offB.toFixed(2)));
+    const A = this._chromAmount * k;
+
+    // Per-channel offsets, each in its own static direction (120° apart),
+    // with amplitude driven by that channel's band.
+    const ampR = bass   * A;
+    const ampG = mid    * A;
+    const ampB = treble * A;
+    // 0°, 120°, 240° relative to +X. Negate Y for screen-space (down positive).
+    const aR = 0;
+    const aG = TAU / 3;
+    const aB = 2 * TAU / 3;
+    if (this._filterR && this._filterG && this._filterB) {
+      this._filterR.setAttribute('dx', (ampR * Math.cos(aR)).toFixed(2));
+      this._filterR.setAttribute('dy', (ampR * Math.sin(aR)).toFixed(2));
+      this._filterG.setAttribute('dx', (ampG * Math.cos(aG)).toFixed(2));
+      this._filterG.setAttribute('dy', (ampG * Math.sin(aG)).toFixed(2));
+      this._filterB.setAttribute('dx', (ampB * Math.cos(aB)).toFixed(2));
+      this._filterB.setAttribute('dy', (ampB * Math.sin(aB)).toFixed(2));
     }
-    document.documentElement.style.setProperty('--wub-filter', 'url(#wub-chromab)');
+
+    // Stack CSS filters on top of the SVG channel offset.
+    const hue = mid    * this._hueAmount      * k;
+    const sat = 1 + bass * this._satAmount    * k;
+    const con = 1 + treble * this._contrastAmount * k;
+    document.documentElement.style.setProperty(
+      '--wub-filter',
+      `hue-rotate(${hue.toFixed(1)}deg) saturate(${sat.toFixed(2)}) contrast(${con.toFixed(2)}) url(#wub-chromab)`,
+    );
 
     const ent = this.scene.splatEntity;
     if (ent) {
       const s = this._baseScale;
       const sq = this._squashAmount * k;
-      const sx = s.x * (1 + bass * sq);
-      const sy = s.y * (1 - bass * sq * 0.6 + treble * sq * 0.6);
-      const sz = s.z * (1 + mid * sq * 0.4);
+      const sx = s.x * (1 + bass   * sq);
+      const sy = s.y * (1 - bass   * sq * 0.6 + treble * sq * 0.6);
+      const sz = s.z * (1 + mid    * sq * 0.4);
       ent.setLocalScale(sx, sy, sz);
     }
   }
@@ -186,8 +210,12 @@ export class WubWub {
     const svg = document.createElementNS(NS, 'svg');
     svg.setAttribute('style', 'position:absolute;width:0;height:0;pointer-events:none');
     svg.setAttribute('aria-hidden', 'true');
+    // Per-channel split via feColorMatrix preserving alpha, each channel
+    // independently offset, then re-composited with screen (additive on
+    // disjoint channels). The wide filter region accommodates large
+    // chromatic offsets without clipping at the canvas edge.
     svg.innerHTML = `
-      <filter id="wub-chromab" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB">
+      <filter id="wub-chromab" x="-25%" y="-25%" width="150%" height="150%" color-interpolation-filters="sRGB">
         <feColorMatrix type="matrix" values="
           1 0 0 0 0
           0 0 0 0 0
@@ -199,19 +227,21 @@ export class WubWub {
           0 1 0 0 0
           0 0 0 0 0
           0 0 0 1 0" result="g"/>
+        <feOffset id="wub-g-off" in="g" dx="0" dy="0" result="go"/>
         <feColorMatrix type="matrix" values="
           0 0 0 0 0
           0 0 0 0 0
           0 0 1 0 0
           0 0 0 1 0" result="b"/>
         <feOffset id="wub-b-off" in="b" dx="0" dy="0" result="bo"/>
-        <feBlend in="ro" in2="g" mode="screen" result="rg"/>
+        <feBlend in="ro" in2="go" mode="screen" result="rg"/>
         <feBlend in="rg" in2="bo" mode="screen"/>
       </filter>`;
     document.body.appendChild(svg);
     this._filterEl = svg;
-    this._filterRChan = svg.querySelector('#wub-r-off');
-    this._filterBChan = svg.querySelector('#wub-b-off');
+    this._filterR = svg.querySelector('#wub-r-off');
+    this._filterG = svg.querySelector('#wub-g-off');
+    this._filterB = svg.querySelector('#wub-b-off');
   }
 }
 

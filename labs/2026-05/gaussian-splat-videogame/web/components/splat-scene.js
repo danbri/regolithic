@@ -102,6 +102,18 @@ class SplatScene extends HTMLElement {
     this._app.root.addChild(entity);
     this._splatEntity = entity;
 
+    // Per-scene transform (catalog overrides). Splats from photogrammetry
+    // pipelines often arrive with arbitrary orientation/scale; the catalog
+    // can carry rotation/position/scale to land them right-side up at the
+    // origin. All optional.
+    const t = scene.transform ?? {};
+    const r = t.rotation ?? [0, 0, 0];
+    const p = t.position ?? [0, 0, 0];
+    const s = t.scale ?? [1, 1, 1];
+    entity.setLocalEulerAngles(r[0], r[1], r[2]);
+    entity.setLocalPosition(p[0], p[1], p[2]);
+    entity.setLocalScale(s[0], s[1], s[2]);
+
     // Place the camera per the catalog hint.
     const cam = this._cameraEntity;
     const p = scene.camera?.position ?? [0, 1.6, 3];

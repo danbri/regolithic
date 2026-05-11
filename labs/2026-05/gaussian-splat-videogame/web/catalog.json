@@ -13,7 +13,47 @@
       "local_url": "../../../../third_party/splats/superspl.at-kitchen-table-ffa72aa0/meta.json",
       "thumbnail": "https://s3-eu-west-1.amazonaws.com/images.playcanvas.com/splat/ffa72aa0/v1/m.webp",
       "camera": { "position": [0, 0.6, 1.2], "lookAt": [0, 0.2, 0] },
-      "tags": ["interior", "tabletop"]
+      "transform": { "rotation": [180, 0, 0] },
+      "tags": ["interior", "tabletop", "small"]
+    },
+    {
+      "id": "heart-cookie",
+      "title": "Heart Cookie",
+      "author": "danylyon",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/bd964899",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/bd964899/v3/meta.json",
+      "thumbnail": "https://s3-eu-west-1.amazonaws.com/images.playcanvas.com/splat/bd964899/v3/m.webp",
+      "camera": { "position": [0, 0.2, 0.4], "lookAt": [0, 0, 0] },
+      "transform": { "rotation": [180, 0, 0] },
+      "tags": ["object", "tiny", "8MB"]
+    },
+    {
+      "id": "cochem-castle",
+      "title": "Cochem Castle",
+      "author": "dok11",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/9b18007e",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/9b18007e/v1/meta.json",
+      "thumbnail": "https://s3-eu-west-1.amazonaws.com/images.playcanvas.com/splat/9b18007e/v1/m.webp",
+      "camera": { "position": [0, 8, 25], "lookAt": [0, 4, 0] },
+      "transform": { "rotation": [180, 0, 0] },
+      "tags": ["exterior", "architecture", "26MB"]
+    },
+    {
+      "id": "la-night",
+      "title": "LA Night",
+      "author": "matousekfoto",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/d1ea0b35",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/d1ea0b35/v1/meta.json",
+      "thumbnail": "https://s3-eu-west-1.amazonaws.com/images.playcanvas.com/splat/d1ea0b35/v1/m.webp",
+      "camera": { "position": [0, 2, 6], "lookAt": [0, 1, 0] },
+      "transform": { "rotation": [180, 0, 0] },
+      "tags": ["exterior", "urban", "night", "42MB"]
     },
     {
       "id": "victoria-house",
@@ -26,7 +66,9 @@
       "local_url": "../../../../third_party/splats/superspl.at-victoria-house-6f697c4d/lod-meta.json",
       "thumbnail": "https://s3-eu-west-1.amazonaws.com/images.playcanvas.com/splat/6f697c4d/v1/m.webp",
       "camera": { "position": [0, 1.6, 4], "lookAt": [0, 1, 0] },
-      "tags": ["exterior", "greenhouse", "vegetation"]
+      "transform": { "rotation": [180, 0, 0] },
+      "warning": "Large LOD bundle (~305 MB streaming) — may be slow on mobile.",
+      "tags": ["exterior", "greenhouse", "vegetation", "large"]
     }
   ]
 }
