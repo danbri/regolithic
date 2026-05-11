@@ -40,13 +40,14 @@ scene into a playable, navigable, lit environment in the browser.
 Vendored under [`third_party/splats/`](../../../third_party/splats/) (binaries
 fetched on demand via `fetch.sh`):
 
-| Scene | Author | Format | Use |
-|---|---|---|---|
-| [Woods](../../../third_party/splats/superspl.at-woods-3639ecf9/) (`3639ecf9`) | simonbethke | compressed PLY (~141 MB) | woodland exterior |
-| [Kitchen Table](../../../third_party/splats/superspl.at-kitchen-table-ffa72aa0/) (`ffa72aa0`) | wrender | SOG (~39 MB) | interior, reflections/transparency |
+| Scene | Author | License | Format | Use |
+|---|---|---|---|---|
+| [Botanical Garden – Victoria House](../../../third_party/splats/superspl.at-victoria-house-6f697c4d/) (`6f697c4d`) | simonbethke | CC BY 4.0 | streamed multi-tile SOG + LOD (~305 MiB, 297 files) | exterior-ish: tropical greenhouse with trees, plants |
+| [Kitchen Table](../../../third_party/splats/superspl.at-kitchen-table-ffa72aa0/) (`ffa72aa0`) | wrender | CC (variant TBC) | SOG (~39 MiB, 8 files) | interior, reflections/transparency |
 
-Both are SuperSplat Downloadable / CC-licensed; exact CC variant per each
-scene's SOURCE.md. Materialize with:
+Victoria House is the format the blog post actually recommends — a streamed
+SOG bundle with LOD tiles, so it's a useful realistic test for the
+"mobile-friendly" pipeline rather than a single fat PLY. Materialize with:
 
 ```sh
 third_party/splats/fetch-all.sh
