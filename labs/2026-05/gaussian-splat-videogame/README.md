@@ -53,6 +53,82 @@ SOG bundle with LOD tiles, so it's a useful realistic test for the
 third_party/splats/fetch-all.sh
 ```
 
+## Web viewer (`web/`)
+
+A custom-element viewer that loads any scene from `web/catalog.json` and
+runs on mobile, desktop, and WebXR (Quest 3 target).
+
+```sh
+# from repo root, after fetching splats:
+labs/2026-05/gaussian-splat-videogame/web/serve.sh
+# opens at http://localhost:8000/labs/2026-05/gaussian-splat-videogame/web/
+```
+
+For WebXR on Quest 3 you need HTTPS or a localhost route — the simplest path
+is `adb reverse tcp:8000 tcp:8000` from a USB-tethered Quest, or a
+self-signed cert via `mkcert` if you're on the same LAN.
+
+### Controls
+
+| Platform | Look | Move | Other |
+|---|---|---|---|
+| Desktop | drag | WASD / arrows, space/ctrl for up/down, shift = fast | wheel = dolly along view |
+| Mobile  | 1-finger drag | 2-finger pinch = dolly | — |
+| Quest 3 | head | thumbsticks (engine default) | controllers attach to experiments |
+
+### Components
+
+- `<splat-scene catalog="./catalog.json">` — the whole app. Initialises
+  PlayCanvas 2.x (loaded from jsDelivr via import map), fetches the
+  catalog, renders a scene-picker, wires controls, manages WebXR entry,
+  and exposes a registry for experiments. See `components/splat-scene.js`.
+- `components/hamburger-menu.js` — side-effect module; auto-attaches a
+  hamburger button + settings/config panel to the active `<splat-scene>`.
+
+### Experiments
+
+Experiments register themselves with the scene and appear as toggles in the
+hamburger menu. Each implements `enable() / disable() / renderSettings(host)`.
+
+#### Virtual blind cane (`experiments/blind-cane.js`)
+
+A 1.2 m cane is attached to each WebXR controller (or to the camera in flat
+mode for testing). Each frame, a ray is cast along the cane's length
+against an approximated collision volume. On contact:
+
+- the shaft is shortened to the hit distance (fake "bending"),
+- a short filtered noise burst is played as a 3D-positioned tap,
+- the controller's haptic actuator pulses
+  (`gamepad.hapticActuators[0].pulse(...)`),
+- while still in contact, motion-driven low-amp scrub audio + haptic.
+
+**Known approximations** — the collision volume is currently a single
+configurable AABB ("room"). For real scene geometry, generate a
+`.collision.glb` via `splat-transform -K` (per the
+[PlayCanvas blog](https://blog.playcanvas.com/turning-a-gaussian-splat-into-a-videogame/))
+and swap `_raycastBox` for a triangle test. No rigid-body simulator is
+wired — the cane is kinematic with length clamping. Adequate to *feel* a
+wall; not enough to slide weight along a surface.
+
+#### WubWub — acoustic chromatic aberrations (`experiments/wubwub.js`)
+
+Audio source (mic by default, or upload a file) is run through an
+`AnalyserNode`. Per frame:
+
+- bass / mid / treble energy is extracted from the FFT bin distribution,
+- an SVG `<filter>` with channel-split `feColorMatrix` + per-channel
+  `feOffset` drives a **true chromatic aberration** on the splat canvas
+  (CSS `filter: url(#wub-chromab)`),
+- the splat entity's local scale is modulated non-uniformly per axis
+  (bass = squash, treble = stretch, mid = depth) — **squash/stretch
+  of the cloud as a whole**.
+
+The "per-particle position deformation" interpretation would require
+injecting a chunk into PlayCanvas's gsplat material vertex shader. The
+chunk override API is invasive and not portable across engine minor
+versions, so this first cut sticks to entity scaling. Upgrade path noted
+in the source.
+
 ## Tests to run
 
 - [ ] Convert a SuperSplat scene and load it in a stock PlayCanvas viewer.

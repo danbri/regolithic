@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "version": 1,
+  "scenes": [
+    {
+      "id": "kitchen-table",
+      "title": "Kitchen Table",
+      "author": "wrender",
+      "license": "Creative Commons (variant per SuperSplat scene page)",
+      "license_url": "https://superspl.at/scene/ffa72aa0",
+      "format": "sog",
+      "url": "../../../../third_party/splats/superspl.at-kitchen-table-ffa72aa0/meta.json",
+      "thumbnail": "https://s3-eu-west-1.amazonaws.com/images.playcanvas.com/splat/ffa72aa0/v1/m.webp",
+      "camera": { "position": [0, 0.6, 1.2], "lookAt": [0, 0.2, 0] },
+      "tags": ["interior", "tabletop"]
+    },
+    {
+      "id": "victoria-house",
+      "title": "Botanical Garden — Victoria House",
+      "author": "simonbethke",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/6f697c4d",
+      "format": "sog-lod",
+      "url": "../../../../third_party/splats/superspl.at-victoria-house-6f697c4d/lod-meta.json",
+      "thumbnail": "https://s3-eu-west-1.amazonaws.com/images.playcanvas.com/splat/6f697c4d/v1/m.webp",
+      "camera": { "position": [0, 1.6, 4], "lookAt": [0, 1, 0] },
+      "tags": ["exterior", "greenhouse", "vegetation"]
+    }
+  ]
+}

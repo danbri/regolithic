@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#0a0a0a">
+  <title>Gaussian Splat Labs</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script type="importmap">
+  {
+    "imports": {
+      "playcanvas": "https://cdn.jsdelivr.net/npm/playcanvas@2/build/playcanvas.mjs"
+    }
+  }
+  </script>
+</head>
+<body>
+  <splat-scene id="app" catalog="./catalog.json"></splat-scene>
+
+  <script type="module">
+    import './components/splat-scene.js';
+    import './components/hamburger-menu.js';
+    import { BlindCane } from './experiments/blind-cane.js';
+    import { WubWub } from './experiments/wubwub.js';
+
+    const app = document.querySelector('splat-scene');
+    app.addEventListener('ready', () => {
+      app.registerExperiment('blind-cane', new BlindCane(app));
+      app.registerExperiment('wubwub', new WubWub(app));
+    }, { once: true });
+  </script>
+</body>
+</html>
