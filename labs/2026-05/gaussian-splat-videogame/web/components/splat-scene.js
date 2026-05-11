@@ -210,7 +210,6 @@ class SplatScene extends HTMLElement {
     try {
       await this._initEngine();
       await this._loadCatalog();
-      this._renderScenePicker();
       this._wireInput();
       this._wireXR();
       this._updateHint();
@@ -233,10 +232,6 @@ class SplatScene extends HTMLElement {
     this._statusEl.id = 'status';
     this._statusEl.textContent = 'Booting…';
     this.appendChild(this._statusEl);
-
-    this._scenePickerEl = document.createElement('div');
-    this._scenePickerEl.className = 'overlay scene-picker';
-    this.appendChild(this._scenePickerEl);
 
     this._xrBtn = document.createElement('button');
     this._xrBtn.className = 'overlay xr-btn';
@@ -307,23 +302,7 @@ class SplatScene extends HTMLElement {
     this.dispatchEvent(new CustomEvent('catalog-loaded', { detail: { catalog: this._catalog } }));
   }
 
-  _renderScenePicker() {
-    this._scenePickerEl.innerHTML = '';
-    for (const scene of this._catalog.scenes) {
-      const btn = document.createElement('button');
-      btn.className = 'scene-chip';
-      btn.textContent = scene.title;
-      btn.title = `${scene.author} — ${scene.license}${scene.warning ? ' • ' + scene.warning : ''}`;
-      btn.setAttribute('aria-pressed', String(scene.id === this._currentSceneId));
-      btn.addEventListener('click', () => {
-        this.loadScene(scene.id).then(() => {
-          for (const el of this._scenePickerEl.querySelectorAll('.scene-chip'))
-            el.setAttribute('aria-pressed', String(el.textContent === scene.title));
-        });
-      });
-      this._scenePickerEl.appendChild(btn);
-    }
-  }
+  _renderScenePicker() { /* removed — catalog lives in the hamburger menu now */ }
 
   _wireInput() {
     const c = this._canvas;
