@@ -44,8 +44,11 @@ export class WubWub {
     this._hueAmount = 220;
     this._satAmount = 1.6;
     this._contrastAmount = 0.7;
-    this._squashAmount = 0.28;
-    this._beatPulseAmount = 0.45;
+    this._squashAmount = 0.6;          // bumped: was 0.28
+    this._beatPulseAmount = 0.7;       // bumped: was 0.45
+    this._jitterAmount = 0.04;         // entity-position shake on beats (m)
+    this._flashAmount = 0.7;           // clearColor flash on beats (0..1)
+    this._fovPunch = 6;                // degrees of FOV punch on beats
 
     // Features (smoothed)
     this._flux = 0;
@@ -65,15 +68,18 @@ export class WubWub {
     this._beatDot = null;
     this._bpmLabel = null;
     this._baseScale = new pc.Vec3(1, 1, 1);
+    this._basePosition = new pc.Vec3(0, 0, 0);
+    this._baseClearColor = null;
+    this._baseFov = 70;
   }
 
   enable() {
     this._installFilter();
     this._handlers.update = () => this._tick();
     this.scene.app.on('update', this._handlers.update);
-    if (this.scene.splatEntity) this._baseScale.copy(this.scene.splatEntity.getLocalScale());
+    this._captureBase();
     this.scene.addEventListener('scene-loaded', this._onSceneLoaded = () => {
-      if (this.scene.splatEntity) this._baseScale.copy(this.scene.splatEntity.getLocalScale());
+      this._captureBase();
     });
     this._handlers.kick = async () => {
       if (this._source) return;
@@ -88,9 +94,31 @@ export class WubWub {
     if (this._handlers.kick) window.removeEventListener('pointerdown', this._handlers.kick);
     this._handlers = {};
     document.documentElement.style.setProperty('--wub-filter', 'none');
-    if (this.scene.splatEntity) this.scene.splatEntity.setLocalScale(this._baseScale);
+    if (this.scene.splatEntity) {
+      this.scene.splatEntity.setLocalScale(this._baseScale);
+      this.scene.splatEntity.setLocalPosition(this._basePosition);
+    }
+    // Restore camera clearColor + fov
+    const cam = this.scene.camera?.camera;
+    if (cam) {
+      if (this._baseClearColor) cam.clearColor = this._baseClearColor;
+      cam.fov = this._baseFov;
+    }
     this._teardownSource();
     if (this._audioCtx) { this._audioCtx.close().catch(() => {}); this._audioCtx = null; }
+  }
+
+  _captureBase() {
+    const ent = this.scene.splatEntity;
+    if (ent) {
+      this._baseScale.copy(ent.getLocalScale());
+      this._basePosition.copy(ent.getLocalPosition());
+    }
+    const cam = this.scene.camera?.camera;
+    if (cam) {
+      this._baseClearColor = cam.clearColor.clone();
+      this._baseFov = cam.fov;
+    }
   }
 
   renderSettings(host) {
@@ -140,7 +168,10 @@ export class WubWub {
     host.appendChild(slider('Saturation +',     0, 4,   0.05, this._satAmount,       v => this._satAmount = v));
     host.appendChild(slider('Contrast +',       0, 2,   0.05, this._contrastAmount,  v => this._contrastAmount = v));
     host.appendChild(slider('Squash/stretch',   0, 0.8, 0.01, this._squashAmount,    v => this._squashAmount = v));
-    host.appendChild(slider('Beat pulse',       0, 1,   0.01, this._beatPulseAmount, v => this._beatPulseAmount = v));
+    host.appendChild(slider('Beat pulse',       0, 1.5, 0.01, this._beatPulseAmount, v => this._beatPulseAmount = v));
+    host.appendChild(slider('Jitter (m)',       0, 0.3, 0.005, this._jitterAmount,   v => this._jitterAmount = v));
+    host.appendChild(slider('Flash',            0, 1,   0.01, this._flashAmount,     v => this._flashAmount = v));
+    host.appendChild(slider('FOV punch (deg)',  0, 30,  0.5,  this._fovPunch,        v => this._fovPunch = v));
   }
 
   // ── Sources ──────────────────────────────────────────────────────────
@@ -315,17 +346,49 @@ export class WubWub {
       `hue-rotate(${hue.toFixed(1)}deg) saturate(${sat.toFixed(2)}) contrast(${con.toFixed(2)}) url(#wub-chromab)`,
     );
 
-    // Splat entity scale: continuous squash on bass, treble lifts Y,
-    // mid widens Z, plus a punchy beat pulse outward.
+    // Splat entity scale: clean band → axis mapping.
+    //   bass   → X widens
+    //   mid    → Z deepens
+    //   treble → Y stretches (per user request: "high notes should
+    //            stretch vertically")
+    // Beat punches all three outward, plus jitters position to shake
+    // the cloud and reveal its granular structure.
     const ent = this.scene.splatEntity;
     if (ent) {
       const s = this._baseScale;
       const sq = this._squashAmount * k;
-      const beatPulse = be * this._beatPulseAmount * k;
-      const sx = s.x * (1 + f.bass   * sq + beatPulse);
-      const sy = s.y * (1 - f.bass   * sq * 0.5 + f.treble * sq * 0.5 - beatPulse * 0.6);
-      const sz = s.z * (1 + f.mid    * sq * 0.4 + beatPulse);
+      const pulse = be * this._beatPulseAmount * k;
+      const sx = s.x * (1 + f.bass   * sq * 1.5 + pulse);
+      const sy = s.y * (1 + f.treble * sq * 2.5 + pulse);
+      const sz = s.z * (1 + f.mid    * sq * 1.2 + pulse);
       ent.setLocalScale(sx, sy, sz);
+
+      // Position jitter on beats — exposes the particle nature by
+      // motion-parallax against the dark background.
+      const j = be * this._jitterAmount * k;
+      const b = this._basePosition;
+      ent.setLocalPosition(
+        b.x + (Math.random() - 0.5) * j,
+        b.y + (Math.random() - 0.5) * j,
+        b.z + (Math.random() - 0.5) * j,
+      );
+    }
+
+    // Camera clear-color flash on beats — even when the splat is dim,
+    // the empty background flashes, so you can see the audio is being
+    // heard. Hue follows centroid.
+    const camComp = this.scene.camera?.camera;
+    if (camComp && this._baseClearColor) {
+      const flash = be * this._flashAmount * k;
+      // Map centroid 0..1 → hue 0..360
+      const h = this._centroid * 360;
+      const [fr, fg, fb] = hslToRgb(h, 0.9, 0.55);
+      const cc = camComp.clearColor;
+      cc.r = this._baseClearColor.r + (fr - this._baseClearColor.r) * flash;
+      cc.g = this._baseClearColor.g + (fg - this._baseClearColor.g) * flash;
+      cc.b = this._baseClearColor.b + (fb - this._baseClearColor.b) * flash;
+      // FOV punch on beats — gives a "thwack" zoom
+      camComp.fov = this._baseFov - be * this._fovPunch * k;
     }
 
     // UI feedback for beat detection
@@ -376,6 +439,16 @@ export class WubWub {
     this._filterG = svg.querySelector('#wub-g-off');
     this._filterB = svg.querySelector('#wub-b-off');
   }
+}
+
+function hslToRgb(h, s, l) {
+  h = ((h % 360) + 360) % 360 / 360;
+  const a = s * Math.min(l, 1 - l);
+  const f = (n) => {
+    const k = (n + h * 12) % 12;
+    return l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1));
+  };
+  return [f(0), f(8), f(4)];
 }
 
 function avg(buf, lo, hi) {
