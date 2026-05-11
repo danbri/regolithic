@@ -56,10 +56,17 @@ third_party/splats/fetch-all.sh
 ## Web viewer (`web/`)
 
 A custom-element viewer that loads any scene from `web/catalog.json` and
-runs on mobile, desktop, and WebXR (Quest 3 target).
+runs on mobile, desktop, and WebXR (Quest 3 target). Splats stream from
+the PlayCanvas CDN (`d28zzqy0iyovbz.cloudfront.net/<id>/v1/...`), which
+serves the SOG / SOG-LOD bundles cross-origin — no local fetch required
+to *view* the scenes; `third_party/splats/fetch-all.sh` is only needed
+for offline work or scene authoring.
+
+The live deploy is published from the `claude/main` branch to GitHub
+Pages (`.github/workflows/pages.yml`).
 
 ```sh
-# from repo root, after fetching splats:
+# local dev (works without fetching splats — CDN streams them):
 labs/2026-05/gaussian-splat-videogame/web/serve.sh
 # opens at http://localhost:8000/labs/2026-05/gaussian-splat-videogame/web/
 ```
