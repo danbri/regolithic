@@ -35,6 +35,23 @@ scene into a playable, navigable, lit environment in the browser.
 6. **AI** — behaviour trees over `sequence` / `selector` / `condition` /
    `action` primitives, parameterised by per-NPC personality traits.
 
+## Test scenes
+
+Vendored under [`third_party/splats/`](../../../third_party/splats/) (binaries
+fetched on demand via `fetch.sh`):
+
+| Scene | Author | Format | Use |
+|---|---|---|---|
+| [Woods](../../../third_party/splats/superspl.at-woods-3639ecf9/) (`3639ecf9`) | simonbethke | compressed PLY (~141 MB) | woodland exterior |
+| [Kitchen Table](../../../third_party/splats/superspl.at-kitchen-table-ffa72aa0/) (`ffa72aa0`) | wrender | SOG (~39 MB) | interior, reflections/transparency |
+
+Both are SuperSplat Downloadable / CC-licensed; exact CC variant per each
+scene's SOURCE.md. Materialize with:
+
+```sh
+third_party/splats/fetch-all.sh
+```
+
 ## Tests to run
 
 - [ ] Convert a SuperSplat scene and load it in a stock PlayCanvas viewer.
