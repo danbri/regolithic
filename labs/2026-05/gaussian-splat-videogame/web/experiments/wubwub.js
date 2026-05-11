@@ -1,23 +1,30 @@
 // WubWub — acoustic chromatic aberrations.
 //
-// FFT of an audio input (mic or uploaded file) drives:
-//   • a 3-channel chromatic-aberration SVG filter where R, G, B each
-//     offset in their own direction (default 120° apart) with amplitude
-//     driven by bass / mid / treble respectively,
-//   • stacked CSS filters (hue-rotate, saturate, contrast) on the splat
-//     canvas, so peaks shift the entire colour space too,
-//   • per-axis non-uniform scale on the splat entity (squash/stretch).
+// Audio features extracted per frame (via AnalyserNode FFT):
+//   • band energies         — bass / low-mid / mid / high
+//   • spectral flux         — sum of positive bin-deltas; "is the
+//                              spectrum changing?" (good for chromatic
+//                              shimmer intensity)
+//   • spectral centroid     — energy-weighted mean frequency bin;
+//                              "is the sound bright or dark?" (drives hue)
+//   • beat detection        — running mean + std of sub-bass energy;
+//                              a beat is `bass > μ + kσ` with refractory
+//                              period. Drives a 1.0 → 0 exponential
+//                              "beat-energy" envelope.
+//   • BPM estimate          — median interval between the last N beats.
 //
-// Implementation choices:
-//   • SVG filter is the cheapest way to get per-channel pixel offset in
-//     the browser without writing a postprocess shader.
-//   • Whole-entity scaling stands in for per-particle position
-//     deformation; an upgrade path is a GSplat material chunk override.
+// These drive: per-channel chromatic offsets, hue rotation, saturation,
+// contrast, and a non-uniform splat-entity scale that pulses on beats.
 
 import * as pc from 'playcanvas';
 
-const FFT_SIZE = 1024;
-const SMOOTHING = 0.55;
+const FFT_SIZE = 2048;
+const SMOOTHING = 0.4;                // more reactive than 0.6
+const HIST_LEN = 64;                  // ~1s @ 60Hz; for running stats
+const BEAT_REFRACTORY_MS = 220;       // min gap between beats (≈270 BPM ceiling)
+const BEAT_THRESHOLD_K = 1.3;         // beat = bass > mean + k * stddev
+const BEAT_MIN_LEVEL = 0.12;          // ignore quiet floor
+const BEAT_DECAY = 0.055;             // per-frame exponential decay
 const TAU = Math.PI * 2;
 
 export class WubWub {
@@ -28,16 +35,35 @@ export class WubWub {
     this._analyser = null;
     this._source = null;
     this._buf = null;
+    this._prevBuf = null;
     this._sourceLabel = 'idle';
-    this._gain = 1.0;
+
+    // Tunables
     this._intensity = 1.0;
-    this._chromAmount = 32;    // max per-channel offset in CSS px
-    this._hueAmount = 180;     // max hue rotation in deg
-    this._satAmount = 1.5;     // max +saturation (1 + this)
-    this._contrastAmount = 0.6;// max +contrast (1 + this)
-    this._squashAmount = 0.25; // max per-axis scale deviation
+    this._chromAmount = 40;
+    this._hueAmount = 220;
+    this._satAmount = 1.6;
+    this._contrastAmount = 0.7;
+    this._squashAmount = 0.28;
+    this._beatPulseAmount = 0.45;
+
+    // Features (smoothed)
+    this._flux = 0;
+    this._centroid = 0;
+    this._loud = 0;
+    this._bassHist = new Float32Array(HIST_LEN);
+    this._bassHistN = 0;
+    this._bassHistIdx = 0;
+    this._beatEnergy = 0;
+    this._lastBeatAt = 0;
+    this._beatTimes = [];
+    this._bpm = 0;
+    this._beatCount = 0;
+
     this._handlers = {};
     this._filterEl = null;
+    this._beatDot = null;
+    this._bpmLabel = null;
     this._baseScale = new pc.Vec3(1, 1, 1);
   }
 
@@ -68,43 +94,53 @@ export class WubWub {
   }
 
   renderSettings(host) {
+    // Source row
     const sourceRow = document.createElement('div');
     sourceRow.className = 'row';
     const lbl = document.createElement('span');
     lbl.textContent = `Source: ${this._sourceLabel}`;
     sourceRow.appendChild(lbl);
-
     const micBtn = document.createElement('button');
     micBtn.textContent = 'Mic';
     micBtn.addEventListener('click', () => this._useMic().then(() => lbl.textContent = `Source: ${this._sourceLabel}`));
     sourceRow.appendChild(micBtn);
-
     const fileBtn = document.createElement('button');
     fileBtn.textContent = 'File…';
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
-    // iOS Safari's Files picker greys out audio files when `accept` is
-    // just `audio/*`. Explicit extensions + wildcard fixes it.
     fileInput.accept = '.mp3,.wav,.m4a,.aac,.ogg,.flac,.opus,audio/*';
     fileInput.style.display = 'none';
     fileInput.addEventListener('change', async () => {
       const f = fileInput.files?.[0];
-      if (f) {
-        await this._useFile(f);
-        lbl.textContent = `Source: ${this._sourceLabel}`;
-      }
+      if (f) { await this._useFile(f); lbl.textContent = `Source: ${this._sourceLabel}`; }
     });
     fileBtn.addEventListener('click', () => fileInput.click());
     sourceRow.appendChild(fileBtn);
     sourceRow.appendChild(fileInput);
     host.appendChild(sourceRow);
 
-    host.appendChild(slider('Intensity',       0, 3,   0.01, this._intensity,       v => this._intensity = v));
-    host.appendChild(slider('Chrom. abb. px',  0, 150, 1,    this._chromAmount,     v => this._chromAmount = v));
-    host.appendChild(slider('Hue rotate deg',  0, 360, 1,    this._hueAmount,       v => this._hueAmount = v));
-    host.appendChild(slider('Saturation +',    0, 4,   0.05, this._satAmount,       v => this._satAmount = v));
-    host.appendChild(slider('Contrast +',      0, 2,   0.05, this._contrastAmount,  v => this._contrastAmount = v));
-    host.appendChild(slider('Squash/stretch',  0, 0.8, 0.01, this._squashAmount,    v => this._squashAmount = v));
+    // Beat indicator + BPM readout
+    const beatRow = document.createElement('div');
+    beatRow.className = 'row';
+    const dot = document.createElement('span');
+    dot.textContent = '●';
+    dot.style.cssText = 'color:#666; font-size:18px; transition:color 100ms ease-out, transform 100ms ease-out; display:inline-block;';
+    const bpm = document.createElement('span');
+    bpm.textContent = 'beat — BPM —';
+    bpm.style.flex = '1';
+    beatRow.appendChild(dot);
+    beatRow.appendChild(bpm);
+    host.appendChild(beatRow);
+    this._beatDot = dot;
+    this._bpmLabel = bpm;
+
+    host.appendChild(slider('Intensity',        0, 3,   0.01, this._intensity,       v => this._intensity = v));
+    host.appendChild(slider('Chrom. abb. px',   0, 150, 1,    this._chromAmount,     v => this._chromAmount = v));
+    host.appendChild(slider('Hue rotate deg',   0, 360, 1,    this._hueAmount,       v => this._hueAmount = v));
+    host.appendChild(slider('Saturation +',     0, 4,   0.05, this._satAmount,       v => this._satAmount = v));
+    host.appendChild(slider('Contrast +',       0, 2,   0.05, this._contrastAmount,  v => this._contrastAmount = v));
+    host.appendChild(slider('Squash/stretch',   0, 0.8, 0.01, this._squashAmount,    v => this._squashAmount = v));
+    host.appendChild(slider('Beat pulse',       0, 1,   0.01, this._beatPulseAmount, v => this._beatPulseAmount = v));
   }
 
   // ── Sources ──────────────────────────────────────────────────────────
@@ -117,12 +153,16 @@ export class WubWub {
     this._analyser.fftSize = FFT_SIZE;
     this._analyser.smoothingTimeConstant = SMOOTHING;
     this._buf = new Uint8Array(this._analyser.frequencyBinCount);
+    this._prevBuf = new Uint8Array(this._analyser.frequencyBinCount);
   }
 
   async _useMic() {
     await this._ensureAudio();
     this._teardownSource();
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+    const stream = await navigator.mediaDevices.getUserMedia({
+      audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false },
+      video: false,
+    });
     const src = this._audioCtx.createMediaStreamSource(stream);
     src.connect(this._analyser);
     this._source = { node: src, stop: () => stream.getTracks().forEach(t => t.stop()) };
@@ -152,28 +192,111 @@ export class WubWub {
     this._sourceLabel = 'idle';
   }
 
+  // ── Feature extraction ───────────────────────────────────────────────
+  _extractFeatures() {
+    const buf = this._buf;
+    const bins = buf.length;
+    const sr = this._audioCtx.sampleRate;
+    const binHz = sr / FFT_SIZE;
+
+    // Bin ranges for musically-meaningful bands (Hz → bin)
+    const binsFor = (loHz, hiHz) => [
+      Math.max(0, Math.floor(loHz / binHz)),
+      Math.min(bins, Math.ceil(hiHz / binHz)),
+    ];
+    const [sb0, sb1] = binsFor(40, 180);    // sub-bass / kick
+    const [b0, b1]   = binsFor(40, 250);    // bass
+    const [m0, m1]   = binsFor(250, 2000);  // mid
+    const [t0, t1]   = binsFor(2000, 8000); // treble
+
+    const subbass = avg(buf, sb0, sb1) / 255;
+    const bass    = avg(buf, b0, b1)   / 255;
+    const mid     = avg(buf, m0, m1)   / 255;
+    const treble  = avg(buf, t0, t1)   / 255;
+    const loud    = avg(buf, 0, bins)  / 255;
+    this._loud = this._loud * 0.6 + loud * 0.4;
+
+    // Spectral flux: Σ max(0, buf[i] - prev[i]) / bins, normalised 0..1
+    let flux = 0;
+    for (let i = 0; i < bins; i++) {
+      const d = buf[i] - this._prevBuf[i];
+      if (d > 0) flux += d;
+    }
+    flux = (flux / bins) / 255;
+    this._flux = this._flux * 0.65 + flux * 0.35;
+    this._prevBuf.set(buf);
+
+    // Spectral centroid: Σ i·buf[i] / Σ buf[i], normalised 0..1
+    let total = 0, weighted = 0;
+    for (let i = 0; i < bins; i++) {
+      total += buf[i];
+      weighted += i * buf[i];
+    }
+    const centroid = total > 0 ? (weighted / total) / bins : 0;
+    this._centroid = this._centroid * 0.5 + centroid * 0.5;
+
+    // Beat detection on sub-bass: rolling mean & stddev over HIST_LEN
+    // frames; beat = subbass > μ + k·σ, debounced.
+    this._bassHist[this._bassHistIdx] = subbass;
+    this._bassHistIdx = (this._bassHistIdx + 1) % HIST_LEN;
+    if (this._bassHistN < HIST_LEN) this._bassHistN++;
+
+    let mean = 0;
+    for (let i = 0; i < this._bassHistN; i++) mean += this._bassHist[i];
+    mean /= this._bassHistN;
+    let varSum = 0;
+    for (let i = 0; i < this._bassHistN; i++) {
+      const d = this._bassHist[i] - mean;
+      varSum += d * d;
+    }
+    const std = Math.sqrt(varSum / this._bassHistN);
+
+    const now = performance.now();
+    let beatFired = false;
+    if (
+      this._bassHistN > 20 &&
+      subbass > BEAT_MIN_LEVEL &&
+      subbass > mean + BEAT_THRESHOLD_K * std &&
+      now - this._lastBeatAt > BEAT_REFRACTORY_MS
+    ) {
+      this._lastBeatAt = now;
+      this._beatEnergy = 1.0;
+      this._beatCount++;
+      this._beatTimes.push(now);
+      if (this._beatTimes.length > 8) this._beatTimes.shift();
+      // BPM from median inter-beat interval
+      if (this._beatTimes.length >= 4) {
+        const dt = [];
+        for (let i = 1; i < this._beatTimes.length; i++) dt.push(this._beatTimes[i] - this._beatTimes[i - 1]);
+        dt.sort((a, b) => a - b);
+        const med = dt[Math.floor(dt.length / 2)];
+        if (med > 0) this._bpm = 60000 / med;
+      }
+      beatFired = true;
+    }
+    this._beatEnergy = Math.max(0, this._beatEnergy - BEAT_DECAY);
+    // Drop BPM if no beats for >3s
+    if (now - this._lastBeatAt > 3000) { this._bpm = 0; this._beatTimes.length = 0; }
+
+    return { subbass, bass, mid, treble, beatFired };
+  }
+
   // ── Per-frame ────────────────────────────────────────────────────────
   _tick() {
     if (!this._analyser || !this._buf) return;
     this._analyser.getByteFrequencyData(this._buf);
-
-    const bins = this._buf.length;
-    const bass   = avg(this._buf, 0,                           Math.floor(bins * 0.05)) / 255;
-    const mid    = avg(this._buf, Math.floor(bins * 0.05),     Math.floor(bins * 0.3))  / 255;
-    const treble = avg(this._buf, Math.floor(bins * 0.3),      bins) / 255;
-
+    const f = this._extractFeatures();
     const k = this._intensity;
     const A = this._chromAmount * k;
+    const be = this._beatEnergy;
 
-    // Per-channel offsets, each in its own static direction (120° apart),
-    // with amplitude driven by that channel's band.
-    const ampR = bass   * A;
-    const ampG = mid    * A;
-    const ampB = treble * A;
-    // 0°, 120°, 240° relative to +X. Negate Y for screen-space (down positive).
-    const aR = 0;
-    const aG = TAU / 3;
-    const aB = 2 * TAU / 3;
+    // Per-channel chromatic offset, in directions 120° apart. Amplitude
+    // mixes the channel's natural band with shared signals so even quiet
+    // mids/treble pick up motion from flux + beats.
+    const ampR = (f.bass   + be * 0.7) * A;
+    const ampG = (f.mid    + this._flux * 1.5) * A * 0.8;
+    const ampB = (f.treble + be * 0.4 + this._flux * 0.6) * A;
+    const aR = 0, aG = TAU / 3, aB = 2 * TAU / 3;
     if (this._filterR && this._filterG && this._filterB) {
       this._filterR.setAttribute('dx', (ampR * Math.cos(aR)).toFixed(2));
       this._filterR.setAttribute('dy', (ampR * Math.sin(aR)).toFixed(2));
@@ -183,23 +306,37 @@ export class WubWub {
       this._filterB.setAttribute('dy', (ampB * Math.sin(aB)).toFixed(2));
     }
 
-    // Stack CSS filters on top of the SVG channel offset.
-    const hue = mid    * this._hueAmount      * k;
-    const sat = 1 + bass * this._satAmount    * k;
-    const con = 1 + treble * this._contrastAmount * k;
+    // Hue from centroid (brightness of sound), with a kick on every beat.
+    const hue = (this._centroid * this._hueAmount + be * 60) * k;
+    const sat = 1 + (this._loud + be * 0.4) * this._satAmount    * k;
+    const con = 1 + (f.treble + be * 0.3)   * this._contrastAmount * k;
     document.documentElement.style.setProperty(
       '--wub-filter',
       `hue-rotate(${hue.toFixed(1)}deg) saturate(${sat.toFixed(2)}) contrast(${con.toFixed(2)}) url(#wub-chromab)`,
     );
 
+    // Splat entity scale: continuous squash on bass, treble lifts Y,
+    // mid widens Z, plus a punchy beat pulse outward.
     const ent = this.scene.splatEntity;
     if (ent) {
       const s = this._baseScale;
       const sq = this._squashAmount * k;
-      const sx = s.x * (1 + bass   * sq);
-      const sy = s.y * (1 - bass   * sq * 0.6 + treble * sq * 0.6);
-      const sz = s.z * (1 + mid    * sq * 0.4);
+      const beatPulse = be * this._beatPulseAmount * k;
+      const sx = s.x * (1 + f.bass   * sq + beatPulse);
+      const sy = s.y * (1 - f.bass   * sq * 0.5 + f.treble * sq * 0.5 - beatPulse * 0.6);
+      const sz = s.z * (1 + f.mid    * sq * 0.4 + beatPulse);
       ent.setLocalScale(sx, sy, sz);
+    }
+
+    // UI feedback for beat detection
+    if (this._beatDot) {
+      const heat = Math.min(1, be + (f.beatFired ? 0.5 : 0));
+      this._beatDot.style.color = heat > 0.05 ? `rgb(${77 + heat * 178}, ${166 - heat * 90}, ${255 - heat * 200})` : '#666';
+      this._beatDot.style.transform = `scale(${1 + heat * 0.6})`;
+    }
+    if (this._bpmLabel) {
+      const bpmTxt = this._bpm > 0 ? Math.round(this._bpm) : '—';
+      this._bpmLabel.textContent = `beats ${this._beatCount}  BPM ${bpmTxt}`;
     }
   }
 
@@ -210,10 +347,6 @@ export class WubWub {
     const svg = document.createElementNS(NS, 'svg');
     svg.setAttribute('style', 'position:absolute;width:0;height:0;pointer-events:none');
     svg.setAttribute('aria-hidden', 'true');
-    // Per-channel split via feColorMatrix preserving alpha, each channel
-    // independently offset, then re-composited with screen (additive on
-    // disjoint channels). The wide filter region accommodates large
-    // chromatic offsets without clipping at the canvas edge.
     svg.innerHTML = `
       <filter id="wub-chromab" x="-25%" y="-25%" width="150%" height="150%" color-interpolation-filters="sRGB">
         <feColorMatrix type="matrix" values="
