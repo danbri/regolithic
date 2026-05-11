@@ -81,7 +81,10 @@ export class WubWub {
     fileBtn.textContent = 'File…';
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
-    fileInput.accept = 'audio/*';
+    // iOS Safari's Files picker greys out audio files when `accept` is
+    // just `audio/*`. Combining explicit extensions with the wildcard
+    // restores normal behaviour without breaking desktop browsers.
+    fileInput.accept = '.mp3,.wav,.m4a,.aac,.ogg,.flac,.opus,audio/*';
     fileInput.style.display = 'none';
     fileInput.addEventListener('change', async () => {
       const f = fileInput.files?.[0];
