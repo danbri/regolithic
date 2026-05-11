@@ -113,11 +113,23 @@ class SplatScene extends HTMLElement {
 
     const url = new URL(scene.url, this._catalogUrl).href;
     const tryLoad = async (u) => {
+      console.log(`[splat-scene] tryLoad ${scene.id} ← ${u}`);
       const asset = new pc.Asset(scene.id, 'gsplat', { url: u });
       this._app.assets.add(asset);
+      const t0 = performance.now();
+      let timer;
       await new Promise((res, rej) => {
-        asset.on('error', rej);
-        asset.ready(() => res(asset));
+        timer = setTimeout(() => {
+          rej(new Error(`load timeout after 30s (loaded=${asset.loaded}, loading=${asset.loading})`));
+        }, 30000);
+        asset.on('error',    (err) => { console.error(`[splat-scene] asset error ${scene.id}:`, err); rej(err); });
+        asset.on('progress', (a, b) => console.log(`[splat-scene] asset progress ${scene.id}: ${a}/${b}`));
+        asset.on('load',     () => console.log(`[splat-scene] asset 'load' fired ${scene.id} after ${(performance.now()-t0).toFixed(0)}ms`));
+        asset.ready(() => {
+          clearTimeout(timer);
+          console.log(`[splat-scene] asset ready ${scene.id} after ${(performance.now()-t0).toFixed(0)}ms`);
+          res(asset);
+        });
         this._app.assets.load(asset);
       });
       return asset;
