@@ -36,12 +36,35 @@ function attach(scene) {
 
   const renderSec = section('Render');
   panel.appendChild(renderSec);
-  renderSec.appendChild(slider('Move speed', 0.2, 8, 0.1, scene._inputState.moveSpeed, v => {
-    scene._inputState.moveSpeed = v;
+  renderSec.appendChild(slider('Move speed', 0.2, 8, 0.1, scene._input.moveSpeed, v => {
+    scene._input.moveSpeed = v;
   }));
   renderSec.appendChild(slider('FOV', 40, 110, 1, scene.camera?.camera?.fov ?? 70, v => {
     if (scene.camera?.camera) scene.camera.camera.fov = v;
   }));
+
+  // Mode toggle (orbit / fly)
+  const modeRow = document.createElement('div');
+  modeRow.className = 'row';
+  const modeLbl = document.createElement('span');
+  modeLbl.textContent = `Mode: ${scene.mode}`;
+  modeRow.appendChild(modeLbl);
+  const orbitBtn = document.createElement('button');
+  orbitBtn.textContent = 'Orbit';
+  const flyBtn = document.createElement('button');
+  flyBtn.textContent = 'Fly';
+  const updateModeBtns = () => {
+    modeLbl.textContent = `Mode: ${scene.mode}`;
+    orbitBtn.style.opacity = scene.mode === 'orbit' ? '1' : '0.5';
+    flyBtn.style.opacity = scene.mode === 'fly' ? '1' : '0.5';
+  };
+  orbitBtn.addEventListener('click', () => { scene.setMode('orbit'); updateModeBtns(); });
+  flyBtn.addEventListener('click', () => { scene.setMode('fly'); updateModeBtns(); });
+  modeRow.appendChild(orbitBtn);
+  modeRow.appendChild(flyBtn);
+  renderSec.appendChild(modeRow);
+  updateModeBtns();
+  scene.addEventListener('mode-changed', updateModeBtns);
 
   const xpSec = section('Experiments');
   panel.appendChild(xpSec);
