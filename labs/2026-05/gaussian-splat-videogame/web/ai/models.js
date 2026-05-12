@@ -17,6 +17,7 @@
 //     menu surfaces this honestly.
 
 import { getLanguageModelAPI, checkAvailability, createSession, promptMultimodal } from './prompt-api.js';
+import { TransformersJSModel } from './transformers-js.js';
 
 const DESCRIBE_SYSTEM =
   'You are a concise art and 3D-scene critic. Given a Gaussian-splat scene, write a vivid 1–3 sentence description of subject, mood, and palette. Do not preface with phrases like "the image shows" or "based on the metadata".';
@@ -166,6 +167,59 @@ export function isIOS() {
 export function buildRegistry() {
   return [
     new ChromeBuiltinModel(),
+    // Multimodal-via-Transformers.js group — true image input.
+    //
+    // PaliGemma 2 — the model the user asked for. Pre-trained ("pt")
+    // variant from onnx-community is the ONLY ungated PaliGemma ONNX
+    // build available on HuggingFace right now; the instruction-tuned
+    // "mix" variants and all PaliGemma 1 builds are behind Google's
+    // license-acceptance gate. The q4f16 weight set totals ~2.9 GB
+    // (decoder ~1.5 GB + embed table ~1.2 GB + vision encoder ~240 MB),
+    // which won't fit iOS Safari's per-tab cap — marked desktop-only.
+    new TransformersJSModel({
+      id: 'paligemma2-3b',
+      label: 'PaliGemma 2 3B (multimodal, desktop)',
+      provider: 'Google · onnx-community',
+      hfRepo: 'onnx-community/paligemma2-3b-pt-224',
+      task: 'image-text-to-text',
+      prompt: 'caption en',
+      dtype: 'q4f16',
+      sizeHint: '~2.9 GB (q4f16)',
+      downloadGB: 2.9,
+      iosSafe: false,
+      notes: 'True multimodal — sees the rendered image. Pre-trained PaliGemma 2 (only ungated PaliGemma ONNX on HF). Desktop only: ~2.9 GB total weight set exceeds iOS Safari\'s ~1.5 GB per-tab cap regardless of quantisation, because the embed table alone is ~1.2 GB.',
+    }),
+    // Florence-2 base — Microsoft, MIT-licensed, ungated, ~270 MB.
+    // Designed for in-browser inference; iOS-viable.
+    new TransformersJSModel({
+      id: 'florence2-base',
+      label: 'Florence-2 Base (multimodal, iOS-safe)',
+      provider: 'Microsoft (MIT) · onnx-community',
+      hfRepo: 'onnx-community/Florence-2-base-ft',
+      task: 'image-text-to-text',
+      prompt: '<MORE_DETAILED_CAPTION>',
+      dtype: 'q4',
+      sizeHint: '~270 MB (q4)',
+      downloadGB: 0.27,
+      iosSafe: true,
+      notes: 'True multimodal — sees the rendered image. MIT-licensed, no gating. The iOS-safe vision model: small enough to comfortably fit in WebKit\'s tab cap. Default on iOS.',
+      postProcess: (t) => t.replace(/<[A-Z_]+>/g, '').trim(),
+    }),
+    // Florence-2 large — same family, richer captions, ~770 MB.
+    new TransformersJSModel({
+      id: 'florence2-large',
+      label: 'Florence-2 Large (multimodal)',
+      provider: 'Microsoft (MIT) · onnx-community',
+      hfRepo: 'onnx-community/Florence-2-large-ft',
+      task: 'image-text-to-text',
+      prompt: '<MORE_DETAILED_CAPTION>',
+      dtype: 'q4',
+      sizeHint: '~770 MB (q4)',
+      downloadGB: 0.77,
+      iosSafe: true,
+      notes: 'Larger Florence-2 — richer descriptions. Should still fit iOS but cuts it closer than the Base variant.',
+      postProcess: (t) => t.replace(/<[A-Z_]+>/g, '').trim(),
+    }),
     // Smallest first — iOS-safe by default. The big variants are at the
     // bottom and flagged with mobileWarning.
     new WebLLMModel({
@@ -176,7 +230,7 @@ export function buildRegistry() {
       sizeHint: '~270 MB',
       downloadGB: 0.27,
       iosSafe: true,
-      notes: 'Tiny safety-net model. Fast first download, fits anywhere, prose is basic.',
+      notes: 'Tiny safety-net model. Fast first download, fits anywhere, prose is basic. Text-only.',
     }),
     new WebLLMModel({
       id: 'llama-3.2-1b',
@@ -186,17 +240,17 @@ export function buildRegistry() {
       sizeHint: '~750 MB',
       downloadGB: 0.75,
       iosSafe: true,
-      notes: 'Modern small model; the safest "real" option on iOS / older devices.',
+      notes: 'Modern small model; safe text-only fallback on iOS / older devices.',
     }),
     new WebLLMModel({
       id: 'gemma-2b',
-      label: 'Gemma 2b Instruct (mobile-safe)',
+      label: 'Gemma 2b Instruct (text)',
       provider: 'Google DeepMind (open weights)',
       modelId: 'gemma-2b-it-q4f16_1-MLC',
       sizeHint: '~1.3 GB',
       downloadGB: 1.3,
       iosSafe: true,
-      notes: 'Smallest Gemma in WebLLM (Gemma 1 2B). Gemma 3 / 4 aren\'t yet packaged for WebLLM. Tight on iPhones with ≤8 GB RAM — Llama 1B is the safer fallback.',
+      notes: 'Smallest *Gemma* in WebLLM (Gemma 1 2B). Text-only. Gemma 3/4 aren\'t yet packaged for WebLLM.',
     }),
     new WebLLMModel({
       id: 'gemma-2-2b',
@@ -206,8 +260,8 @@ export function buildRegistry() {
       sizeHint: '~1.5 GB',
       downloadGB: 1.5,
       iosSafe: false,
-      mobileWarning: 'Crashes iOS Safari mid-load on most iPhones — desktop or Android only.',
-      notes: 'Latest Gemma in WebLLM. Better prose than the 2b "mobile-safe" entry above, at the cost of memory headroom.',
+      mobileWarning: 'Crashes iOS Safari mid-load on most iPhones — desktop only.',
+      notes: 'Latest Gemma in WebLLM. Text-only. Better prose than Gemma 1, at the cost of memory headroom.',
     }),
     new WebLLMModel({
       id: 'llama-3.2-3b',
@@ -235,10 +289,13 @@ export function buildRegistry() {
 }
 
 // Pick the best default model for the current platform.
-// On iOS: smallest Gemma; else: Gemma 2 2B (highest quality Gemma in WebLLM).
+//   • iOS / WebKit: Florence-2 base — only ungated iOS-viable multimodal
+//     (PaliGemma's weights exceed Safari's per-tab cap regardless of dtype).
+//   • Chrome/Edge with Nano: stays on Nano (no download).
+//   • Other desktop: PaliGemma 2 — the user-requested model; fits desktop RAM.
 export function pickDefaultModelId(models) {
   if (isIOS()) {
-    return models.find(m => m.id === 'gemma-2b')?.id ?? models[0].id;
+    return models.find(m => m.id === 'florence2-base')?.id ?? models.find(m => m.id === 'gemma-2b')?.id ?? models[1].id;
   }
-  return models.find(m => m.id === 'gemma-2-2b')?.id ?? models[0].id;
+  return models.find(m => m.id === 'paligemma2-3b')?.id ?? models[0].id;
 }
