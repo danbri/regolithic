@@ -14,6 +14,8 @@
 // page once it emits 'ready'.
 
 import { buildRegistry } from '../ai/models.js';
+import { SplatWorld } from '../splatworld/world.js';
+import { PhoneCane } from '../splatworld/phone-cane.js';
 
 function attach(scene) {
   const root = scene;
@@ -80,6 +82,11 @@ function attach(scene) {
   scene.addEventListener('mode-changed', () => { modeSel.value = scene.mode; });
   modeRow.appendChild(modeSel);
   renderSec.body.appendChild(modeRow);
+
+  // ── SplatWorld ────────────────────────────────────────────────────────
+  const swSec = makeSection('SplatWorld', false);
+  panel.appendChild(swSec.el);
+  buildSplatWorldSection(swSec.body, scene);
 
   // ── AI ────────────────────────────────────────────────────────────────
   const aiSec = makeSection('AI', false);
@@ -206,6 +213,124 @@ function buildCatalog(host, scene) {
       el.setAttribute('aria-pressed', String(el.dataset.sceneId === id));
     }
   });
+}
+
+// ── SplatWorld section ──────────────────────────────────────────────────
+function buildSplatWorldSection(host, scene) {
+  // World is a singleton attached to the scene so other modules can use it.
+  const world = scene._splatworld ?? (scene._splatworld = new SplatWorld(scene));
+  let phoneCane = scene._phoneCane ?? null;
+
+  const intro = document.createElement('div');
+  intro.className = 'credit';
+  intro.innerHTML = `
+    Approximate world model derived from the current splat. Mesh
+    detection is <strong>off until you enable it</strong>; on enable, a
+    handful of typed primitives (ground / wall / obstacle / pip) are
+    synthesised from the splat's AABB. Real mesh extraction
+    (<code>splat-transform&nbsp;-K</code>) is the upgrade path.
+  `;
+  host.appendChild(intro);
+
+  const status = document.createElement('div');
+  status.className = 'credit';
+  host.appendChild(status);
+
+  const detectBtn = document.createElement('button');
+  detectBtn.style.width = '100%';
+  detectBtn.style.padding = '8px';
+  detectBtn.addEventListener('click', () => {
+    try { world.detect(); }
+    catch (e) { status.innerHTML = `<span class="warn">${esc(e.message)}</span>`; }
+  });
+  host.appendChild(detectBtn);
+
+  const helpersRow = row();
+  const helpersCb = document.createElement('input');
+  helpersCb.type = 'checkbox';
+  const helpersLbl = document.createElement('label');
+  helpersLbl.className = 'experiment-toggle';
+  helpersLbl.appendChild(helpersCb);
+  const helpersSpan = document.createElement('span');
+  helpersSpan.textContent = 'Show helper boxes (debug)';
+  helpersLbl.appendChild(helpersSpan);
+  helpersCb.addEventListener('change', () => world.setHelpersVisible(helpersCb.checked));
+  host.appendChild(helpersLbl);
+
+  // Phone-sensor cane sub-details
+  const caneDet = document.createElement('details');
+  caneDet.className = 'tree-group tree-sub';
+  const caneSum = document.createElement('summary');
+  caneSum.textContent = 'Phone-sensor cane';
+  caneDet.appendChild(caneSum);
+  const caneBody = document.createElement('div');
+  caneBody.className = 'menu-body';
+  caneBody.innerHTML = `
+    <div class="credit">
+      <span class="meta">Tilt your phone to swing a virtual cane through the scene.
+      Detected mesh primitives drive the audio palette
+      (pip / thunk / screech) and a continuous low rumble swells as the
+      tip approaches any surface.</span>
+    </div>
+    <div class="ai-model-status credit">cane: off</div>
+    <div class="ai-model-action"></div>
+  `;
+  caneDet.appendChild(caneBody);
+  host.appendChild(caneDet);
+
+  const caneStatus = caneBody.querySelector('.ai-model-status');
+  const caneAction = caneBody.querySelector('.ai-model-action');
+
+  function paintCaneButton() {
+    const running = phoneCane?.running;
+    caneStatus.textContent = `cane: ${running ? 'on' : 'off'}`;
+    caneAction.innerHTML = '';
+    if (!world.enabled) {
+      caneAction.innerHTML = `<span class="credit"><span class="meta">Enable mesh detection above first.</span></span>`;
+      return;
+    }
+    const btn = document.createElement('button');
+    btn.textContent = running ? 'Stop phone cane' : 'Start phone cane';
+    btn.addEventListener('click', async () => {
+      try {
+        if (running) {
+          phoneCane.stop();
+        } else {
+          if (!phoneCane) phoneCane = scene._phoneCane = new PhoneCane(scene, world);
+          await phoneCane.start();
+        }
+      } catch (e) {
+        caneStatus.innerHTML = `<span class="warn">${esc(e.message)}</span>`;
+      } finally {
+        paintCaneButton();
+      }
+    });
+    caneAction.appendChild(btn);
+    if (typeof DeviceOrientationEvent?.requestPermission === 'function') {
+      const note = document.createElement('div');
+      note.className = 'credit';
+      note.innerHTML = `<span class="meta">iOS: tapping Start prompts for motion permission.</span>`;
+      caneAction.appendChild(note);
+    }
+  }
+
+  function paint() {
+    if (!world.enabled) {
+      status.innerHTML = `<span class="meta">Mesh detection: <strong>off</strong></span>`;
+      detectBtn.textContent = '✦ Enable mesh detection';
+    } else {
+      const counts = world.primitives.reduce((acc, p) => {
+        acc[p.type] = (acc[p.type] || 0) + 1; return acc;
+      }, {});
+      const summary = Object.entries(counts).map(([k, v]) => `${v} ${k}`).join(' · ');
+      status.innerHTML = `<span class="meta">Mesh detection: <strong>on</strong> — ${summary || 'no primitives'}</span>`;
+      detectBtn.textContent = '↻ Re-detect for current scene';
+    }
+    paintCaneButton();
+  }
+
+  world.addEventListener('changed', paint);
+  paint();
 }
 
 // ── AI section ──────────────────────────────────────────────────────────

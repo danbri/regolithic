@@ -60,7 +60,7 @@ splat-scene canvas {
 #status.hidden { display: none; }
 
 .menu-btn {
-  top: 12px; right: 12px;
+  top: 12px; left: 12px;
   width: 44px; height: 44px;
   border-radius: 50%;
   background: rgba(18, 18, 22, 0.7);
@@ -75,7 +75,7 @@ splat-scene canvas {
 }
 
 .menu-panel {
-  top: 64px; right: 12px;
+  top: 64px; left: 12px;
   width: min(340px, calc(100vw - 24px));
   /* 100dvh follows iOS Safari's URL-bar collapse; safe-area-inset reserves
      space for the home indicator so the last menu item is reachable. */
