@@ -20,11 +20,15 @@ export class SplatWorld extends EventTarget {
     this._helperEntities = [];
     this._listenerKey = null;
 
-    // Re-detect on scene swap if previously enabled.
+    // Auto-detect on every scene swap. SplatWorld's bar to entry is
+    // very low — synthesise a handful of primitives from the AABB —
+    // and downstream features (Tour, Drone, Sonar) all assume it's
+    // populated. The menu still exposes a Re-detect button + a
+    // disable() for users who want to opt out.
     scene.addEventListener('scene-loaded', () => {
       this._removeHelpers();
       this.primitives = [];
-      if (this.enabled) this.detect();
+      this.detect();
       this.dispatchEvent(new CustomEvent('changed'));
     });
   }

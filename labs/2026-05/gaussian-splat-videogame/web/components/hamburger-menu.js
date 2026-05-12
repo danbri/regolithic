@@ -18,6 +18,7 @@ import { SplatWorld } from '../splatworld/world.js';
 import { PhoneCane } from '../splatworld/phone-cane.js';
 import { Tour } from '../splatworld/tour.js';
 import { Drone } from '../splatworld/drone.js';
+import { Sonar } from '../splatworld/sonar.js';
 
 function attach(scene) {
   const root = scene;
@@ -268,6 +269,29 @@ function buildSplatWorldSection(host, scene) {
   helpersLbl.appendChild(helpersSpan);
   helpersCb.addEventListener('change', () => world.setHelpersVisible(helpersCb.checked));
   host.appendChild(helpersLbl);
+
+  // Sonar toggle — proximity ping audio, no UI beyond the toggle.
+  const sonar = scene._sonar ?? (scene._sonar = new Sonar(scene, world));
+  const sonarRow = document.createElement('label');
+  sonarRow.className = 'experiment-toggle';
+  const sonarCb = document.createElement('input');
+  sonarCb.type = 'checkbox';
+  sonarCb.addEventListener('change', async () => {
+    try {
+      if (sonarCb.checked) await sonar.start();
+      else sonar.stop();
+    } catch (e) {
+      sonarCb.checked = false;
+      status.innerHTML = `<span class="warn">${esc(e.message)}</span>`;
+    }
+  });
+  sonarRow.appendChild(sonarCb);
+  const sonarSpan = document.createElement('span');
+  sonarSpan.innerHTML = 'Sonar pings <span class="meta">— forward-raycast → ping frequency + rate scale with proximity</span>';
+  sonarRow.appendChild(sonarSpan);
+  host.appendChild(sonarRow);
+  host.appendChild(slider('Sonar range (m)',   1,  20, 0.5, sonar.maxRange, v => sonar.maxRange = v));
+  host.appendChild(slider('Sonar volume',      0,  1,  0.05, sonar.volume,  v => sonar.volume = v));
 
   // Phone-sensor cane sub-details
   const caneDet = document.createElement('details');
@@ -702,6 +726,23 @@ function buildAISection(host, scene) {
     if (autoCb.checked) startAuto();
     else stopAuto();
   });
+
+  // Text-to-speech toggle. Zero config: every modern browser ships
+  // speechSynthesis. When ON, every settled response is spoken aloud.
+  // Banner has its own 🔊 button for on-demand speak too.
+  const ttsRow = row();
+  const ttsLbl = document.createElement('label');
+  ttsLbl.className = 'experiment-toggle';
+  const ttsCb = document.createElement('input');
+  ttsCb.type = 'checkbox';
+  ttsCb.addEventListener('change', () => scene.setAutoSpeak?.(ttsCb.checked));
+  ttsLbl.appendChild(ttsCb);
+  const ttsSpan = document.createElement('span');
+  ttsSpan.innerHTML = '🔊 Speak responses aloud <span class="meta">— Web Speech API, zero install</span>';
+  ttsLbl.appendChild(ttsSpan);
+  ttsRow.appendChild(ttsLbl);
+  actions.appendChild(ttsRow);
+
   // Cancel auto on scene swap or active-model change — running
   // inference during a load is wasted work and the banner would lie.
   scene.addEventListener('scene-loading', () => { if (autoCb.checked) { autoCb.checked = false; stopAuto(); } });

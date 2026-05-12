@@ -16,7 +16,7 @@
 //   navigator.serviceWorker.controller.postMessage('clearAll')
 // (handled below).
 
-const CACHE_VERSION = 'v3';
+const CACHE_VERSION = 'v4';
 const SHELL_CACHE   = `splat-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `splat-runtime-${CACHE_VERSION}`;
 
@@ -35,6 +35,7 @@ const SHELL_FILES = [
   './splatworld/phone-cane.js',
   './splatworld/tour.js',
   './splatworld/drone.js',
+  './splatworld/sonar.js',
   './ai/prompt-api.js',
   './ai/models.js',
   './ai/transformers-js.js',

@@ -226,15 +226,41 @@ class SplatScene extends HTMLElement {
   // ── Bottom-of-screen response banner ──────────────────────────────────
   showResponse(text, { badge = 'AI', ttlMs = 0 } = {}) {
     if (!this._aiResponseEl) this._buildResponseEl();
+    this._aiResponseText = text;
     this._aiResponseBody.textContent = text;
     this._aiResponseBadge.textContent = badge;
     this._aiResponseEl.classList.remove('hidden');
     clearTimeout(this._aiResponseTimer);
     if (ttlMs > 0) this._aiResponseTimer = setTimeout(() => this.clearResponse(), ttlMs);
+    // Auto-speak hook
+    if (this._aiAutoSpeak) this.speakResponse();
   }
   clearResponse() {
     if (this._aiResponseEl) this._aiResponseEl.classList.add('hidden');
     clearTimeout(this._aiResponseTimer);
+  }
+  setAutoSpeak(on) { this._aiAutoSpeak = !!on; }
+  // Read the current banner text aloud via the browser's built-in
+  // Web Speech API. Zero-config — every modern browser including
+  // iOS Safari ships speechSynthesis.
+  speakResponse() {
+    if (typeof speechSynthesis === 'undefined') return;
+    const text = this._aiResponseText;
+    if (!text) return;
+    const cleaned = String(text)
+      .replace(/\s*\(\d+%\)/g, '')         // strip "(87%)"
+      .replace(/\s*·\s*/g, ', ')           // bullet → comma
+      .replace(/^\s*Detected:\s*/i, 'Detected: ')
+      .trim();
+    if (!cleaned) return;
+    try {
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(cleaned);
+      u.rate = 1.05;
+      u.pitch = 1;
+      u.volume = 1;
+      speechSynthesis.speak(u);
+    } catch (e) { console.warn('[tts] speak failed', e); }
   }
   _buildResponseEl() {
     const el = document.createElement('div');
@@ -246,6 +272,11 @@ class SplatScene extends HTMLElement {
     badge.textContent = 'AI';
     const body = document.createElement('div');
     body.className = 'ai-body';
+    const speak = document.createElement('button');
+    speak.className = 'ai-close';
+    speak.textContent = '🔊';
+    speak.setAttribute('aria-label', 'Read aloud');
+    speak.addEventListener('click', () => this.speakResponse());
     const close = document.createElement('button');
     close.className = 'ai-close';
     close.textContent = '×';
@@ -253,6 +284,7 @@ class SplatScene extends HTMLElement {
     close.addEventListener('click', () => this.clearResponse());
     el.appendChild(badge);
     el.appendChild(body);
+    el.appendChild(speak);
     el.appendChild(close);
     this.appendChild(el);
     this._aiResponseEl = el;
