@@ -13,7 +13,7 @@
 // Side-effect module: auto-attaches to the first <splat-scene> on the
 // page once it emits 'ready'.
 
-import { buildRegistry } from '../ai/models.js';
+import { buildRegistry, pickDefaultModelId, isIOS } from '../ai/models.js';
 import { SplatWorld } from '../splatworld/world.js';
 import { PhoneCane } from '../splatworld/phone-cane.js';
 
@@ -40,12 +40,12 @@ function attach(scene) {
   });
 
   // ── Catalog ───────────────────────────────────────────────────────────
-  const catalogSec = makeSection('Catalog', true);
+  const catalogSec = makeSection('Catalog', true, 'catalog');
   panel.appendChild(catalogSec.el);
   buildCatalog(catalogSec.body, scene);
 
   // ── Scene credit ──────────────────────────────────────────────────────
-  const sceneSec = makeSection('Scene', true);
+  const sceneSec = makeSection('Scene', true, 'scene');
   panel.appendChild(sceneSec.el);
   const updateCredit = (s) => {
     sceneSec.body.innerHTML = s
@@ -61,7 +61,7 @@ function attach(scene) {
   scene.addEventListener('scene-loaded',  e => updateCredit(e.detail.scene));
 
   // ── Render ────────────────────────────────────────────────────────────
-  const renderSec = makeSection('Render', true);
+  const renderSec = makeSection('Render', true, 'render');
   panel.appendChild(renderSec.el);
   renderSec.body.appendChild(slider('Move speed', 0.2, 8, 0.1, scene._input.moveSpeed, v => scene._input.moveSpeed = v));
   renderSec.body.appendChild(slider('FOV', 40, 110, 1, scene.camera?.camera?.fov ?? 70, v => {
@@ -84,17 +84,17 @@ function attach(scene) {
   renderSec.body.appendChild(modeRow);
 
   // ── SplatWorld ────────────────────────────────────────────────────────
-  const swSec = makeSection('SplatWorld', false);
+  const swSec = makeSection('SplatWorld', false, 'splatworld');
   panel.appendChild(swSec.el);
   buildSplatWorldSection(swSec.body, scene);
 
   // ── AI ────────────────────────────────────────────────────────────────
-  const aiSec = makeSection('AI', false);
+  const aiSec = makeSection('AI', false, 'ai');
   panel.appendChild(aiSec.el);
   buildAISection(aiSec.body, scene);
 
   // ── Experiments ───────────────────────────────────────────────────────
-  const xpSec = makeSection('Experiments', true);
+  const xpSec = makeSection('Experiments', true, 'experiments');
   panel.appendChild(xpSec.el);
   xpSec.body.appendChild(emptyHint('(none registered yet)'));
 
@@ -336,9 +336,12 @@ function buildSplatWorldSection(host, scene) {
 // ── AI section ──────────────────────────────────────────────────────────
 function buildAISection(host, scene) {
   const models = buildRegistry();
-  let activeId = models[0].id;
   const kind = browserKind();
   const webGPU = (typeof navigator !== 'undefined') && ('gpu' in navigator);
+  // Platform-aware default: prefer Nano on Chrome (no download); on iOS
+  // pick the smallest Gemma (Gemma 1 2b q4f16) to dodge the 1.5 GB
+  // per-tab cap that crashes Gemma 2 2B mid-load.
+  let activeId = (kind === 'chrome' || kind === 'edge') ? 'chrome-builtin' : pickDefaultModelId(models);
 
   // ── Browser status banner ─────────────────────────────────────────────
   const banner = document.createElement('div');
@@ -435,6 +438,8 @@ function buildAISection(host, scene) {
     const sum = document.createElement('summary');
     sum.textContent = m.label;
     det.appendChild(sum);
+    const iOS = isIOS();
+    const warn = (m.mobileWarning && iOS) ? `<div class="warn-row">⚠ ${esc(m.mobileWarning)}</div>` : '';
     const body = document.createElement('div');
     body.className = 'menu-body ai-model-body';
     body.innerHTML = `
@@ -443,12 +448,26 @@ function buildAISection(host, scene) {
         <span class="meta">${esc(m.sizeHint)} · ${m.multimodal ? 'multimodal (text + image)' : 'text only'}</span>
         ${m.notes ? `<br><span class="meta">${esc(m.notes)}</span>` : ''}
       </div>
+      ${warn}
       <div class="ai-model-status credit">checking…</div>
       <div class="ai-model-action"></div>
+      ${m.clearCache ? `<button class="ai-clear-cache" title="Delete cached weights for this model">Clear cached weights</button>` : ''}
     `;
     det.appendChild(body);
     m._statusEl = body.querySelector('.ai-model-status');
     m._actionEl = body.querySelector('.ai-model-action');
+    const clearBtn = body.querySelector('.ai-clear-cache');
+    if (clearBtn) clearBtn.addEventListener('click', async () => {
+      clearBtn.disabled = true;
+      try {
+        const did = await m.clearCache();
+        clearBtn.textContent = did ? 'Cleared' : 'Nothing to clear';
+        setTimeout(() => { clearBtn.textContent = 'Clear cached weights'; clearBtn.disabled = false; refresh(); }, 1500);
+      } catch (e) {
+        clearBtn.textContent = `Failed: ${e.message}`;
+        clearBtn.disabled = false;
+      }
+    });
     modelsDet.appendChild(det);
   }
 
@@ -573,9 +592,10 @@ function browserKind() {
 }
 
 // ── Helpers ─────────────────────────────────────────────────────────────
-function makeSection(title, openByDefault) {
+function makeSection(title, openByDefault, band) {
   const det = document.createElement('details');
   det.className = 'menu-section';
+  if (band) det.dataset.band = band;
   det.open = !!openByDefault;
   const sum = document.createElement('summary');
   sum.textContent = title;

@@ -76,7 +76,7 @@ class ChromeBuiltinModel {
 
 // ── WebLLM-backed text-only models ─────────────────────────────────────
 class WebLLMModel {
-  constructor({ id, label, provider, modelId, sizeHint, downloadGB, notes }) {
+  constructor({ id, label, provider, modelId, sizeHint, downloadGB, notes, iosSafe, mobileWarning }) {
     this.id = id;
     this.label = label;
     this.provider = provider;
@@ -86,6 +86,8 @@ class WebLLMModel {
     this.downloadGB = downloadGB;
     this.multimodal = false; // WebLLM vision not yet GA — text-only path
     this.notes = notes;
+    this.iosSafe = !!iosSafe;
+    this.mobileWarning = mobileWarning;
     this._engine = null;
     this._initing = false;
   }
@@ -105,7 +107,6 @@ class WebLLMModel {
       const { CreateMLCEngine } = await loadWebLLM(onProgress);
       this._engine = await CreateMLCEngine(this.modelId, {
         initProgressCallback: (report) => {
-          // report = { progress: 0..1, text, timeElapsed }
           onProgress?.({
             stage: 'model',
             progress: report.progress,
@@ -140,12 +141,63 @@ class WebLLMModel {
     try { this._engine?.unload?.(); } catch {}
     this._engine = null;
   }
+  // Best-effort cache clear via Cache Storage (WebLLM stores weights in
+  // named caches keyed off the model id).
+  async clearCache() {
+    if (typeof caches === 'undefined') return false;
+    const keys = await caches.keys();
+    const mine = keys.filter(k => k.includes(this.modelId) || k.includes('webllm'));
+    await Promise.all(mine.map(k => caches.delete(k)));
+    this.teardown();
+    return mine.length > 0;
+  }
+}
+
+// Rough iOS detection — used to default to the smallest Gemma on
+// iPhone / iPad where Safari's per-tab cap (~1.5 GB) makes the larger
+// Gemma 2 2B variant crash mid-load on many devices.
+export function isIOS() {
+  if (typeof navigator === 'undefined') return false;
+  const ua = navigator.userAgent;
+  return /iPad|iPhone|iPod/.test(ua) || /CriOS|FxiOS|EdgiOS/.test(ua);
 }
 
 // ── Registry ───────────────────────────────────────────────────────────
 export function buildRegistry() {
   return [
     new ChromeBuiltinModel(),
+    // Smallest first — iOS-safe by default. The big variants are at the
+    // bottom and flagged with mobileWarning.
+    new WebLLMModel({
+      id: 'smollm2-135m',
+      label: 'SmolLM2 135M Instruct',
+      provider: 'HuggingFace (open weights)',
+      modelId: 'SmolLM2-135M-Instruct-q0f16-MLC',
+      sizeHint: '~270 MB',
+      downloadGB: 0.27,
+      iosSafe: true,
+      notes: 'Tiny safety-net model. Fast first download, fits anywhere, prose is basic.',
+    }),
+    new WebLLMModel({
+      id: 'llama-3.2-1b',
+      label: 'Llama 3.2 1B Instruct',
+      provider: 'Meta',
+      modelId: 'Llama-3.2-1B-Instruct-q4f16_1-MLC',
+      sizeHint: '~750 MB',
+      downloadGB: 0.75,
+      iosSafe: true,
+      notes: 'Modern small model; the safest "real" option on iOS / older devices.',
+    }),
+    new WebLLMModel({
+      id: 'gemma-2b',
+      label: 'Gemma 2b Instruct (mobile-safe)',
+      provider: 'Google DeepMind (open weights)',
+      modelId: 'gemma-2b-it-q4f16_1-MLC',
+      sizeHint: '~1.3 GB',
+      downloadGB: 1.3,
+      iosSafe: true,
+      notes: 'Smallest Gemma in WebLLM (Gemma 1 2B). Gemma 3 / 4 aren\'t yet packaged for WebLLM. Tight on iPhones with ≤8 GB RAM — Llama 1B is the safer fallback.',
+    }),
     new WebLLMModel({
       id: 'gemma-2-2b',
       label: 'Gemma 2 2B Instruct',
@@ -153,7 +205,9 @@ export function buildRegistry() {
       modelId: 'gemma-2-2b-it-q4f16_1-MLC',
       sizeHint: '~1.5 GB',
       downloadGB: 1.5,
-      notes: 'Smallest Gemma in WebLLM; quick first download, good for low-RAM devices. Text-only; will upgrade to the multimodal Gemma 3 family when WebLLM publishes them.',
+      iosSafe: false,
+      mobileWarning: 'Crashes iOS Safari mid-load on most iPhones — desktop or Android only.',
+      notes: 'Latest Gemma in WebLLM. Better prose than the 2b "mobile-safe" entry above, at the cost of memory headroom.',
     }),
     new WebLLMModel({
       id: 'llama-3.2-3b',
@@ -162,7 +216,9 @@ export function buildRegistry() {
       modelId: 'Llama-3.2-3B-Instruct-q4f32_1-MLC',
       sizeHint: '~1.9 GB',
       downloadGB: 1.9,
-      notes: 'Strong general-purpose 3B; text-only via WebLLM. The 11B-Vision variant exists upstream but isn\'t in WebLLM yet.',
+      iosSafe: false,
+      mobileWarning: 'Too large for iOS Safari per-tab cap. Desktop only.',
+      notes: 'Strong general-purpose 3B; text-only via WebLLM.',
     }),
     new WebLLMModel({
       id: 'qwen-2.5-3b',
@@ -171,7 +227,18 @@ export function buildRegistry() {
       modelId: 'Qwen2.5-3B-Instruct-q4f16_1-MLC',
       sizeHint: '~1.8 GB',
       downloadGB: 1.8,
-      notes: 'Excellent at descriptive prose; text-only. The VL multimodal Qwen variants aren\'t yet WebLLM-targeted.',
+      iosSafe: false,
+      mobileWarning: 'Too large for iOS Safari per-tab cap. Desktop only.',
+      notes: 'Excellent at descriptive prose; text-only.',
     }),
   ];
+}
+
+// Pick the best default model for the current platform.
+// On iOS: smallest Gemma; else: Gemma 2 2B (highest quality Gemma in WebLLM).
+export function pickDefaultModelId(models) {
+  if (isIOS()) {
+    return models.find(m => m.id === 'gemma-2b')?.id ?? models[0].id;
+  }
+  return models.find(m => m.id === 'gemma-2-2b')?.id ?? models[0].id;
 }
