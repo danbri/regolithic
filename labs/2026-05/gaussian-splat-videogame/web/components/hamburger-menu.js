@@ -16,6 +16,7 @@
 import { buildRegistry, pickDefaultModelId, isIOS } from '../ai/models.js';
 import { SplatWorld } from '../splatworld/world.js';
 import { PhoneCane } from '../splatworld/phone-cane.js';
+import { Tour } from '../splatworld/tour.js';
 
 function attach(scene) {
   const root = scene;
@@ -87,6 +88,11 @@ function attach(scene) {
   const swSec = makeSection('SplatWorld', false, 'splatworld');
   panel.appendChild(swSec.el);
   buildSplatWorldSection(swSec.body, scene);
+
+  // ── Tour ──────────────────────────────────────────────────────────────
+  const tourSec = makeSection('Tour', false, 'tour');
+  panel.appendChild(tourSec.el);
+  buildTourSection(tourSec.body, scene);
 
   // ── AI ────────────────────────────────────────────────────────────────
   const aiSec = makeSection('AI', true, 'ai');
@@ -330,6 +336,74 @@ function buildSplatWorldSection(host, scene) {
   }
 
   world.addEventListener('changed', paint);
+  paint();
+}
+
+// ── Tour section ────────────────────────────────────────────────────────
+function buildTourSection(host, scene) {
+  // Singleton attached to scene so the world & tour share state.
+  const world = scene._splatworld ?? (scene._splatworld = new SplatWorld(scene));
+  const tour = scene._tour ?? (scene._tour = new Tour(scene, world));
+
+  const intro = document.createElement('div');
+  intro.className = 'credit';
+  intro.innerHTML = `Spiral fly-through of the current splat, looking at
+    each major mesh primitive in turn. If SplatWorld mesh detection is
+    on, the cane primitives become the look-at targets; otherwise the
+    spiral just orbits the splat centre.
+    <span class="meta">No image capture or AI hook yet — this is the
+    camera-flight mock-up.</span>`;
+  host.appendChild(intro);
+
+  const status = document.createElement('div');
+  status.className = 'credit';
+  host.appendChild(status);
+
+  const ctrl = document.createElement('div');
+  ctrl.className = 'row';
+  const startBtn = document.createElement('button');
+  startBtn.style.flex = '2';
+  const prevBtn = document.createElement('button');
+  prevBtn.textContent = '◀ Prev';
+  const nextBtn = document.createElement('button');
+  nextBtn.textContent = 'Next ▶';
+  ctrl.appendChild(startBtn);
+  ctrl.appendChild(prevBtn);
+  ctrl.appendChild(nextBtn);
+  host.appendChild(ctrl);
+
+  host.appendChild(slider('Step duration (s)', 0.5, 8, 0.1, tour.stepDuration, v => tour.stepDuration = v));
+  host.appendChild(slider('Dwell (s)',        0,   3, 0.1, tour.dwellDuration, v => tour.dwellDuration = v));
+
+  const paint = () => {
+    startBtn.textContent = tour.running ? '■ Stop tour' : '▶ Start tour';
+    const total = tour.waypoints.length;
+    const cur = tour.idx + 1;
+    if (tour.running) {
+      const wp = tour.currentWaypoint;
+      status.innerHTML = `<span class="meta">Waypoint <strong>${cur}</strong> / ${total}${wp ? ' — ' + esc(wp.label) : ''}</span>`;
+      prevBtn.disabled = false;
+      nextBtn.disabled = false;
+    } else {
+      status.innerHTML = `<span class="meta">Stopped. ${total} waypoints last computed.</span>`;
+      prevBtn.disabled = true;
+      nextBtn.disabled = true;
+    }
+  };
+
+  startBtn.addEventListener('click', () => {
+    try {
+      if (tour.running) tour.stop();
+      else tour.start();
+    } catch (e) {
+      status.innerHTML = `<span class="warn">${esc(e.message)}</span>`;
+    }
+  });
+  prevBtn.addEventListener('click', () => tour.prev());
+  nextBtn.addEventListener('click', () => tour.next());
+
+  tour.addEventListener('changed', paint);
+  tour.addEventListener('waypoint-reached', paint);
   paint();
 }
 

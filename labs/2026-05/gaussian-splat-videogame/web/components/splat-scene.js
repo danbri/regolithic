@@ -463,9 +463,45 @@ class SplatScene extends HTMLElement {
 
   _tick(dt) {
     if (this._app.xr?.active) return; // XR has its own pose handling
+    // 'tour' mode: an external module (splatworld/tour.js) is driving
+    // the camera directly via setCameraFromPose(); don't fight it.
+    if (this._input.mode === 'tour') return;
     this._applyKeys(dt);
     if (this._input.mode === 'orbit') this._applyOrbit();
     else this._applyFly();
+  }
+
+  // Drive the orbit-state from an external (camPos, lookAt) pair.
+  // Used by the Tour module to fly the camera around a scripted path
+  // while leaving the orbit math source-of-truth, so manual control
+  // resumes naturally afterwards.
+  setCameraFromPose(camPos, lookAt) {
+    const tx = lookAt.x ?? lookAt[0];
+    const ty = lookAt.y ?? lookAt[1];
+    const tz = lookAt.z ?? lookAt[2];
+    const cx = camPos.x ?? camPos[0];
+    const cy = camPos.y ?? camPos[1];
+    const cz = camPos.z ?? camPos[2];
+    this._input.target.set(tx, ty, tz);
+    const ox = cx - tx, oy = cy - ty, oz = cz - tz;
+    const r = Math.hypot(ox, oy, oz) || 1;
+    this._input.distance = r;
+    this._input.pitch = Math.asin(oy / r) / D2R;
+    this._input.yaw   = Math.atan2(ox, oz) / D2R;
+    this._cameraEntity.setPosition(cx, cy, cz);
+    this._cameraEntity.lookAt(tx, ty, tz);
+  }
+
+  // Save / restore the camera mode (used by Tour around its run).
+  pushMode(newMode) {
+    this._savedMode = this._input.mode;
+    this._input.mode = newMode;
+  }
+  popMode() {
+    if (this._savedMode) {
+      this._input.mode = this._savedMode;
+      this._savedMode = null;
+    }
   }
 
   _applyOrbit() {
