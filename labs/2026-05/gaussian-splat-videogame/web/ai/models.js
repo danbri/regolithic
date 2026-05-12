@@ -169,21 +169,46 @@ export function buildRegistry() {
     new ChromeBuiltinModel(),
     // Multimodal via Transformers.js — true image input.
     //
-    // PaliGemma 2 — the model you specifically asked for. Uses the
-    // onnx-community/paligemma2-3b-pt-224 mirror, which is the only
-    // ungated PaliGemma ONNX export on HuggingFace. Wired through the
-    // explicit AutoProcessor + PaliGemmaForConditionalGeneration path
-    // (mode 'paligemma') because the pipeline route doesn't reliably
-    // drive PaliGemma's prompt format across Transformers.js versions.
-    //
-    // iOS reality check: q4f16 weight files total ~2.7 GiB
-    // (decoder ~1.4 GB + embed ~1.1 GB + vision ~225 MB). WebKit's
-    // per-tab cap is ~1.5 GB. Marked iosSafe but with a strong warning;
-    // try it, expect crashes on iPhones with <16 GB RAM. Florence-2
-    // base is the safe fallback.
+    // SmolVLM (HuggingFaceTB) is the spiritual answer to "smaller
+    // PaliGemma": HF's purpose-built small VLM line for browser
+    // inference. q4f16 totals are tiny (189–341 MB), the architecture
+    // is exported as Idefics3/SmolVLM in Transformers.js latest, and
+    // the repos are ungated.
+    new TransformersJSModel({
+      id: 'smolvlm-256m',
+      label: 'SmolVLM 256M (multimodal, tiny)',
+      provider: 'HuggingFaceTB (Apache-2.0)',
+      hfRepo: 'HuggingFaceTB/SmolVLM-256M-Instruct',
+      mode: 'pipeline',
+      task: 'image-text-to-text',
+      prompt: 'Describe this image in 1–2 sentences.',
+      dtype: 'q4f16',
+      sizeHint: '~190 MB (q4f16)',
+      downloadGB: 0.19,
+      iosSafe: true,
+      maxNewTokens: 120,
+      notes: 'HF\'s purpose-built tiny VLM. Sees the rendered image. Comfortably fits iOS Safari\'s tab cap with headroom to spare. Captions are short but on-topic.',
+    }),
+    new TransformersJSModel({
+      id: 'smolvlm-500m',
+      label: 'SmolVLM 500M (multimodal, iOS default)',
+      provider: 'HuggingFaceTB (Apache-2.0)',
+      hfRepo: 'HuggingFaceTB/SmolVLM-500M-Instruct',
+      mode: 'pipeline',
+      task: 'image-text-to-text',
+      prompt: 'Describe this image in 1–3 sentences.',
+      dtype: 'q4f16',
+      sizeHint: '~340 MB (q4f16)',
+      downloadGB: 0.34,
+      iosSafe: true,
+      maxNewTokens: 160,
+      notes: 'Larger SmolVLM — richer captions, still iOS-safe. Default on iOS.',
+    }),
+    // PaliGemma 2 — the model you asked for. Crashes iOS at ~2.7 GiB;
+    // kept for desktop users. Lower-level API path.
     new TransformersJSModel({
       id: 'paligemma2-3b',
-      label: 'PaliGemma 2 3B (multimodal)',
+      label: 'PaliGemma 2 3B (multimodal, desktop)',
       provider: 'Google · onnx-community',
       hfRepo: 'onnx-community/paligemma2-3b-pt-224',
       mode: 'paligemma',
@@ -192,16 +217,15 @@ export function buildRegistry() {
       dtype: 'q4f16',
       sizeHint: '~2.7 GiB (q4f16)',
       downloadGB: 2.7,
-      iosSafe: true,
-      mobileWarning: 'Optimistic on iOS — q4f16 weight set is ~2.7 GiB total, past Safari\'s ~1.5 GB per-tab cap on most iPhones. Try; expect OOM on <16 GB devices. Florence-2 Base is the safe fallback.',
+      iosSafe: false,
+      mobileWarning: 'Confirmed to crash iOS Safari mid-download (weight set is past the ~1.5 GB per-tab cap). Desktop only.',
       maxNewTokens: 80,
-      notes: 'True multimodal — sees the rendered image. Pre-trained PaliGemma 2 (the only ungated PaliGemma ONNX on HF). Uses AutoProcessor + PaliGemmaForConditionalGeneration via @huggingface/transformers latest from jsDelivr.',
+      notes: 'True multimodal — sees the image. Pre-trained PaliGemma 2 (the only ungated PaliGemma ONNX on HF). Use this on desktop; on iOS pick SmolVLM 500M.',
     }),
-    // Florence-2 base — Microsoft, MIT-licensed, ungated, ~270 MB.
-    // The realistic iOS multimodal option if PaliGemma OOMs.
+    // Florence-2 — Microsoft, MIT, alternative iOS-safe multimodal.
     new TransformersJSModel({
       id: 'florence2-base',
-      label: 'Florence-2 Base (multimodal, iOS fallback)',
+      label: 'Florence-2 Base (multimodal, alt)',
       provider: 'Microsoft (MIT) · onnx-community',
       hfRepo: 'onnx-community/Florence-2-base-ft',
       mode: 'pipeline',
@@ -211,10 +235,9 @@ export function buildRegistry() {
       sizeHint: '~270 MB (q4)',
       downloadGB: 0.27,
       iosSafe: true,
-      notes: 'MIT-licensed, ungated, comfortably under iOS Safari\'s tab cap. Use this if PaliGemma OOMs on your phone.',
+      notes: 'MIT-licensed alternative VLM, ungated, iOS-safe. More literal than SmolVLM but tends to be more accurate on object names.',
       postProcess: (t) => t.replace(/<[A-Z_]+>/g, '').trim(),
     }),
-    // Florence-2 large — richer captions, still iOS-viable.
     new TransformersJSModel({
       id: 'florence2-large',
       label: 'Florence-2 Large (multimodal)',
@@ -299,12 +322,17 @@ export function buildRegistry() {
 }
 
 // Pick the best default model for the current platform.
-//   • iOS / WebKit: PaliGemma 2 (per user direction) — may OOM; the
-//     menu surfaces the warning and Florence-2 Base is one tap away.
+//   • iOS / WebKit: SmolVLM 500M — small, ungated, real multimodal,
+//     fits comfortably (~340 MB) where PaliGemma can't (~2.7 GB).
 //   • Chrome/Edge with Nano available: Nano (no download).
 //   • Other desktop: PaliGemma 2.
 export function pickDefaultModelId(models) {
+  if (isIOS()) {
+    return models.find(m => m.id === 'smolvlm-500m')?.id
+        ?? models.find(m => m.id === 'florence2-base')?.id
+        ?? models[1].id;
+  }
   return models.find(m => m.id === 'paligemma2-3b')?.id
-      ?? models.find(m => m.id === 'florence2-base')?.id
+      ?? models.find(m => m.id === 'smolvlm-500m')?.id
       ?? models[0].id;
 }
