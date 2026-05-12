@@ -1,16 +1,24 @@
 // Transformers.js (@huggingface/transformers) — WebGPU-backed multimodal.
 //
-// Supports two API surfaces per model:
-//   • mode 'pipeline'  — generic `pipeline('image-text-to-text', repo)`.
-//     Works for Florence-2 and most VLMs.
-//   • mode 'paligemma' — explicit AutoProcessor +
-//     PaliGemmaForConditionalGeneration (per HF's own browser-PaliGemma
-//     example). Required for PaliGemma 2 in current Transformers.js:
-//     the pipeline route doesn't drive PaliGemma's special-token format
-//     consistently across versions.
+// Supports three API surfaces per model:
+//   • mode 'pipeline'  — generic `pipeline('image-to-text', repo)`.
+//     For pure captioners (ViT-GPT2, DistilViT) and Florence-2-style
+//     models that take a URL + simple prompt.
+//   • mode 'paligemma' — AutoProcessor + PaliGemmaForConditionalGeneration.
+//     Required by PaliGemma's special-token prompt format.
+//   • mode 'smolvlm'   — AutoProcessor + AutoModelForVision2Seq +
+//     apply_chat_template. Required by SmolVLM / Idefics3-family VLMs;
+//     the pipeline factory's image-to-text task doesn't accept their
+//     chat-messages input shape ("Unsupported input type: object").
 //
-// CDN: latest jsDelivr ESM build (PaliGemma support landed in 3.2.0;
-// using @latest gets a 4.x build).
+// Caching: Transformers.js puts downloaded weights in Cache API
+// (browser Cache Storage); ONNX Runtime Web caches compiled WebGPU
+// shaders in IndexedDB. HF CDN sends Cache-Control so first load is
+// the only slow one. We let those built-ins do the work — adding a
+// service worker on top would buy us offline-after-first-visit but
+// won't speed the cached path.
+//
+// CDN: latest jsDelivr +esm build of @huggingface/transformers.
 
 const TJS_CDN = 'https://cdn.jsdelivr.net/npm/@huggingface/transformers/+esm';
 let _tjsModule = null;
@@ -95,6 +103,14 @@ export class TransformersJSModel {
           progress_callback,
         });
         this._engine = { kind: 'paligemma', processor, model, mod };
+      } else if (this.mode === 'smolvlm') {
+        const processor = await mod.AutoProcessor.from_pretrained(this.hfRepo, { progress_callback });
+        const model     = await mod.AutoModelForVision2Seq.from_pretrained(this.hfRepo, {
+          device: 'webgpu',
+          dtype: this.dtype,
+          progress_callback,
+        });
+        this._engine = { kind: 'smolvlm', processor, model, mod };
       } else {
         const pipe = await mod.pipeline(this.task, this.hfRepo, {
           device: 'webgpu',
@@ -130,24 +146,59 @@ export class TransformersJSModel {
       return this._postProcess ? this._postProcess(text) : text;
     }
 
-    // pipeline path. Three input shapes the upstream pipeline accepts:
-    //   • messages    — chat-style [{role,content:[{type:'image',image},{type:'text',text}]}]
-    //                   (required by SmolVLM and other modern VLMs)
+    if (kind === 'smolvlm') {
+      // SmolVLM / Idefics3 path. The chat-template handler injects the
+      // image placeholder + special tokens correctly; passing raw text
+      // to `processor()` without chat formatting will silently confuse
+      // the model.
+      const rawImage = await rawImageFrom(image, mod);
+      const { processor, model } = this._engine;
+      const messages = [{
+        role: 'user',
+        content: [
+          { type: 'image' },
+          { type: 'text', text: this.prompt || 'Describe this image in 1–3 sentences.' },
+        ],
+      }];
+      const promptText = processor.apply_chat_template(messages, { add_generation_prompt: true });
+      const inputs = await processor(promptText, [rawImage]);
+      const generated = await model.generate({
+        ...inputs,
+        max_new_tokens: this.maxNewTokens,
+      });
+      // Trim the prompt tokens from the front of the generated tensor
+      // so batch_decode returns only the assistant's reply. Some
+      // Transformers.js versions have a tensor.slice() with this exact
+      // shape; fall back to string-trim if the slice errors.
+      let decoded;
+      try {
+        const inputLen = inputs.input_ids.dims.at(-1);
+        const trimmed = generated.slice(null, [inputLen, null]);
+        decoded = processor.batch_decode(trimmed, { skip_special_tokens: true });
+      } catch {
+        decoded = processor.batch_decode(generated, { skip_special_tokens: true });
+        // Best-effort string-trim of the prompt prefix
+        const promptStr = promptText.replace(/<[^>]+>/g, '').trim();
+        if (decoded[0]?.includes(promptStr)) {
+          decoded[0] = decoded[0].split(promptStr).pop().trim();
+        }
+      }
+      let text = (decoded?.[0] ?? '').trim();
+      // SmolVLM sometimes emits "Assistant:" prefix
+      text = text.replace(/^Assistant:\s*/i, '').trim();
+      return this._postProcess ? this._postProcess(text) : text;
+    }
+
+    // pipeline path. Two input shapes the image-to-text pipeline accepts:
     //   • url-prompt  — pipe(url, promptString)  (Florence-2 et al.)
     //   • url-only    — pipe(url)                (pure captioners: ViT-GPT2)
+    // The chat-messages form is handled by the 'smolvlm' mode above —
+    // the pipeline factory's image-to-text task throws "Unsupported
+    // input type: object" on a messages array.
     const { url, revoke } = await imageToObjectUrl(image);
     try {
       let result;
-      if (this.inputFormat === 'messages') {
-        const messages = [{
-          role: 'user',
-          content: [
-            { type: 'image', image: url },
-            { type: 'text',  text: this.prompt || 'Describe this image in 1–3 sentences.' },
-          ],
-        }];
-        result = await this._engine.pipe(messages, { max_new_tokens: this.maxNewTokens });
-      } else if (this.inputFormat === 'url-only') {
+      if (this.inputFormat === 'url-only') {
         result = await this._engine.pipe(url);
       } else {
         result = await this._engine.pipe(url, this.prompt || '');

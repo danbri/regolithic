@@ -179,9 +179,8 @@ export function buildRegistry() {
       label: 'SmolVLM 256M (multimodal, tiny)',
       provider: 'HuggingFaceTB (Apache-2.0)',
       hfRepo: 'HuggingFaceTB/SmolVLM-256M-Instruct',
-      mode: 'pipeline',
+      mode: 'smolvlm',
       task: 'image-to-text',
-      inputFormat: 'messages',
       prompt: 'Describe this image in 1–2 sentences.',
       dtype: 'q4f16',
       sizeHint: '~190 MB (q4f16)',
@@ -192,19 +191,19 @@ export function buildRegistry() {
     }),
     new TransformersJSModel({
       id: 'smolvlm-500m',
-      label: 'SmolVLM 500M (multimodal, iOS default)',
+      label: 'SmolVLM 500M (multimodal)',
       provider: 'HuggingFaceTB (Apache-2.0)',
       hfRepo: 'HuggingFaceTB/SmolVLM-500M-Instruct',
-      mode: 'pipeline',
+      mode: 'smolvlm',
       task: 'image-to-text',
-      inputFormat: 'messages',
       prompt: 'Describe this image in 1–3 sentences.',
       dtype: 'q4f16',
       sizeHint: '~340 MB (q4f16)',
       downloadGB: 0.34,
       iosSafe: true,
+      mobileWarning: 'Loads OK but inference may exceed iOS Safari\'s heap on 8 GB iPhones — if it crashes mid-Analyse, switch to SmolVLM 256M.',
       maxNewTokens: 160,
-      notes: 'Larger SmolVLM — richer captions, still iOS-safe. Default on iOS.',
+      notes: 'Larger SmolVLM — richer captions, tight on memory-constrained iPhones (256M is the safer iOS default).',
     }),
     // Even-lighter tier: pure image captioners (encoder-decoder, no chat).
     // No prompting — just "describe what's in this picture". These are
@@ -357,14 +356,14 @@ export function buildRegistry() {
 }
 
 // Pick the best default model for the current platform.
-//   • iOS / WebKit: SmolVLM 500M — small, ungated, real multimodal,
-//     fits comfortably (~340 MB) where PaliGemma can't (~2.7 GB).
+//   • iOS / WebKit: SmolVLM 256M (190 MB) — was 500M, but the larger
+//     variant has been seen to crash mid-inference on 8 GB iPhones.
 //   • Chrome/Edge with Nano available: Nano (no download).
 //   • Other desktop: PaliGemma 2.
 export function pickDefaultModelId(models) {
   if (isIOS()) {
-    return models.find(m => m.id === 'smolvlm-500m')?.id
-        ?? models.find(m => m.id === 'florence2-base')?.id
+    return models.find(m => m.id === 'smolvlm-256m')?.id
+        ?? models.find(m => m.id === 'distilvit')?.id
         ?? models[1].id;
   }
   return models.find(m => m.id === 'paligemma2-3b')?.id
