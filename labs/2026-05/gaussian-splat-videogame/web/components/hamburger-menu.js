@@ -17,6 +17,7 @@ import { buildRegistry, pickDefaultModelId, isIOS } from '../ai/models.js';
 import { SplatWorld } from '../splatworld/world.js';
 import { PhoneCane } from '../splatworld/phone-cane.js';
 import { Tour } from '../splatworld/tour.js';
+import { Drone } from '../splatworld/drone.js';
 
 function attach(scene) {
   const root = scene;
@@ -93,6 +94,11 @@ function attach(scene) {
   const tourSec = makeSection('Tour', false, 'tour');
   panel.appendChild(tourSec.el);
   buildTourSection(tourSec.body, scene);
+
+  // ── Drone ─────────────────────────────────────────────────────────────
+  const droneSec = makeSection('Drone', false, 'drone');
+  panel.appendChild(droneSec.el);
+  buildDroneSection(droneSec.body, scene);
 
   // ── AI ────────────────────────────────────────────────────────────────
   const aiSec = makeSection('AI', true, 'ai');
@@ -407,6 +413,107 @@ function buildTourSection(host, scene) {
   paint();
 }
 
+// ── Drone section ──────────────────────────────────────────────────────
+function buildDroneSection(host, scene) {
+  // Reuse the shared SplatWorld instance so the drone can read mesh
+  // primitives (if mesh detection is on, they become collision tests).
+  const world = scene._splatworld ?? (scene._splatworld = new SplatWorld(scene));
+  const drone = scene._drone ?? (scene._drone = new Drone(scene, world));
+
+  const intro = document.createElement('div');
+  intro.className = 'credit';
+  intro.innerHTML = `Autonomous hoverdrone: continuous wander around the
+    splat, with short-range raycast avoidance against SplatWorld
+    primitives (turn on mesh detection above for better avoidance).
+    Every few seconds it grabs a frame and runs the active
+    object-detection model — discovered labels accumulate below.`;
+  host.appendChild(intro);
+
+  const status = document.createElement('div');
+  status.className = 'credit';
+  host.appendChild(status);
+
+  const summary = document.createElement('div');
+  summary.className = 'credit';
+  host.appendChild(summary);
+
+  const ctrlRow = document.createElement('div');
+  ctrlRow.className = 'row';
+  const startBtn = document.createElement('button');
+  startBtn.style.flex = '2';
+  const resetBtn = document.createElement('button');
+  resetBtn.textContent = 'Reset survey';
+  ctrlRow.appendChild(startBtn);
+  ctrlRow.appendChild(resetBtn);
+  host.appendChild(ctrlRow);
+
+  host.appendChild(slider('Speed (m/s)',     0.1, 3,    0.1, drone.flightSpeed,    v => drone.flightSpeed = v));
+  host.appendChild(slider('Turn rate (°/s)', 10,  180,  5,   drone.turnRate,       v => drone.turnRate = v));
+  host.appendChild(slider('Look-ahead (m)',  0.2, 3,    0.1, drone.lookAhead,      v => drone.lookAhead = v));
+  host.appendChild(slider('Survey every (s)',1,   10,   0.5, drone.surveyInterval, v => drone.surveyInterval = v));
+  host.appendChild(slider('Wander curiosity',0,   2,    0.05,drone.wanderJitter,   v => drone.wanderJitter = v));
+
+  function paint() {
+    startBtn.textContent = drone.running ? '■ Stop drone' : '▶ Launch drone';
+    resetBtn.disabled = drone.discovered.size === 0;
+    status.innerHTML = drone.running
+      ? `<span class="meta">Flying. Active model: ${esc(activeDetectorLabel(scene))}.</span>`
+      : `<span class="meta">Idle.</span>`;
+    const total = drone.discovered.size;
+    summary.innerHTML = total === 0
+      ? `<span class="meta">No discoveries yet.</span>`
+      : `<strong>${total}</strong> objects seen — <span class="meta">${esc(drone.surveySummary())}</span>`;
+  }
+
+  startBtn.addEventListener('click', async () => {
+    try {
+      if (drone.running) {
+        drone.stop();
+      } else {
+        // Pick the active model from the AI registry — must be an
+        // object-detection model. If the current active isn't, fall
+        // back to YOLOS Tiny.
+        const ai = scene._aiState;
+        let m = ai?.activeModel;
+        if (!m || m.mode !== 'object-detection') {
+          m = ai?.models?.find(x => x.id === 'yolos-tiny') ?? ai?.models?.find(x => x.mode === 'object-detection');
+        }
+        if (!m) throw new Error('No object-detection model available. Open the AI section.');
+        scene.showResponse('Drone arming…', { badge: 'Drone', ttlMs: 4000 });
+        await drone.start(m);
+      }
+    } catch (e) {
+      status.innerHTML = `<span class="warn">${esc(e.message)}</span>`;
+    } finally {
+      paint();
+    }
+  });
+  resetBtn.addEventListener('click', () => drone.resetSurvey());
+
+  drone.addEventListener('changed', paint);
+  drone.addEventListener('status', (e) => {
+    status.innerHTML = `<span class="meta">${esc(e.detail.text)}</span>`;
+  });
+  drone.addEventListener('survey', (e) => {
+    const { newLabels, total } = e.detail;
+    if (newLabels.length) {
+      scene.showResponse(
+        `New: ${newLabels.join(', ')}  •  ${total} total`,
+        { badge: 'Drone', ttlMs: 6000 },
+      );
+    }
+    paint();
+  });
+  paint();
+}
+
+function activeDetectorLabel(scene) {
+  const ai = scene._aiState;
+  const m = ai?.activeModel;
+  if (m?.mode === 'object-detection') return m.label;
+  return 'YOLOS Tiny (fallback)';
+}
+
 // ── AI section ──────────────────────────────────────────────────────────
 function buildAISection(host, scene) {
   const models = buildRegistry();
@@ -416,6 +523,8 @@ function buildAISection(host, scene) {
   // pick the smallest Gemma (Gemma 1 2b q4f16) to dodge the 1.5 GB
   // per-tab cap that crashes Gemma 2 2B mid-load.
   let activeId = (kind === 'chrome' || kind === 'edge') ? 'chrome-builtin' : pickDefaultModelId(models);
+  // Expose so the Drone (and others) can find the active model.
+  scene._aiState = { models, get activeModel() { return models.find(m => m.id === activeId); } };
 
   // ── Browser status banner ─────────────────────────────────────────────
   const banner = document.createElement('div');
@@ -472,6 +581,36 @@ function buildAISection(host, scene) {
   status.className = 'credit';
   status.textContent = 'Checking…';
   actions.appendChild(status);
+
+  // Safe-mode toggle (force WASM, skip WebGPU entirely). iOS defaults
+  // ON because WebGPU has been crashing tabs there. User can flip OFF
+  // for speed on desktops.
+  const safeRow = row();
+  const safeLbl = document.createElement('label');
+  safeLbl.className = 'experiment-toggle';
+  const safeCb = document.createElement('input');
+  safeCb.type = 'checkbox';
+  const lsKey = 'aiSafeMode';
+  let safeOn;
+  try {
+    const stored = localStorage.getItem(lsKey);
+    safeOn = stored == null ? isIOS() : (stored === 'true');
+    // Make sure localStorage reflects the effective state so
+    // transformers-js.js reads it correctly.
+    localStorage.setItem(lsKey, safeOn ? 'true' : 'false');
+  } catch { safeOn = isIOS(); }
+  safeCb.checked = safeOn;
+  safeCb.addEventListener('change', () => {
+    safeOn = safeCb.checked;
+    try { localStorage.setItem(lsKey, safeOn ? 'true' : 'false'); } catch {}
+    status.innerHTML = `<span class="meta">Safe mode ${safeOn ? 'ON (CPU/WASM)' : 'OFF (WebGPU)'}. Reload the page to apply.</span>`;
+  });
+  safeLbl.appendChild(safeCb);
+  const safeSpan = document.createElement('span');
+  safeSpan.innerHTML = 'Safe mode (CPU / WASM only) <span class="meta">— slower but skips WebGPU crashes</span>';
+  safeLbl.appendChild(safeSpan);
+  safeRow.appendChild(safeLbl);
+  actions.appendChild(safeRow);
 
   const actRow = row();
   actRow.appendChild(span('Active'));

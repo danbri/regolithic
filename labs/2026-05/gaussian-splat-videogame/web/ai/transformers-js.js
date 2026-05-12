@@ -73,7 +73,9 @@ export class TransformersJSModel {
   }
 
   async availability() {
-    if (typeof navigator === 'undefined' || !('gpu' in navigator)) return 'unavailable';
+    // Always available — the WASM backend works on any browser with
+    // WebAssembly support. WebGPU is preferred where present, but we
+    // no longer hard-require it.
     if (this._engine) return 'available';
     if (this._initing) return 'downloading';
     return 'downloadable';
@@ -81,9 +83,23 @@ export class TransformersJSModel {
 
   async ensureReady(onProgress) {
     if (this._engine || this._initing) return;
-    if (!('gpu' in navigator)) {
-      throw new Error('WebGPU not available. iOS Safari 18+ ships it; CPU fallback would freeze on a VLM.');
+    // Device choice — WebGPU is fast but iOS Safari's WebGPU has been
+    // crashing the tab on non-trivial models. We default to WASM on
+    // iOS (slower but compatible) and let other platforms use WebGPU.
+    // Models can override via `device` option; users can flip global
+    // safe-mode in localStorage ('aiSafeMode' = 'true').
+    const safeMode = (typeof localStorage !== 'undefined') &&
+                     (localStorage.getItem('aiSafeMode') === 'true');
+    const isIOSDevice = typeof navigator !== 'undefined' &&
+                       /iPad|iPhone|iPod|CriOS|FxiOS|EdgiOS/.test(navigator.userAgent);
+    let device = this.device ?? 'webgpu';
+    if (safeMode || isIOSDevice) device = 'wasm';
+    // Final fallback: if no WebGPU and we ended up requesting it, switch to wasm.
+    if (device === 'webgpu' && !('gpu' in (typeof navigator !== 'undefined' ? navigator : {}))) {
+      device = 'wasm';
     }
+    this._effectiveDevice = device;
+
     this._initing = true;
     try {
       const mod = await loadTransformersJS(onProgress);
@@ -98,13 +114,13 @@ export class TransformersJSModel {
         } else {
           text = `${data.status} ${file}`.trim();
         }
-        onProgress?.({ stage: 'model', progress: pct, text });
+        onProgress?.({ stage: 'model', progress: pct, text, device });
       };
 
       if (this.mode === 'paligemma') {
         const processor = await mod.AutoProcessor.from_pretrained(this.hfRepo, { progress_callback });
         const model     = await mod.PaliGemmaForConditionalGeneration.from_pretrained(this.hfRepo, {
-          device: 'webgpu',
+          device,
           dtype: this.dtype,
           progress_callback,
         });
@@ -112,21 +128,21 @@ export class TransformersJSModel {
       } else if (this.mode === 'smolvlm') {
         const processor = await mod.AutoProcessor.from_pretrained(this.hfRepo, { progress_callback });
         const model     = await mod.AutoModelForVision2Seq.from_pretrained(this.hfRepo, {
-          device: 'webgpu',
+          device,
           dtype: this.dtype,
           progress_callback,
         });
         this._engine = { kind: 'smolvlm', processor, model, mod };
       } else if (this.mode === 'object-detection') {
         const detector = await mod.pipeline('object-detection', this.hfRepo, {
-          device: 'webgpu',
+          device,
           dtype: this.dtype,
           progress_callback,
         });
         this._engine = { kind: 'object-detection', detector, mod };
       } else {
         const pipe = await mod.pipeline(this.task, this.hfRepo, {
-          device: 'webgpu',
+          device,
           dtype: this.dtype,
           progress_callback,
         });
@@ -261,6 +277,32 @@ export class TransformersJSModel {
 
   teardown() {
     this._engine = null;
+  }
+
+  // Structured object-detection. Returns the raw pipeline output:
+  //   [{ score, label, box: { xmin, ymin, xmax, ymax } }, ...]
+  // Throws for non-detection models. Used by the autonomous Drone so
+  // it can reason about which labels are new and not have to parse
+  // describe()'s formatted string.
+  async detect(image) {
+    if (this.mode !== 'object-detection') {
+      throw new Error(`detect() is only supported on object-detection models (this one is ${this.mode})`);
+    }
+    if (!this._engine) await this.ensureReady();
+    const { url, revoke } = await imageToObjectUrl(image);
+    try {
+      const opts = { threshold: this.detectionThreshold, percentage: true };
+      const isZeroShot = /owl/i.test(this.hfRepo);
+      let result;
+      if (isZeroShot && this.candidateLabels) {
+        result = await this._engine.detector(url, this.candidateLabels, opts);
+      } else {
+        result = await this._engine.detector(url, opts);
+      }
+      return Array.isArray(result) ? result : [];
+    } finally {
+      revoke?.();
+    }
   }
 
   async clearCache() {

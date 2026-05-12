@@ -130,6 +130,7 @@ splat-scene canvas {
 .menu-panel > details[data-band="render"]      { --band-h: 150; --band-s: 60%; --band-l: 68%; }
 .menu-panel > details[data-band="splatworld"]  { --band-h: 275; --band-s: 70%; --band-l: 75%; }
 .menu-panel > details[data-band="tour"]        { --band-h: 305; --band-s: 75%; --band-l: 75%; }
+.menu-panel > details[data-band="drone"]       { --band-h: 195; --band-s: 75%; --band-l: 70%; }
 .menu-panel > details[data-band="ai"]          { --band-h:  28; --band-s: 90%; --band-l: 70%; }
 .menu-panel > details[data-band="experiments"] { --band-h:  55; --band-s: 80%; --band-l: 70%; }
 

@@ -40,6 +40,23 @@
           .catch(err => console.warn('[sw] register failed', err));
       });
     }
+
+    // Defensive: surface any uncaught error or unhandled promise
+    // rejection in the AI banner so the user knows *what* failed when
+    // something blows up mid-inference. Doesn't prevent tab kills (the
+    // browser does those at native level before JS gets a turn) but
+    // catches everything within reach. Failures stay visible after
+    // model errors so the user knows to switch model or safe-mode.
+    function reportFailure(label, err) {
+      const msg = (err && (err.message || err.toString())) || String(err);
+      console.error('[' + label + ']', err);
+      try {
+        const s = document.querySelector('splat-scene');
+        s?.showResponse?.(`${label}: ${msg}`, { badge: 'Error', ttlMs: 12000 });
+      } catch {}
+    }
+    window.addEventListener('error', (e) => reportFailure('Uncaught error', e.error || e.message));
+    window.addEventListener('unhandledrejection', (e) => reportFailure('Promise', e.reason));
   </script>
 </body>
 </html>
