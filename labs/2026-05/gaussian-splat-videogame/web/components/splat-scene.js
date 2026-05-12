@@ -204,6 +204,67 @@ class SplatScene extends HTMLElement {
   }
   exitXR() { if (this._app?.xr?.active) this._app.xr.end(); }
 
+  // ── Snapshot (for AI / sharing) ───────────────────────────────────────
+  // Returns a Blob (image/jpeg by default) of the current canvas. Uses
+  // requestAnimationFrame to time the capture against the engine's
+  // render loop, so the frame isn't half-drawn. preserveDrawingBuffer
+  // (set in _initEngine) makes the toBlob read deterministic.
+  captureSnapshot({ type = 'image/jpeg', quality = 0.85 } = {}) {
+    return new Promise((resolve, reject) => {
+      const tryCapture = () => {
+        try {
+          this._canvas.toBlob((blob) => {
+            if (blob) resolve(blob);
+            else reject(new Error('canvas.toBlob returned null'));
+          }, type, quality);
+        } catch (e) { reject(e); }
+      };
+      requestAnimationFrame(() => requestAnimationFrame(tryCapture));
+    });
+  }
+
+  // ── Bottom-of-screen response banner ──────────────────────────────────
+  showResponse(text, { badge = 'AI', ttlMs = 0 } = {}) {
+    if (!this._aiResponseEl) this._buildResponseEl();
+    this._aiResponseBody.textContent = text;
+    this._aiResponseBadge.textContent = badge;
+    this._aiResponseEl.classList.remove('hidden');
+    clearTimeout(this._aiResponseTimer);
+    if (ttlMs > 0) this._aiResponseTimer = setTimeout(() => this.clearResponse(), ttlMs);
+  }
+  clearResponse() {
+    if (this._aiResponseEl) this._aiResponseEl.classList.add('hidden');
+    clearTimeout(this._aiResponseTimer);
+  }
+  _buildResponseEl() {
+    const el = document.createElement('div');
+    el.className = 'overlay ai-response hidden';
+    el.setAttribute('role', 'status');
+    el.setAttribute('aria-live', 'polite');
+    const badge = document.createElement('span');
+    badge.className = 'ai-badge';
+    badge.textContent = 'AI';
+    const body = document.createElement('div');
+    body.className = 'ai-body';
+    const close = document.createElement('button');
+    close.className = 'ai-close';
+    close.textContent = '×';
+    close.setAttribute('aria-label', 'Dismiss');
+    close.addEventListener('click', () => this.clearResponse());
+    el.appendChild(badge);
+    el.appendChild(body);
+    el.appendChild(close);
+    this.appendChild(el);
+    this._aiResponseEl = el;
+    this._aiResponseBody = body;
+    this._aiResponseBadge = badge;
+  }
+
+  // ── Current scene helper (for AI / hamburger) ─────────────────────────
+  currentScene() {
+    return this._catalog?.scenes.find(s => s.id === this._currentSceneId) ?? null;
+  }
+
   // ── Lifecycle ─────────────────────────────────────────────────────────
   async connectedCallback() {
     this._buildLayout();
@@ -258,6 +319,10 @@ class SplatScene extends HTMLElement {
   async _initEngine() {
     const gd = await pc.createGraphicsDevice(this._canvas, {
       deviceTypes: ['webgl2'], antialias: false, alpha: false,
+      // preserveDrawingBuffer lets captureSnapshot() pull pixels out of
+      // the canvas after compositing — required for the AI snapshot
+      // flow. Small perf cost; fine for a labs viewer.
+      preserveDrawingBuffer: true,
     });
     const opts = new pc.AppOptions();
     opts.graphicsDevice = gd;

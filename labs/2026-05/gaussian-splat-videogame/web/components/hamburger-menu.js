@@ -1,18 +1,19 @@
 // Hamburger menu with collapsible sections (using native <details>).
 //
-// Sections:
-//   • Catalog    — scenes grouped by category, with author / license /
-//                   size, click-to-load. Replaces the old top-of-screen
-//                   chip picker entirely.
-//   • Scene      — current scene credit (author, license, link).
-//   • Render     — move speed, FOV, orbit/fly mode.
+// Sections (top-level, expandable):
+//   • Catalog     — scenes grouped Category → Subcategory → Scene.
+//   • Scene       — current scene credit (author, license, link).
+//   • Render      — move speed, FOV, orbit/fly mode.
+//   • AI          — Chrome Prompt API (Nano) + WebLLM stubs; one-shot
+//                    scene analysis that snapshots the canvas and shows
+//                    the response in a bottom banner.
 //   • Experiments — toggle each registered experiment; per-experiment
-//                   settings panels are nested <details> (collapsed by
-//                   default) so the menu stays scannable when many
-//                   sliders exist.
+//                    settings are nested <details> closed by default.
 //
 // Side-effect module: auto-attaches to the first <splat-scene> on the
 // page once it emits 'ready'.
+
+import { buildRegistry } from '../ai/models.js';
 
 function attach(scene) {
   const root = scene;
@@ -80,6 +81,11 @@ function attach(scene) {
   modeRow.appendChild(modeSel);
   renderSec.body.appendChild(modeRow);
 
+  // ── AI ────────────────────────────────────────────────────────────────
+  const aiSec = makeSection('AI', false);
+  panel.appendChild(aiSec.el);
+  buildAISection(aiSec.body, scene);
+
   // ── Experiments ───────────────────────────────────────────────────────
   const xpSec = makeSection('Experiments', true);
   panel.appendChild(xpSec.el);
@@ -134,7 +140,7 @@ function attach(scene) {
   }
 }
 
-// ── Catalog tree ─────────────────────────────────────────────────────────
+// ── Catalog tree (Category → Subcategory → Scene) ───────────────────────
 function buildCatalog(host, scene) {
   const catalog = scene._catalog;
   if (!catalog) {
@@ -142,49 +148,202 @@ function buildCatalog(host, scene) {
     return;
   }
   const cats = catalog.categories || {};
-  const groups = new Map();
+
+  // group: cat -> sub -> [scenes]
+  const byCat = new Map();
   for (const s of catalog.scenes) {
     const c = s.category || 'other';
-    if (!groups.has(c)) groups.set(c, []);
-    groups.get(c).push(s);
+    const sub = s.subcategory || '(misc)';
+    if (!byCat.has(c)) byCat.set(c, new Map());
+    const m = byCat.get(c);
+    if (!m.has(sub)) m.set(sub, []);
+    m.get(sub).push(s);
   }
-  const ordered = Array.from(groups.keys()).sort((a, b) => {
+  const catOrder = Array.from(byCat.keys()).sort((a, b) => {
     return (cats[a]?.order ?? 999) - (cats[b]?.order ?? 999);
   });
 
-  for (const cat of ordered) {
+  for (const cat of catOrder) {
+    const subs = byCat.get(cat);
+    const total = Array.from(subs.values()).reduce((n, arr) => n + arr.length, 0);
     const det = document.createElement('details');
     det.open = true;
-    det.className = 'tree-group';
+    det.className = 'tree-group tree-cat';
     const sum = document.createElement('summary');
-    sum.textContent = `${cats[cat]?.title ?? cap(cat)} (${groups.get(cat).length})`;
+    sum.textContent = `${cats[cat]?.title ?? cap(cat)} (${total})`;
     det.appendChild(sum);
 
-    // Sort within group by size
-    const items = groups.get(cat).slice().sort((a, b) => (a.size_mb ?? 0) - (b.size_mb ?? 0));
-    for (const s of items) {
-      const leaf = document.createElement('button');
-      leaf.className = 'tree-leaf';
-      leaf.dataset.sceneId = s.id;
-      leaf.setAttribute('aria-pressed', String(s.id === scene._currentSceneId));
-      leaf.innerHTML = `
-        <strong>${esc(s.title)}</strong>
-        <span class="meta">${esc(s.author)} · ${s.size_mb ?? '?'} MB</span>
-        ${s.warning ? `<span class="warn">⚠ ${esc(s.warning)}</span>` : ''}
-      `;
-      leaf.addEventListener('click', () => scene.loadScene(s.id));
-      det.appendChild(leaf);
+    const subOrder = Array.from(subs.keys()).sort();
+    for (const sub of subOrder) {
+      const subItems = subs.get(sub).slice().sort((a, b) => (a.size_mb ?? 0) - (b.size_mb ?? 0));
+      const subDet = document.createElement('details');
+      subDet.open = true;
+      subDet.className = 'tree-group tree-sub';
+      const subSum = document.createElement('summary');
+      subSum.textContent = `${sub} (${subItems.length})`;
+      subDet.appendChild(subSum);
+      for (const s of subItems) {
+        const leaf = document.createElement('button');
+        leaf.className = 'tree-leaf';
+        leaf.dataset.sceneId = s.id;
+        leaf.setAttribute('aria-pressed', String(s.id === scene._currentSceneId));
+        leaf.innerHTML = `
+          <strong>${esc(s.title)}</strong>
+          <span class="meta">${esc(s.author)} · ${s.size_mb ?? '?'} MB</span>
+          ${s.warning ? `<span class="warn">⚠ ${esc(s.warning)}</span>` : ''}
+        `;
+        leaf.addEventListener('click', () => scene.loadScene(s.id));
+        subDet.appendChild(leaf);
+      }
+      det.appendChild(subDet);
     }
     host.appendChild(det);
   }
 
-  // Highlight active leaf as scenes change
   scene.addEventListener('scene-loaded', (e) => {
     const id = e.detail.scene.id;
     for (const el of host.querySelectorAll('.tree-leaf')) {
       el.setAttribute('aria-pressed', String(el.dataset.sceneId === id));
     }
   });
+}
+
+// ── AI section ──────────────────────────────────────────────────────────
+function buildAISection(host, scene) {
+  const models = buildRegistry();
+  let activeId = models[0].id;
+
+  // Status / action row
+  const actions = document.createElement('div');
+  actions.className = 'menu-body';
+  host.appendChild(actions);
+
+  const status = document.createElement('div');
+  status.className = 'credit';
+  status.textContent = 'Checking…';
+  actions.appendChild(status);
+
+  // Active-model select
+  const actRow = row();
+  actRow.appendChild(span('Active'));
+  const sel = document.createElement('select');
+  for (const m of models) {
+    const opt = document.createElement('option');
+    opt.value = m.id;
+    opt.textContent = m.label;
+    sel.appendChild(opt);
+  }
+  sel.value = activeId;
+  sel.addEventListener('change', () => { activeId = sel.value; refresh(); });
+  actRow.appendChild(sel);
+  actions.appendChild(actRow);
+
+  // Analyse button
+  const analyse = document.createElement('button');
+  analyse.textContent = '✦ Analyse current scene';
+  analyse.style.width = '100%';
+  analyse.style.padding = '10px';
+  analyse.style.marginTop = '6px';
+  analyse.addEventListener('click', () => runAnalysis().catch(err => {
+    console.error('[ai] analysis failed', err);
+    scene.showResponse(String(err.message || err), { badge: 'Error', ttlMs: 8000 });
+  }));
+  actions.appendChild(analyse);
+
+  // Per-model sub-details
+  const modelsDet = document.createElement('details');
+  modelsDet.className = 'tree-group';
+  const modelsSum = document.createElement('summary');
+  modelsSum.textContent = 'Models';
+  modelsDet.appendChild(modelsSum);
+  host.appendChild(modelsDet);
+
+  for (const m of models) {
+    const det = document.createElement('details');
+    det.className = 'tree-group tree-sub';
+    const sum = document.createElement('summary');
+    sum.textContent = m.label;
+    det.appendChild(sum);
+    const body = document.createElement('div');
+    body.className = 'menu-body';
+    body.innerHTML = `
+      <div class="credit">
+        <span class="meta">${esc(m.provider)} · ${esc(m.runtime)} · ${esc(m.sizeHint)}</span><br>
+        ${m.multimodal ? 'multimodal (text + image)' : 'text only'}
+        ${m.notes ? `<br><span class="meta">${esc(m.notes)}</span>` : ''}
+      </div>
+      <div class="row"><span class="model-status">checking…</span>
+        <button class="model-setup">Set up</button></div>
+    `;
+    det.appendChild(body);
+    const statusEl = body.querySelector('.model-status');
+    const setupBtn = body.querySelector('.model-setup');
+    setupBtn.addEventListener('click', async () => {
+      try {
+        setupBtn.disabled = true;
+        statusEl.textContent = 'setting up…';
+        await m.ensureReady((bytes) => { statusEl.textContent = `downloading ${formatBytes(bytes)}…`; });
+        statusEl.textContent = 'ready';
+        sel.value = m.id; activeId = m.id;
+      } catch (e) {
+        statusEl.textContent = `not ready: ${e.message}`;
+      } finally {
+        setupBtn.disabled = false;
+        refresh();
+      }
+    });
+    m._statusEl = statusEl;
+    m._setupBtn = setupBtn;
+    modelsDet.appendChild(det);
+  }
+
+  // Initial availability checks (deferred so the menu renders quickly)
+  setTimeout(refresh, 0);
+
+  async function refresh() {
+    const active = models.find(m => m.id === activeId);
+    if (!active) return;
+    for (const m of models) {
+      try {
+        const a = await m.availability();
+        if (m._statusEl) m._statusEl.textContent = `status: ${a}`;
+        if (m._setupBtn) m._setupBtn.disabled = (a === 'available') || (a === 'unavailable' && m.id !== 'chrome-builtin');
+      } catch (e) {
+        if (m._statusEl) m._statusEl.textContent = `status: error`;
+      }
+    }
+    try {
+      const a = await active.availability();
+      status.innerHTML = `Active: <strong>${esc(active.label)}</strong><br>
+        <span class="meta">${esc(active.provider)} · ${esc(active.runtime)} · ${esc(a)}</span>`;
+      analyse.disabled = (a === 'unavailable');
+    } catch (e) {
+      status.textContent = `Active: ${active.label} — error: ${e.message}`;
+      analyse.disabled = true;
+    }
+  }
+
+  async function runAnalysis() {
+    const active = models.find(m => m.id === activeId);
+    if (!active) return;
+    scene.showResponse('Capturing scene…', { badge: active.label.split(' (')[0], ttlMs: 0 });
+    const blob = await scene.captureSnapshot();
+    const bitmap = await createImageBitmap(blob);
+    scene.showResponse('Thinking…', { badge: active.label.split(' (')[0], ttlMs: 0 });
+    const currentScene = scene.currentScene?.();
+    const hint = currentScene ? `Scene title: "${currentScene.title}" by ${currentScene.author}.` : '';
+    await active.ensureReady?.((bytes) => scene.showResponse(`Downloading model: ${formatBytes(bytes)}`, { badge: 'AI', ttlMs: 0 }));
+    const reply = await active.describe(bitmap, hint);
+    scene.showResponse(String(reply).trim(), { badge: active.label.split(' (')[0], ttlMs: 30000 });
+  }
+}
+
+function formatBytes(n) {
+  if (!n) return '?';
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+  if (n < 1024 * 1024 * 1024) return `${(n / 1024 / 1024).toFixed(1)} MB`;
+  return `${(n / 1024 / 1024 / 1024).toFixed(2)} GB`;
 }
 
 // ── Helpers ─────────────────────────────────────────────────────────────
