@@ -18,6 +18,7 @@
 
 import { getLanguageModelAPI, checkAvailability, createSession, promptMultimodal } from './prompt-api.js';
 import { TransformersJSModel } from './transformers-js.js';
+import { MediaPipeDetector } from './mediapipe.js';
 
 const DESCRIBE_SYSTEM =
   'You are a concise art and 3D-scene critic. Given a Gaussian-splat scene, write a vivid 1–3 sentence description of subject, mood, and palette. Do not preface with phrases like "the image shows" or "based on the metadata".';
@@ -167,7 +168,45 @@ export function isIOS() {
 export function buildRegistry() {
   return [
     new ChromeBuiltinModel(),
-    // ─── Object detection tier ─────────────────────────────────────────
+    // ─── MediaPipe object detection ────────────────────────────────────
+    // Different runtime from Transformers.js — TFLite via MediaPipe
+    // Tasks. iOS Safari has been crashing every ONNX-Runtime-Web model
+    // we've tried, including tiny encoder-only ones; MediaPipe ships a
+    // separate WASM purpose-built for mobile browsers. iOS DEFAULT.
+    new MediaPipeDetector({
+      id: 'mp-efficientdet-lite0',
+      label: 'EfficientDet Lite 0 (MediaPipe, iOS default)',
+      modelUrl: 'https://storage.googleapis.com/mediapipe-models/object_detector/efficientdet_lite0/int8/1/efficientdet_lite0.tflite',
+      sizeHint: '~5 MB (TFLite int8)',
+      downloadGB: 0.005,
+      delegate: 'CPU',
+      threshold: 0.3,
+      topK: 10,
+      notes: 'Google MediaPipe object detector — TFLite runtime, different code path from ONNX. Designed for mobile browsers, much better iOS-tested than Transformers.js. ~5 MB model + ~11 MB MediaPipe WASM (cached after first load).',
+    }),
+    new MediaPipeDetector({
+      id: 'mp-efficientdet-lite2',
+      label: 'EfficientDet Lite 2 (MediaPipe, better)',
+      modelUrl: 'https://storage.googleapis.com/mediapipe-models/object_detector/efficientdet_lite2/int8/1/efficientdet_lite2.tflite',
+      sizeHint: '~8 MB (TFLite int8)',
+      downloadGB: 0.008,
+      delegate: 'CPU',
+      threshold: 0.3,
+      topK: 10,
+      notes: 'Larger EfficientDet — more accurate detection at slightly higher compute.',
+    }),
+    new MediaPipeDetector({
+      id: 'mp-ssd-mobilenet',
+      label: 'SSD MobileNet V2 (MediaPipe)',
+      modelUrl: 'https://storage.googleapis.com/mediapipe-models/object_detector/ssd_mobilenet_v2/float16/latest/ssd_mobilenet_v2.tflite',
+      sizeHint: '~6 MB (TFLite fp16)',
+      downloadGB: 0.006,
+      delegate: 'CPU',
+      threshold: 0.3,
+      topK: 10,
+      notes: 'Classic MobileNet V2 + SSD detection head. Slightly different label distribution than EfficientDet.',
+    }),
+    // ─── ONNX-based object detection tier ───────────────────────────────
     // Encoder-only models, no autoregressive decoder, tiny weights. The
     // most reliable browser-inference path on iOS WebGPU. Output is a
     // structured list of (label, score, bbox) rather than prose, but
@@ -411,18 +450,19 @@ export function buildRegistry() {
 }
 
 // Pick the best default model for the current platform.
-//   • iOS / WebKit: YOLOS Tiny — encoder-only, ~9 MB, the most stable
-//     model in the menu. Captioners keep crashing iOS WebGPU; object
-//     detection is a more reliable form of "what's in this scene?".
+//   • iOS / WebKit: MediaPipe EfficientDet Lite 0 — different runtime
+//     from Transformers.js / ONNX Runtime Web (which has been crashing
+//     iOS Safari on every model we've tried, even at 9 MB).
 //   • Chrome/Edge with Nano available: Nano (no download).
 //   • Other desktop: PaliGemma 2.
 export function pickDefaultModelId(models) {
   if (isIOS()) {
-    return models.find(m => m.id === 'yolos-tiny')?.id
-        ?? models.find(m => m.id === 'distilvit')?.id
+    return models.find(m => m.id === 'mp-efficientdet-lite0')?.id
+        ?? models.find(m => m.id === 'mp-ssd-mobilenet')?.id
+        ?? models.find(m => m.id === 'yolos-tiny')?.id
         ?? models[1].id;
   }
   return models.find(m => m.id === 'paligemma2-3b')?.id
-      ?? models.find(m => m.id === 'yolos-tiny')?.id
+      ?? models.find(m => m.id === 'mp-efficientdet-lite0')?.id
       ?? models[0].id;
 }

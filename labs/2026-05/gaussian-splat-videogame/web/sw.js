@@ -16,7 +16,7 @@
 //   navigator.serviceWorker.controller.postMessage('clearAll')
 // (handled below).
 
-const CACHE_VERSION = 'v2';
+const CACHE_VERSION = 'v3';
 const SHELL_CACHE   = `splat-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `splat-runtime-${CACHE_VERSION}`;
 
@@ -34,9 +34,11 @@ const SHELL_FILES = [
   './splatworld/world.js',
   './splatworld/phone-cane.js',
   './splatworld/tour.js',
+  './splatworld/drone.js',
   './ai/prompt-api.js',
   './ai/models.js',
   './ai/transformers-js.js',
+  './ai/mediapipe.js',
 ];
 
 // Cross-origin hosts whose responses we proactively cache.
@@ -45,9 +47,10 @@ const CACHEABLE_HOSTS = new Set([
   'huggingface.co',                  // Model weights (HF)
   'cdn-lfs.huggingface.co',          // HF LFS resolved URLs
   'cas-bridge.xethub.hf.co',         // HF Xet-backed storage
-  'cdn.jsdelivr.net',                // Engine code (Transformers.js, WebLLM)
+  'cdn.jsdelivr.net',                // Engine code (Transformers.js, WebLLM, MediaPipe)
   'esm.run',                         // Redirector to jsDelivr
   's3-eu-west-1.amazonaws.com',      // SuperSplat thumbnails
+  'storage.googleapis.com',          // MediaPipe model weights
   'raw.githubusercontent.com',       // PlayCanvas engine (mjs) fallback
 ]);
 
