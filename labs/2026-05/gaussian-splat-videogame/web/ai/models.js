@@ -176,7 +176,7 @@ export function buildRegistry() {
     // the repos are ungated.
     new TransformersJSModel({
       id: 'smolvlm-256m',
-      label: 'SmolVLM 256M (multimodal, tiny)',
+      label: 'SmolVLM 256M (multimodal, fragile on iOS)',
       provider: 'HuggingFaceTB (Apache-2.0)',
       hfRepo: 'HuggingFaceTB/SmolVLM-256M-Instruct',
       mode: 'smolvlm',
@@ -185,13 +185,14 @@ export function buildRegistry() {
       dtype: 'q4f16',
       sizeHint: '~190 MB (q4f16)',
       downloadGB: 0.19,
-      iosSafe: true,
+      iosSafe: false,
+      mobileWarning: 'Observed crashing iOS Safari mid-load — likely WebGPU shader-compile on Idefics3 attention ops. On iOS use DistilViT or ViT-GPT2.',
       maxNewTokens: 120,
-      notes: 'HF\'s purpose-built tiny VLM. Sees the rendered image. Comfortably fits iOS Safari\'s tab cap with headroom to spare. Captions are short but on-topic.',
+      notes: 'HF\'s purpose-built tiny VLM. Architecture is more complex than the ViT encoder-decoder captioners; on iOS Safari\'s WebGPU it has been seen to crash before inference. Works fine on Chrome/Edge desktop.',
     }),
     new TransformersJSModel({
       id: 'smolvlm-500m',
-      label: 'SmolVLM 500M (multimodal)',
+      label: 'SmolVLM 500M (multimodal, fragile on iOS)',
       provider: 'HuggingFaceTB (Apache-2.0)',
       hfRepo: 'HuggingFaceTB/SmolVLM-500M-Instruct',
       mode: 'smolvlm',
@@ -200,17 +201,19 @@ export function buildRegistry() {
       dtype: 'q4f16',
       sizeHint: '~340 MB (q4f16)',
       downloadGB: 0.34,
-      iosSafe: true,
-      mobileWarning: 'Loads OK but inference may exceed iOS Safari\'s heap on 8 GB iPhones — if it crashes mid-Analyse, switch to SmolVLM 256M.',
+      iosSafe: false,
+      mobileWarning: 'Same iOS WebGPU fragility as the 256M variant. Desktop only.',
       maxNewTokens: 160,
-      notes: 'Larger SmolVLM — richer captions, tight on memory-constrained iPhones (256M is the safer iOS default).',
+      notes: 'Larger SmolVLM — richer captions on desktop, doesn\'t survive iOS Safari\'s WebGPU.',
     }),
     // Even-lighter tier: pure image captioners (encoder-decoder, no chat).
     // No prompting — just "describe what's in this picture". These are
-    // tiny, fast, and very stable on memory-constrained devices.
+    // tiny, fast, and the most reliably stable on iOS WebGPU (their
+    // ops are basic ViT + GPT2 vs the more exotic attention patterns
+    // in SmolVLM / PaliGemma).
     new TransformersJSModel({
       id: 'vit-gpt2',
-      label: 'ViT-GPT2 (classic captioner, lite)',
+      label: 'ViT-GPT2 (classic captioner, iOS-stable)',
       provider: 'Xenova (NLP Connect base)',
       hfRepo: 'Xenova/vit-gpt2-image-captioning',
       mode: 'pipeline',
@@ -221,11 +224,11 @@ export function buildRegistry() {
       downloadGB: 0.25,
       iosSafe: true,
       maxNewTokens: 40,
-      notes: 'Classic ViT encoder + GPT2 decoder, MIT licensed. Pure image captioning (no conversation). Tiny, very fast, won\'t crash anything — the alt-text fallback.',
+      notes: 'Classic ViT encoder + GPT2 decoder, MIT licensed. Pure image captioning (no conversation). In Transformers.js since v1; the most thoroughly browser-tested option here. Single-sentence captions.',
     }),
     new TransformersJSModel({
       id: 'distilvit',
-      label: 'DistilViT (Mozilla captioner, lite)',
+      label: 'DistilViT (iOS default — most stable)',
       provider: 'Mozilla',
       hfRepo: 'Mozilla/distilvit',
       mode: 'pipeline',
@@ -236,7 +239,7 @@ export function buildRegistry() {
       downloadGB: 0.19,
       iosSafe: true,
       maxNewTokens: 40,
-      notes: 'Mozilla\'s distilled image captioner. Smallest viable model in the menu (~190 MB). Single-sentence captions only.',
+      notes: 'Mozilla\'s distilled image captioner, built explicitly for browser inference (used in Firefox alt-text). Smallest viable model in the menu and the architecture is purpose-trimmed for stability. Single-sentence captions; this is the iOS default after SmolVLM was found to crash iOS WebGPU.',
     }),
     // PaliGemma 2 — the model you asked for. Crashes iOS at ~2.7 GiB;
     // kept for desktop users. Lower-level API path.
@@ -356,14 +359,18 @@ export function buildRegistry() {
 }
 
 // Pick the best default model for the current platform.
-//   • iOS / WebKit: SmolVLM 256M (190 MB) — was 500M, but the larger
-//     variant has been seen to crash mid-inference on 8 GB iPhones.
+//   • iOS / WebKit: DistilViT (Mozilla's distilled image captioner).
+//     Simpler encoder-decoder architecture than SmolVLM, which has
+//     been observed to crash iOS Safari mid-load — likely WebGPU
+//     shader-compile failures on Idefics3-family attention ops, not
+//     a memory issue.
 //   • Chrome/Edge with Nano available: Nano (no download).
 //   • Other desktop: PaliGemma 2.
 export function pickDefaultModelId(models) {
   if (isIOS()) {
-    return models.find(m => m.id === 'smolvlm-256m')?.id
-        ?? models.find(m => m.id === 'distilvit')?.id
+    return models.find(m => m.id === 'distilvit')?.id
+        ?? models.find(m => m.id === 'vit-gpt2')?.id
+        ?? models.find(m => m.id === 'florence2-base')?.id
         ?? models[1].id;
   }
   return models.find(m => m.id === 'paligemma2-3b')?.id
