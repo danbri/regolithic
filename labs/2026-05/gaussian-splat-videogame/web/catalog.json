@@ -1,14 +1,21 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "version": 1,
+  "version": 2,
   "categories": {
-    "objects":      { "title": "Objects",      "order": 1 },
-    "architecture": { "title": "Architecture", "order": 2 },
-    "nature":       { "title": "Nature",       "order": 3 },
-    "vehicles":     { "title": "Vehicles",     "order": 4 },
-    "astronomy":    { "title": "Astronomy",    "order": 5 }
+    "places":  { "title": "Places",  "order": 1 },
+    "objects": { "title": "Objects", "order": 2 }
   },
   "scenes": [
+
+    {
+      "id": "kitchen-table", "title": "Kitchen Table", "author": "wrender",
+      "license": "Creative Commons (variant per scene page)",
+      "license_url": "https://superspl.at/scene/ffa72aa0",
+      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/ffa72aa0/v1/meta.json",
+      "size_mb": 38, "category": "objects", "subcategory": "Furniture",
+      "camera": { "position": [0, 0.6, 1.2], "lookAt": [0, 0.2, 0] },
+      "transform": { "rotation": [180, 0, 0] }
+    },
     {
       "id": "tomatoes", "title": "Tomatoes", "author": "simonbethke",
       "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/0101ad57",
@@ -34,6 +41,30 @@
       "transform": { "rotation": [180, 0, 0] }
     },
     {
+      "id": "vegetables-hq", "title": "Vegetables HQ", "author": "simonbethke",
+      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/f592397a",
+      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/f592397a/v1/meta.json",
+      "size_mb": 31, "category": "objects", "subcategory": "Food",
+      "camera": { "position": [0, 0.5, 1.2], "lookAt": [0, 0.2, 0] },
+      "transform": { "rotation": [180, 0, 0] }
+    },
+    {
+      "id": "cluster-fly", "title": "Cluster Fly", "author": "danylyon",
+      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/285082b2",
+      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/285082b2/v2/meta.json",
+      "size_mb": 11, "category": "objects", "subcategory": "Specimen",
+      "camera": { "position": [0, 0.1, 0.25], "lookAt": [0, 0, 0] },
+      "transform": { "rotation": [180, 0, 0] }
+    },
+    {
+      "id": "bumblebee", "title": "Brown-banded Carder Bumblebee", "author": "macroscans",
+      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/65ff2330",
+      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/65ff2330/v1/meta.json",
+      "size_mb": 109, "category": "objects", "subcategory": "Specimen",
+      "camera": { "position": [0, 0.05, 0.15], "lookAt": [0, 0, 0] },
+      "transform": { "rotation": [180, 0, 0] }
+    },
+    {
       "id": "quechua", "title": "QUECHUA", "author": "schindelar3d",
       "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/f83d530f",
       "format": "ply-compressed", "url": "https://d28zzqy0iyovbz.cloudfront.net/f83d530f/v1/scene.compressed.ply",
@@ -50,19 +81,27 @@
       "transform": { "rotation": [180, 0, 0] }
     },
     {
-      "id": "kitchen-table", "title": "Kitchen Table", "author": "wrender",
-      "license": "Creative Commons (variant per scene page)",
-      "license_url": "https://superspl.at/scene/ffa72aa0",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/ffa72aa0/v1/meta.json",
-      "size_mb": 38, "category": "objects", "subcategory": "Domestic",
-      "camera": { "position": [0, 0.6, 1.2], "lookAt": [0, 0.2, 0] },
+      "id": "boeing-40b", "title": "Boeing Model 40B", "author": "tosolini",
+      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/aba8c704",
+      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/aba8c704/v1/meta.json",
+      "size_mb": 35, "category": "objects", "subcategory": "Vehicle",
+      "camera": { "position": [0, 2, 6], "lookAt": [0, 1, 0] },
       "transform": { "rotation": [180, 0, 0] }
     },
+    {
+      "id": "the-moon", "title": "The Moon — Artemis II Data", "author": "Nicolas Diolez",
+      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/2ac8f423",
+      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/2ac8f423/v1/meta.json",
+      "size_mb": 64, "category": "objects", "subcategory": "Astro",
+      "camera": { "position": [0, 0, 5], "lookAt": [0, 0, 0] },
+      "transform": { "rotation": [180, 0, 0] }
+    },
+
     {
       "id": "bar-mipmap", "title": "Bar", "author": "ethan3111",
       "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/c491d277",
       "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/c491d277/v1/meta.json",
-      "size_mb": 27, "category": "architecture", "subcategory": "Indoor",
+      "size_mb": 27, "category": "places", "subcategory": "Room",
       "camera": { "position": [0, 1.6, 4], "lookAt": [0, 1, 0] },
       "transform": { "rotation": [180, 0, 0] }
     },
@@ -70,7 +109,7 @@
       "id": "cochem-castle", "title": "Cochem Castle", "author": "dok11",
       "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/9b18007e",
       "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/9b18007e/v1/meta.json",
-      "size_mb": 26, "category": "architecture", "subcategory": "Outdoor",
+      "size_mb": 26, "category": "places", "subcategory": "Castle",
       "camera": { "position": [0, 8, 25], "lookAt": [0, 4, 0] },
       "transform": { "rotation": [180, 0, 0] }
     },
@@ -78,7 +117,7 @@
       "id": "ludlow", "title": "Ludlow — Quality Square", "author": "ijenko",
       "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/ca36efcc",
       "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/ca36efcc/v1/meta.json",
-      "size_mb": 49, "category": "architecture", "subcategory": "Outdoor",
+      "size_mb": 49, "category": "places", "subcategory": "Street",
       "camera": { "position": [0, 2, 8], "lookAt": [0, 1, 0] },
       "transform": { "rotation": [180, 0, 0] }
     },
@@ -86,39 +125,15 @@
       "id": "la-night", "title": "LA Night", "author": "matousekfoto",
       "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/d1ea0b35",
       "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/d1ea0b35/v1/meta.json",
-      "size_mb": 42, "category": "architecture", "subcategory": "Outdoor",
+      "size_mb": 42, "category": "places", "subcategory": "Street",
       "camera": { "position": [0, 2, 6], "lookAt": [0, 1, 0] },
-      "transform": { "rotation": [180, 0, 0] }
-    },
-    {
-      "id": "cluster-fly", "title": "Cluster Fly", "author": "danylyon",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/285082b2",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/285082b2/v2/meta.json",
-      "size_mb": 11, "category": "nature", "subcategory": "Animals",
-      "camera": { "position": [0, 0.1, 0.25], "lookAt": [0, 0, 0] },
-      "transform": { "rotation": [180, 0, 0] }
-    },
-    {
-      "id": "bumblebee", "title": "Brown-banded Carder Bumblebee", "author": "macroscans",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/65ff2330",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/65ff2330/v1/meta.json",
-      "size_mb": 109, "category": "nature", "subcategory": "Animals",
-      "camera": { "position": [0, 0.05, 0.15], "lookAt": [0, 0, 0] },
-      "transform": { "rotation": [180, 0, 0] }
-    },
-    {
-      "id": "vegetables-hq", "title": "Vegetables HQ", "author": "simonbethke",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/f592397a",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/f592397a/v1/meta.json",
-      "size_mb": 31, "category": "nature", "subcategory": "Plants",
-      "camera": { "position": [0, 0.5, 1.2], "lookAt": [0, 0.2, 0] },
       "transform": { "rotation": [180, 0, 0] }
     },
     {
       "id": "nebula-house", "title": "Botanical Garden — Nebula House", "author": "simonbethke",
       "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/e76f4905",
       "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/e76f4905/v1/meta.json",
-      "size_mb": 170, "category": "nature", "subcategory": "Botanical Garden",
+      "size_mb": 170, "category": "places", "subcategory": "Greenhouse",
       "camera": { "position": [0, 1.6, 4], "lookAt": [0, 1, 0] },
       "transform": { "rotation": [180, 0, 0] },
       "warning": "~170 MB — slow on cellular."
@@ -127,7 +142,7 @@
       "id": "america-house", "title": "Botanical Garden — America v2", "author": "simonbethke",
       "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/e2b36b69",
       "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/e2b36b69/v1/meta.json",
-      "size_mb": 242, "category": "nature", "subcategory": "Botanical Garden",
+      "size_mb": 242, "category": "places", "subcategory": "Greenhouse",
       "camera": { "position": [0, 1.6, 4], "lookAt": [0, 1, 0] },
       "transform": { "rotation": [180, 0, 0] },
       "warning": "~242 MB — slow on cellular."
@@ -136,35 +151,19 @@
       "id": "victoria-house", "title": "Botanical Garden — Victoria House (LOD)", "author": "simonbethke",
       "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/6f697c4d",
       "format": "sog-lod", "url": "https://d28zzqy0iyovbz.cloudfront.net/6f697c4d/v1/lod-meta.json",
-      "size_mb": 305, "category": "nature", "subcategory": "Botanical Garden",
+      "size_mb": 305, "category": "places", "subcategory": "Greenhouse",
       "camera": { "position": [0, 1.6, 4], "lookAt": [0, 1, 0] },
       "transform": { "rotation": [180, 0, 0] },
       "warning": "~305 MB streaming LOD bundle — slow on mobile."
     },
     {
-      "id": "boeing-40b", "title": "Boeing Model 40B", "author": "tosolini",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/aba8c704",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/aba8c704/v1/meta.json",
-      "size_mb": 35, "category": "vehicles", "subcategory": "Aviation",
-      "camera": { "position": [0, 2, 6], "lookAt": [0, 1, 0] },
-      "transform": { "rotation": [180, 0, 0] }
-    },
-    {
       "id": "tugboats", "title": "OceanTeam Tugboats", "author": "tosolini",
       "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/45877bc9",
       "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/45877bc9/v1/meta.json",
-      "size_mb": 161, "category": "vehicles", "subcategory": "Marine",
+      "size_mb": 161, "category": "places", "subcategory": "Marine",
       "camera": { "position": [0, 5, 20], "lookAt": [0, 1, 0] },
       "transform": { "rotation": [180, 0, 0] },
       "warning": "~161 MB — slow on cellular."
-    },
-    {
-      "id": "the-moon", "title": "The Moon — Artemis II Data", "author": "Nicolas Diolez",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/2ac8f423",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/2ac8f423/v1/meta.json",
-      "size_mb": 64, "category": "astronomy", "subcategory": "Bodies",
-      "camera": { "position": [0, 0, 5], "lookAt": [0, 0, 0] },
-      "transform": { "rotation": [180, 0, 0] }
     }
   ]
 }
