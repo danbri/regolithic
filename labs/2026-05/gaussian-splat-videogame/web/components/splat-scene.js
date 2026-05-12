@@ -265,6 +265,32 @@ class SplatScene extends HTMLElement {
     return this._catalog?.scenes.find(s => s.id === this._currentSceneId) ?? null;
   }
 
+  // ── Camera state snapshot (for Tour / AI / debugging) ─────────────────
+  // Returns position, look-direction, up vector, FOV, aspect, and the
+  // raw quaternion. Useful for sending alongside captured frames to the
+  // AI ("here's the frame; this is where the camera was").
+  captureCameraState() {
+    const cam = this._cameraEntity;
+    const pos = cam.getPosition();
+    const fwd = cam.forward;
+    const up  = cam.up;
+    const rot = cam.getRotation();
+    const w = this._canvas?.width ?? 0;
+    const h = this._canvas?.height ?? 1;
+    return {
+      position:  { x: pos.x, y: pos.y, z: pos.z },
+      direction: { x: fwd.x, y: fwd.y, z: fwd.z },
+      up:        { x: up.x,  y: up.y,  z: up.z },
+      misc: {
+        viewportWidth: w,
+        viewportHeight: h,
+        fov: cam.camera?.fov ?? 70,
+        aspectRatio: w / Math.max(1, h),
+        quaternion: { x: rot.x, y: rot.y, z: rot.z, w: rot.w },
+      },
+    };
+  }
+
   // ── Lifecycle ─────────────────────────────────────────────────────────
   async connectedCallback() {
     this._buildLayout();

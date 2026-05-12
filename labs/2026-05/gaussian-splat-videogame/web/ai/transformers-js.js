@@ -1,22 +1,22 @@
 // Transformers.js (@huggingface/transformers) — WebGPU-backed multimodal.
 //
-// Supports three API surfaces per model:
-//   • mode 'pipeline'  — generic `pipeline('image-to-text', repo)`.
+// Supports four API surfaces per model:
+//   • mode 'pipeline'  — generic `pipeline(task, repo)`.
 //     For pure captioners (ViT-GPT2, DistilViT) and Florence-2-style
 //     models that take a URL + simple prompt.
 //   • mode 'paligemma' — AutoProcessor + PaliGemmaForConditionalGeneration.
 //     Required by PaliGemma's special-token prompt format.
 //   • mode 'smolvlm'   — AutoProcessor + AutoModelForVision2Seq +
-//     apply_chat_template. Required by SmolVLM / Idefics3-family VLMs;
-//     the pipeline factory's image-to-text task doesn't accept their
-//     chat-messages input shape ("Unsupported input type: object").
+//     apply_chat_template. Required by SmolVLM / Idefics3-family VLMs.
+//   • mode 'object-detection' — pipeline('object-detection', repo).
+//     Output is [{ score, label, box }] — formatted into a comma list
+//     for display. Most stable in-browser path: encoder-only, no
+//     autoregressive decoder, simple ops, tiny weights.
 //
 // Caching: Transformers.js puts downloaded weights in Cache API
 // (browser Cache Storage); ONNX Runtime Web caches compiled WebGPU
 // shaders in IndexedDB. HF CDN sends Cache-Control so first load is
-// the only slow one. We let those built-ins do the work — adding a
-// service worker on top would buy us offline-after-first-visit but
-// won't speed the cached path.
+// the only slow one. Plus the site-level service worker on top.
 //
 // CDN: latest jsDelivr +esm build of @huggingface/transformers.
 
@@ -34,15 +34,18 @@ async function loadTransformersJS(onProgress) {
 export class TransformersJSModel {
   constructor({
     id, label, provider, hfRepo,
-    mode = 'pipeline',          // 'pipeline' | 'paligemma'
-    task = 'image-text-to-text',
-    inputFormat = 'url-prompt', // 'messages' | 'url-prompt' | 'url-only'
+    mode = 'pipeline',
+    task = 'image-to-text',
+    inputFormat = 'url-prompt',
     prompt,
     dtype = 'q4f16',
     sizeHint, downloadGB,
     notes, iosSafe = true, mobileWarning,
     postProcess,
     maxNewTokens = 80,
+    detectionThreshold = 0.3,
+    detectionTopK = 10,
+    candidateLabels,
   }) {
     this.id = id;
     this.label = label;
@@ -61,6 +64,9 @@ export class TransformersJSModel {
     this.iosSafe = iosSafe;
     this.mobileWarning = mobileWarning;
     this.maxNewTokens = maxNewTokens;
+    this.detectionThreshold = detectionThreshold;
+    this.detectionTopK = detectionTopK;
+    this.candidateLabels = candidateLabels;
     this._postProcess = postProcess;
     this._engine = null;
     this._initing = false;
@@ -111,6 +117,13 @@ export class TransformersJSModel {
           progress_callback,
         });
         this._engine = { kind: 'smolvlm', processor, model, mod };
+      } else if (this.mode === 'object-detection') {
+        const detector = await mod.pipeline('object-detection', this.hfRepo, {
+          device: 'webgpu',
+          dtype: this.dtype,
+          progress_callback,
+        });
+        this._engine = { kind: 'object-detection', detector, mod };
       } else {
         const pipe = await mod.pipeline(this.task, this.hfRepo, {
           device: 'webgpu',
@@ -187,6 +200,42 @@ export class TransformersJSModel {
       // SmolVLM sometimes emits "Assistant:" prefix
       text = text.replace(/^Assistant:\s*/i, '').trim();
       return this._postProcess ? this._postProcess(text) : text;
+    }
+
+    if (kind === 'object-detection') {
+      const { url, revoke } = await imageToObjectUrl(image);
+      try {
+        const opts = {
+          threshold: this.detectionThreshold,
+          percentage: true,
+        };
+        // Zero-shot detectors (OWL-ViT, OWLv2) take candidate labels.
+        const isZeroShot = /owl/i.test(this.hfRepo);
+        let detections;
+        if (isZeroShot && this.candidateLabels) {
+          detections = await this._engine.detector(url, this.candidateLabels, opts);
+        } else {
+          detections = await this._engine.detector(url, opts);
+        }
+        // detections: [{ score, label, box: { xmin, ymin, xmax, ymax } }]
+        if (!Array.isArray(detections) || detections.length === 0) {
+          return '(no objects detected — try moving the camera, or pick a different model)';
+        }
+        const sorted = [...detections].sort((a, b) => b.score - a.score).slice(0, this.detectionTopK);
+        // De-duplicate labels, keep the best score per label.
+        const seen = new Map();
+        for (const d of sorted) {
+          const cur = seen.get(d.label);
+          if (!cur || d.score > cur.score) seen.set(d.label, d);
+        }
+        const summary = [...seen.values()]
+          .map(d => `${d.label} (${Math.round(d.score * 100)}%)`)
+          .join(' · ');
+        const text = `Detected: ${summary}`;
+        return this._postProcess ? this._postProcess(text) : text;
+      } finally {
+        revoke?.();
+      }
     }
 
     // pipeline path. Two input shapes the image-to-text pipeline accepts:

@@ -167,6 +167,58 @@ export function isIOS() {
 export function buildRegistry() {
   return [
     new ChromeBuiltinModel(),
+    // ─── Object detection tier ─────────────────────────────────────────
+    // Encoder-only models, no autoregressive decoder, tiny weights. The
+    // most reliable browser-inference path on iOS WebGPU. Output is a
+    // structured list of (label, score, bbox) rather than prose, but
+    // for "what's in the scene?" that's often more useful than a fuzzy
+    // sentence.
+    new TransformersJSModel({
+      id: 'yolos-tiny',
+      label: 'YOLOS Tiny — object detect (iOS default)',
+      provider: 'Xenova (Apache-2.0)',
+      hfRepo: 'Xenova/yolos-tiny',
+      mode: 'object-detection',
+      task: 'object-detection',
+      dtype: 'q8',
+      sizeHint: '~9 MB (int8)',
+      downloadGB: 0.009,
+      iosSafe: true,
+      detectionThreshold: 0.3,
+      detectionTopK: 12,
+      notes: 'Tiny YOLOS, ~9 MB. Detects ~80 COCO classes. Output is "Detected: chair (87%), table (76%), ...". The simplest, smallest, most-stable model in the menu — switch to this if captioners crash.',
+    }),
+    new TransformersJSModel({
+      id: 'detr-resnet50',
+      label: 'DETR ResNet-50 — object detect (accurate)',
+      provider: 'Xenova (Apache-2.0)',
+      hfRepo: 'Xenova/detr-resnet-50',
+      mode: 'object-detection',
+      task: 'object-detection',
+      dtype: 'q8',
+      sizeHint: '~41 MB (int8)',
+      downloadGB: 0.041,
+      iosSafe: true,
+      detectionThreshold: 0.4,
+      detectionTopK: 12,
+      notes: 'Meta\'s DETR with ResNet-50 backbone. ~80 COCO classes. More accurate than YOLOS-tiny, still tiny by today\'s standards.',
+    }),
+    new TransformersJSModel({
+      id: 'owlvit-base',
+      label: 'OWL-ViT — zero-shot object detect',
+      provider: 'Xenova / Google (Apache-2.0)',
+      hfRepo: 'Xenova/owlvit-base-patch32',
+      mode: 'object-detection',
+      task: 'zero-shot-object-detection',
+      dtype: 'q8',
+      sizeHint: '~148 MB (int8)',
+      downloadGB: 0.148,
+      iosSafe: true,
+      detectionThreshold: 0.1,
+      detectionTopK: 12,
+      candidateLabels: ['chair','table','person','book','lamp','cup','plate','food','sculpture','painting','plant','window','door','vehicle','wall','floor','ceiling','tomato','apple','flower','toy','tool'],
+      notes: 'Open-vocabulary detector — looks for the candidate labels you supply (defaults to a general indoor set). Slower than YOLOS but finds things outside the COCO classes.',
+    }),
     // Multimodal via Transformers.js — true image input.
     //
     // SmolVLM (HuggingFaceTB) is the spiritual answer to "smaller
@@ -359,21 +411,18 @@ export function buildRegistry() {
 }
 
 // Pick the best default model for the current platform.
-//   • iOS / WebKit: DistilViT (Mozilla's distilled image captioner).
-//     Simpler encoder-decoder architecture than SmolVLM, which has
-//     been observed to crash iOS Safari mid-load — likely WebGPU
-//     shader-compile failures on Idefics3-family attention ops, not
-//     a memory issue.
+//   • iOS / WebKit: YOLOS Tiny — encoder-only, ~9 MB, the most stable
+//     model in the menu. Captioners keep crashing iOS WebGPU; object
+//     detection is a more reliable form of "what's in this scene?".
 //   • Chrome/Edge with Nano available: Nano (no download).
 //   • Other desktop: PaliGemma 2.
 export function pickDefaultModelId(models) {
   if (isIOS()) {
-    return models.find(m => m.id === 'distilvit')?.id
-        ?? models.find(m => m.id === 'vit-gpt2')?.id
-        ?? models.find(m => m.id === 'florence2-base')?.id
+    return models.find(m => m.id === 'yolos-tiny')?.id
+        ?? models.find(m => m.id === 'distilvit')?.id
         ?? models[1].id;
   }
   return models.find(m => m.id === 'paligemma2-3b')?.id
-      ?? models.find(m => m.id === 'smolvlm-500m')?.id
+      ?? models.find(m => m.id === 'yolos-tiny')?.id
       ?? models[0].id;
 }
