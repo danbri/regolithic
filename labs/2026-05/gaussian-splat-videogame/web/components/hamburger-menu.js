@@ -212,8 +212,56 @@ function buildCatalog(host, scene) {
 function buildAISection(host, scene) {
   const models = buildRegistry();
   let activeId = models[0].id;
+  const kind = browserKind();
+  const webGPU = (typeof navigator !== 'undefined') && ('gpu' in navigator);
 
-  // Status / action row
+  // ── Browser status banner ─────────────────────────────────────────────
+  const banner = document.createElement('div');
+  banner.className = 'credit ai-banner';
+  host.appendChild(banner);
+  renderBanner();
+
+  function renderBanner() {
+    const isWebKit = (kind === 'safari' || kind === 'safari-ios' || kind === 'chrome-ios' || kind === 'firefox-ios');
+    if (isWebKit) {
+      // iOS / desktop Safari: Prompt API not available. WebLLM is the path.
+      banner.innerHTML = `
+        <strong>Browser uses WebKit${kind.endsWith('ios') ? ' (iOS)' : ''}.</strong><br>
+        Chrome's built-in Gemini Nano isn't available — Apple's WebKit
+        doesn't ship the Prompt API, and on iOS every browser
+        (including Chrome and Firefox) runs on WebKit by App Store rule.
+        ${webGPU
+          ? '<br>WebGPU is present, so the WebLLM models below should work after a one-time download.'
+          : '<br><span class="warn">WebGPU is not available; WebLLM models will report unavailable.</span>'}
+      `;
+    } else if (kind === 'chrome' || kind === 'edge') {
+      banner.innerHTML = `Chrome/Chromium detected. Built-in Nano needs the
+        Prompt API flag enabled:
+        <div class="ai-flag-row">
+          <code>chrome://flags/#prompt-api-for-gemini-nano</code>
+          <button class="ai-copy" aria-label="Copy flag URL">Copy</button>
+        </div>
+        <span class="meta">chrome:// URLs can't be opened from a web page —
+        paste the URL in the address bar.</span>`;
+      const copy = banner.querySelector('.ai-copy');
+      copy.addEventListener('click', async () => {
+        const txt = 'chrome://flags/#prompt-api-for-gemini-nano';
+        try {
+          await navigator.clipboard.writeText(txt);
+          copy.textContent = 'Copied ✓';
+          setTimeout(() => copy.textContent = 'Copy', 1500);
+        } catch {
+          copy.textContent = 'Press long → Copy';
+        }
+      });
+    } else {
+      banner.innerHTML = `Browser: <strong>${esc(kind)}</strong>. Built-in
+        AI status depends on the browser; WebLLM is available via WebGPU
+        ${webGPU ? '(detected)' : '(<span class="warn">not detected</span>)'}.`;
+    }
+  }
+
+  // ── Active-model select + analyse button ──────────────────────────────
   const actions = document.createElement('div');
   actions.className = 'menu-body';
   host.appendChild(actions);
@@ -223,7 +271,6 @@ function buildAISection(host, scene) {
   status.textContent = 'Checking…';
   actions.appendChild(status);
 
-  // Active-model select
   const actRow = row();
   actRow.appendChild(span('Active'));
   const sel = document.createElement('select');
@@ -238,7 +285,6 @@ function buildAISection(host, scene) {
   actRow.appendChild(sel);
   actions.appendChild(actRow);
 
-  // Analyse button
   const analyse = document.createElement('button');
   analyse.textContent = '✦ Analyse current scene';
   analyse.style.width = '100%';
@@ -250,7 +296,7 @@ function buildAISection(host, scene) {
   }));
   actions.appendChild(analyse);
 
-  // Per-model sub-details
+  // ── Per-model sub-details ─────────────────────────────────────────────
   const modelsDet = document.createElement('details');
   modelsDet.className = 'tree-group';
   const modelsSum = document.createElement('summary');
@@ -265,53 +311,93 @@ function buildAISection(host, scene) {
     sum.textContent = m.label;
     det.appendChild(sum);
     const body = document.createElement('div');
-    body.className = 'menu-body';
+    body.className = 'menu-body ai-model-body';
     body.innerHTML = `
       <div class="credit">
-        <span class="meta">${esc(m.provider)} · ${esc(m.runtime)} · ${esc(m.sizeHint)}</span><br>
-        ${m.multimodal ? 'multimodal (text + image)' : 'text only'}
+        <span class="meta">${esc(m.provider)} · ${esc(m.runtime)}</span><br>
+        <span class="meta">${esc(m.sizeHint)} · ${m.multimodal ? 'multimodal (text + image)' : 'text only'}</span>
         ${m.notes ? `<br><span class="meta">${esc(m.notes)}</span>` : ''}
       </div>
-      <div class="row"><span class="model-status">checking…</span>
-        <button class="model-setup">Set up</button></div>
+      <div class="ai-model-status credit">checking…</div>
+      <div class="ai-model-action"></div>
     `;
     det.appendChild(body);
-    const statusEl = body.querySelector('.model-status');
-    const setupBtn = body.querySelector('.model-setup');
-    setupBtn.addEventListener('click', async () => {
-      try {
-        setupBtn.disabled = true;
-        statusEl.textContent = 'setting up…';
-        await m.ensureReady((bytes) => { statusEl.textContent = `downloading ${formatBytes(bytes)}…`; });
-        statusEl.textContent = 'ready';
-        sel.value = m.id; activeId = m.id;
-      } catch (e) {
-        statusEl.textContent = `not ready: ${e.message}`;
-      } finally {
-        setupBtn.disabled = false;
-        refresh();
-      }
-    });
-    m._statusEl = statusEl;
-    m._setupBtn = setupBtn;
+    m._statusEl = body.querySelector('.ai-model-status');
+    m._actionEl = body.querySelector('.ai-model-action');
     modelsDet.appendChild(det);
   }
 
-  // Initial availability checks (deferred so the menu renders quickly)
   setTimeout(refresh, 0);
 
+  function setModelAction(m, html) { m._actionEl.innerHTML = html; }
+
+  function wireSetup(m, a) {
+    if (a === 'available') {
+      setModelAction(m, `<button class="ai-activate">Use this model</button>`);
+      m._actionEl.querySelector('.ai-activate').addEventListener('click', () => {
+        sel.value = m.id; activeId = m.id; refresh();
+      });
+    } else if (a === 'downloadable') {
+      // Two-step: explicit confirm before pulling weights down.
+      setModelAction(m, `
+        <button class="ai-setup">Set up (download ~${m.downloadGB.toFixed(1)} GB)</button>
+      `);
+      m._actionEl.querySelector('.ai-setup').addEventListener('click', () => {
+        setModelAction(m, `
+          <div class="ai-confirm">
+            <span>Download <strong>${m.sizeHint}</strong> from the WebLLM CDN?
+              Stored in browser Cache Storage; cleared by clearing site data.</span>
+            <div class="row">
+              <button class="ai-confirm-yes">Download</button>
+              <button class="ai-confirm-no">Cancel</button>
+            </div>
+          </div>
+        `);
+        m._actionEl.querySelector('.ai-confirm-no').addEventListener('click', () => wireSetup(m, 'downloadable'));
+        m._actionEl.querySelector('.ai-confirm-yes').addEventListener('click', () => doDownload(m));
+      });
+    } else if (a === 'downloading') {
+      // Already in flight — let the progress box keep updating.
+    } else {
+      setModelAction(m, ''); // unavailable: nothing to do
+    }
+  }
+
+  async function doDownload(m) {
+    setModelAction(m, `
+      <div class="ai-progress">
+        <div class="ai-progress-bar"><div class="ai-progress-fill" style="width:0%"></div></div>
+        <span class="ai-progress-text">Starting…</span>
+      </div>
+    `);
+    const fill = m._actionEl.querySelector('.ai-progress-fill');
+    const text = m._actionEl.querySelector('.ai-progress-text');
+    try {
+      await m.ensureReady((p) => {
+        if (typeof p.progress === 'number') fill.style.width = `${Math.round(p.progress * 100)}%`;
+        if (p.text) text.textContent = p.text;
+      });
+      m._statusEl.textContent = 'ready';
+      sel.value = m.id; activeId = m.id;
+      refresh();
+    } catch (e) {
+      m._statusEl.innerHTML = `<span class="warn">failed: ${esc(e.message)}</span>`;
+      wireSetup(m, 'downloadable');
+    }
+  }
+
   async function refresh() {
-    const active = models.find(m => m.id === activeId);
-    if (!active) return;
     for (const m of models) {
       try {
         const a = await m.availability();
-        if (m._statusEl) m._statusEl.textContent = `status: ${a}`;
-        if (m._setupBtn) m._setupBtn.disabled = (a === 'available') || (a === 'unavailable' && m.id !== 'chrome-builtin');
+        m._statusEl.textContent = `status: ${a}`;
+        wireSetup(m, a);
       } catch (e) {
-        if (m._statusEl) m._statusEl.textContent = `status: error`;
+        m._statusEl.innerHTML = `<span class="warn">error: ${esc(e.message)}</span>`;
       }
     }
+    const active = models.find(m => m.id === activeId);
+    if (!active) return;
     try {
       const a = await active.availability();
       status.innerHTML = `Active: <strong>${esc(active.label)}</strong><br>
@@ -326,24 +412,39 @@ function buildAISection(host, scene) {
   async function runAnalysis() {
     const active = models.find(m => m.id === activeId);
     if (!active) return;
-    scene.showResponse('Capturing scene…', { badge: active.label.split(' (')[0], ttlMs: 0 });
+    const badge = active.label.split(' (')[0];
+    scene.showResponse('Capturing scene…', { badge });
     const blob = await scene.captureSnapshot();
     const bitmap = await createImageBitmap(blob);
-    scene.showResponse('Thinking…', { badge: active.label.split(' (')[0], ttlMs: 0 });
     const currentScene = scene.currentScene?.();
-    const hint = currentScene ? `Scene title: "${currentScene.title}" by ${currentScene.author}.` : '';
-    await active.ensureReady?.((bytes) => scene.showResponse(`Downloading model: ${formatBytes(bytes)}`, { badge: 'AI', ttlMs: 0 }));
-    const reply = await active.describe(bitmap, hint);
-    scene.showResponse(String(reply).trim(), { badge: active.label.split(' (')[0], ttlMs: 30000 });
+    const hint = currentScene ? `Scene: "${currentScene.title}" by ${currentScene.author} (${currentScene.category}${currentScene.subcategory ? '/' + currentScene.subcategory : ''}).` : '';
+    if ((await active.availability()) !== 'available') {
+      scene.showResponse('Preparing model…', { badge });
+      await active.ensureReady((p) => {
+        const pct = p.progress != null ? ` ${Math.round(p.progress * 100)}%` : '';
+        scene.showResponse(`${p.text || 'Loading'}${pct}`, { badge });
+      });
+    } else {
+      scene.showResponse('Thinking…', { badge });
+    }
+    const reply = await active.describe(bitmap, hint, currentScene);
+    scene.showResponse(String(reply).trim(), { badge, ttlMs: 30000 });
   }
 }
 
-function formatBytes(n) {
-  if (!n) return '?';
-  if (n < 1024) return `${n} B`;
-  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
-  if (n < 1024 * 1024 * 1024) return `${(n / 1024 / 1024).toFixed(1)} MB`;
-  return `${(n / 1024 / 1024 / 1024).toFixed(2)} GB`;
+// Browser-kind detection (rough, UA-based — fine for messaging).
+function browserKind() {
+  if (typeof navigator === 'undefined') return 'unknown';
+  const ua = navigator.userAgent;
+  if (/CriOS/.test(ua))  return 'chrome-ios';
+  if (/FxiOS/.test(ua))  return 'firefox-ios';
+  if (/EdgiOS/.test(ua)) return 'edge-ios';
+  if (/iPad|iPhone|iPod/.test(ua)) return 'safari-ios';
+  if (/Edg\//.test(ua))     return 'edge';
+  if (/Chrome\//.test(ua))  return 'chrome';
+  if (/Firefox\//.test(ua)) return 'firefox';
+  if (/Safari\//.test(ua))  return 'safari';
+  return 'unknown';
 }
 
 // ── Helpers ─────────────────────────────────────────────────────────────

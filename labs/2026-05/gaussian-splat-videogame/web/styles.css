@@ -224,6 +224,78 @@ splat-scene canvas {
   color: rgba(0, 0, 0, 0.7);
 }
 
+/* AI section */
+.menu-panel .ai-banner {
+  border-left: 2px solid var(--accent);
+  padding: 8px 10px;
+  background: rgba(77, 166, 255, 0.06);
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+.menu-panel .ai-banner .warn { color: #ffb84d; }
+.menu-panel .ai-flag-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin: 6px 0;
+}
+.menu-panel code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 3px 6px;
+  border-radius: 4px;
+  word-break: break-all;
+  flex: 1;
+}
+.menu-panel .ai-copy {
+  padding: 4px 10px;
+  font-size: 11px;
+}
+.menu-panel .ai-model-body { gap: 6px; }
+.menu-panel .ai-model-action {
+  margin: 6px 0 2px;
+}
+.menu-panel .ai-model-action button {
+  width: 100%;
+  padding: 8px;
+  font-size: 12px;
+}
+.menu-panel .ai-confirm {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 8px;
+  font-size: 12px;
+}
+.menu-panel .ai-confirm > span { display: block; margin-bottom: 6px; line-height: 1.45; }
+.menu-panel .ai-confirm .row { padding: 0; gap: 6px; }
+.menu-panel .ai-confirm .row button { flex: 1; padding: 6px; }
+.menu-panel .ai-confirm-yes { background: var(--accent); color: #000; border-color: var(--accent); }
+.menu-panel .ai-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.menu-panel .ai-progress-bar {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.menu-panel .ai-progress-fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 200ms ease-out;
+}
+.menu-panel .ai-progress-text {
+  font-size: 11px;
+  color: var(--muted);
+  word-break: break-word;
+  line-height: 1.35;
+}
+.menu-panel .warn { color: #ffb84d; }
+
 /* Experiments */
 .menu-panel .experiment {
   padding: 6px 0;
