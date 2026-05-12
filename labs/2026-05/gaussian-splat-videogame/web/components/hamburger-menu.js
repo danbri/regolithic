@@ -40,7 +40,7 @@ function attach(scene) {
   });
 
   // ── Catalog ───────────────────────────────────────────────────────────
-  const catalogSec = makeSection('Catalog', true, 'catalog');
+  const catalogSec = makeSection('Catalog', false, 'catalog');
   panel.appendChild(catalogSec.el);
   buildCatalog(catalogSec.body, scene);
 
@@ -89,7 +89,7 @@ function attach(scene) {
   buildSplatWorldSection(swSec.body, scene);
 
   // ── AI ────────────────────────────────────────────────────────────────
-  const aiSec = makeSection('AI', false, 'ai');
+  const aiSec = makeSection('AI', true, 'ai');
   panel.appendChild(aiSec.el);
   buildAISection(aiSec.body, scene);
 

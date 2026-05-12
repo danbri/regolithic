@@ -28,6 +28,7 @@ export class TransformersJSModel {
     id, label, provider, hfRepo,
     mode = 'pipeline',          // 'pipeline' | 'paligemma'
     task = 'image-text-to-text',
+    inputFormat = 'url-prompt', // 'messages' | 'url-prompt' | 'url-only'
     prompt,
     dtype = 'q4f16',
     sizeHint, downloadGB,
@@ -42,6 +43,7 @@ export class TransformersJSModel {
     this.hfRepo = hfRepo;
     this.mode = mode;
     this.task = task;
+    this.inputFormat = inputFormat;
     this.prompt = prompt;
     this.dtype = dtype;
     this.sizeHint = sizeHint;
@@ -128,15 +130,29 @@ export class TransformersJSModel {
       return this._postProcess ? this._postProcess(text) : text;
     }
 
-    // pipeline path (Florence-2 and similar)
+    // pipeline path. Three input shapes the upstream pipeline accepts:
+    //   • messages    — chat-style [{role,content:[{type:'image',image},{type:'text',text}]}]
+    //                   (required by SmolVLM and other modern VLMs)
+    //   • url-prompt  — pipe(url, promptString)  (Florence-2 et al.)
+    //   • url-only    — pipe(url)                (pure captioners: ViT-GPT2)
     const { url, revoke } = await imageToObjectUrl(image);
     try {
-      const result = await this._engine.pipe(url, this.prompt || '');
-      let text;
-      if (Array.isArray(result) && result[0]?.generated_text) text = result[0].generated_text;
-      else if (result?.generated_text) text = result.generated_text;
-      else if (typeof result === 'string') text = result;
-      else text = JSON.stringify(result);
+      let result;
+      if (this.inputFormat === 'messages') {
+        const messages = [{
+          role: 'user',
+          content: [
+            { type: 'image', image: url },
+            { type: 'text',  text: this.prompt || 'Describe this image in 1–3 sentences.' },
+          ],
+        }];
+        result = await this._engine.pipe(messages, { max_new_tokens: this.maxNewTokens });
+      } else if (this.inputFormat === 'url-only') {
+        result = await this._engine.pipe(url);
+      } else {
+        result = await this._engine.pipe(url, this.prompt || '');
+      }
+      const text = extractText(result);
       return this._postProcess ? this._postProcess(text) : text;
     } finally {
       revoke?.();
@@ -216,4 +232,26 @@ function fmtBytes(n) {
   if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
   if (n < 1024 * 1024 * 1024) return `${(n / 1024 / 1024).toFixed(1)} MB`;
   return `${(n / 1024 / 1024 / 1024).toFixed(2)} GB`;
+}
+
+// Extract a text reply from the various shapes Transformers.js
+// returns. For chat-messages calls the result is typically
+// [{ generated_text: [...messages, { role:'assistant', content:'...' }] }];
+// for simple url-prompt calls it's [{ generated_text: '...' }].
+function extractText(result) {
+  if (typeof result === 'string') return result;
+  const first = Array.isArray(result) ? result[0] : result;
+  if (!first) return JSON.stringify(result);
+  const gt = first.generated_text;
+  if (typeof gt === 'string') return gt;
+  if (Array.isArray(gt)) {
+    const asst = [...gt].reverse().find(m => m?.role === 'assistant');
+    if (asst) {
+      if (typeof asst.content === 'string') return asst.content;
+      if (Array.isArray(asst.content)) {
+        return asst.content.map(c => c?.text ?? c?.value ?? '').filter(Boolean).join(' ');
+      }
+    }
+  }
+  return JSON.stringify(result);
 }
