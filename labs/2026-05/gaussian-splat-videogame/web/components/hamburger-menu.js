@@ -631,11 +631,81 @@ function buildAISection(host, scene) {
   analyse.style.width = '100%';
   analyse.style.padding = '10px';
   analyse.style.marginTop = '6px';
-  analyse.addEventListener('click', () => runAnalysis().catch(err => {
+  analyse.addEventListener('click', () => runAnalysis({ persistent: false }).catch(err => {
     console.error('[ai] analysis failed', err);
     scene.showResponse(String(err.message || err), { badge: 'Error', ttlMs: 8000 });
   }));
   actions.appendChild(analyse);
+
+  // ── Auto-relabel: re-run analysis every N seconds ─────────────────────
+  // Default cadence: 3 s for object-detection (fast, useful as the camera
+  // moves), 6 s for everything else (captioners are slower). The slider
+  // lets users override.
+  let autoTimer = null;
+  let autoBusy = false;
+  let autoIntervalSec = 3;
+  function defaultIntervalForModel(m) {
+    if (!m) return 3;
+    return m.mode === 'object-detection' ? 3 : 6;
+  }
+  const autoRow = row();
+  const autoLbl = document.createElement('label');
+  autoLbl.className = 'experiment-toggle';
+  const autoCb = document.createElement('input');
+  autoCb.type = 'checkbox';
+  autoLbl.appendChild(autoCb);
+  const autoSpan = document.createElement('span');
+  autoSpan.innerHTML = '↻ Auto-relabel <span class="meta">— rerun while toggle is on</span>';
+  autoLbl.appendChild(autoSpan);
+  autoRow.appendChild(autoLbl);
+  actions.appendChild(autoRow);
+  const intervalSlider = slider('Every N seconds', 1, 30, 1, autoIntervalSec, v => {
+    autoIntervalSec = v;
+    if (autoCb.checked) restartAuto();
+  });
+  actions.appendChild(intervalSlider);
+
+  async function safeRun() {
+    if (autoBusy) return;          // Skip if previous still running
+    autoBusy = true;
+    try { await runAnalysis({ persistent: true }); }
+    catch (err) {
+      console.warn('[auto-relabel] cycle failed:', err);
+      scene.showResponse(String(err.message || err), { badge: 'Error', ttlMs: 5000 });
+    } finally { autoBusy = false; }
+  }
+  function startAuto() {
+    stopAuto();
+    // Pick a sensible default for the freshly-active model on first
+    // toggle-on (user can still override via the slider).
+    const active = scene._aiState?.activeModel;
+    autoIntervalSec = defaultIntervalForModel(active);
+    intervalSlider.querySelector('input').value = String(autoIntervalSec);
+    intervalSlider.querySelector('span').textContent = `Every N seconds: ${autoIntervalSec.toFixed(2)}`;
+    safeRun();   // immediate first pass
+    autoTimer = setInterval(safeRun, autoIntervalSec * 1000);
+    analyse.disabled = true;
+    analyse.textContent = '⟳ Auto-relabel running';
+  }
+  function stopAuto() {
+    if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+    analyse.disabled = false;
+    analyse.textContent = '✦ Analyse current scene';
+    autoBusy = false;
+  }
+  function restartAuto() {
+    if (!autoCb.checked) return;
+    if (autoTimer) clearInterval(autoTimer);
+    autoTimer = setInterval(safeRun, autoIntervalSec * 1000);
+  }
+  autoCb.addEventListener('change', () => {
+    if (autoCb.checked) startAuto();
+    else stopAuto();
+  });
+  // Cancel auto on scene swap or active-model change — running
+  // inference during a load is wasted work and the banner would lie.
+  scene.addEventListener('scene-loading', () => { if (autoCb.checked) { autoCb.checked = false; stopAuto(); } });
+  sel.addEventListener('change', () => { if (autoCb.checked) { autoCb.checked = false; stopAuto(); } });
 
   // ── Per-model sub-details ─────────────────────────────────────────────
   const modelsDet = document.createElement('details');
@@ -766,10 +836,13 @@ function buildAISection(host, scene) {
     }
   }
 
-  async function runAnalysis() {
+  async function runAnalysis({ persistent = false } = {}) {
     const active = models.find(m => m.id === activeId);
     if (!active) return;
     const badge = active.label.split(' (')[0];
+    // In persistent (auto-relabel) mode, the banner stays put until
+    // the user dismisses it or toggle is off; ttl=30 s otherwise.
+    const finalTtl = persistent ? 0 : 30000;
     scene.showResponse('Capturing scene…', { badge });
     const blob = await scene.captureSnapshot();
     const bitmap = await createImageBitmap(blob);
@@ -785,7 +858,7 @@ function buildAISection(host, scene) {
       scene.showResponse('Thinking…', { badge });
     }
     const reply = await active.describe(bitmap, hint, currentScene);
-    scene.showResponse(String(reply).trim(), { badge, ttlMs: 30000 });
+    scene.showResponse(String(reply).trim(), { badge, ttlMs: finalTtl });
   }
 }
 
