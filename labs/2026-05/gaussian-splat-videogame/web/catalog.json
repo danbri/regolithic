@@ -185,6 +185,22 @@
       "camera": { "position": [0, 1, 3], "lookAt": [0, 0.3, 0] },
       "transform": { "rotation": [180, 0, 0] }
     },
+    {
+      "id": "audi-a5", "title": "Audi A5 Sportback", "author": "talha17",
+      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/97ae0ba1",
+      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/97ae0ba1/v1/meta.json",
+      "size_mb": 13, "category": "objects", "subcategory": "Vehicle",
+      "camera": { "position": [0, 1.2, 4], "lookAt": [0, 0.5, 0] },
+      "transform": { "rotation": [180, 0, 0] }
+    },
+    {
+      "id": "stitch-doll", "title": "Stitch Doll", "author": "qjayo",
+      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/ea6c724e",
+      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/ea6c724e/v1/meta.json",
+      "size_mb": 7, "category": "objects", "subcategory": "Sculpture",
+      "camera": { "position": [0, 0.2, 0.4], "lookAt": [0, 0, 0] },
+      "transform": { "rotation": [180, 0, 0] }
+    },
 
     {
       "id": "bar-mipmap", "title": "Bar", "author": "ethan3111",
@@ -233,6 +249,22 @@
       "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/8f4c0957/v1/meta.json",
       "size_mb": 28, "category": "places", "subcategory": "Building",
       "camera": { "position": [0, 5, 15], "lookAt": [0, 2, 0] },
+      "transform": { "rotation": [180, 0, 0] }
+    },
+    {
+      "id": "norman-house", "title": "Norman Constables House", "author": "nebulousflynn",
+      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/18e6d72d",
+      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/18e6d72d/v1/meta.json",
+      "size_mb": 68, "category": "places", "subcategory": "Building",
+      "camera": { "position": [0, 4, 12], "lookAt": [0, 2, 0] },
+      "transform": { "rotation": [180, 0, 0] }
+    },
+    {
+      "id": "cactus-garden", "title": "Cactus Garden", "author": "splatmachine",
+      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/4826d984",
+      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/4826d984/v1/meta.json",
+      "size_mb": 62, "category": "places", "subcategory": "Garden",
+      "camera": { "position": [0, 1.6, 4], "lookAt": [0, 1, 0] },
       "transform": { "rotation": [180, 0, 0] }
     },
     {
