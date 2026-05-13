@@ -23,18 +23,27 @@ export class SplatWorld extends EventTarget {
     // Auto-detect on every scene swap. SplatWorld's bar to entry is
     // very low — synthesise a handful of primitives from the AABB —
     // and downstream features (Tour, Drone, Sonar) all assume it's
-    // populated. The menu still exposes a Re-detect button + a
-    // disable() for users who want to opt out.
-    scene.addEventListener('scene-loaded', () => {
+    // populated. Cached results from prior visits are restored
+    // first so a reload skips the AABB read entirely.
+    scene.addEventListener('scene-loaded', (e) => {
       this._removeHelpers();
       this.primitives = [];
-      this.detect();
-      this.dispatchEvent(new CustomEvent('changed'));
+      this._currentSceneId = e.detail?.scene?.id ?? null;
+      const cached = this._loadFromCache();
+      if (cached && cached.length) {
+        this.primitives = cached;
+        this.enabled = true;
+        this._buildHelpers();
+        this.dispatchEvent(new CustomEvent('changed'));
+      } else {
+        this.detect();
+      }
     });
   }
 
   // Make a best-effort scan of the current splat and emit primitives.
-  // Repeatable. No-op if no scene loaded.
+  // Repeatable. No-op if no scene loaded. Caches result to localStorage
+  // keyed by scene id so reloads restore instantly.
   detect() {
     const ent = this.scene.splatEntity;
     if (!ent) {
@@ -48,6 +57,7 @@ export class SplatWorld extends EventTarget {
     this.enabled = true;
     this._removeHelpers();
     this._buildHelpers();
+    this._saveToCache();
     this.dispatchEvent(new CustomEvent('changed'));
     return this.primitives;
   }
@@ -56,7 +66,18 @@ export class SplatWorld extends EventTarget {
     this.enabled = false;
     this.primitives = [];
     this._removeHelpers();
+    // Don't clear the cache on disable — user may re-enable; an
+    // explicit "Forget cached meshes" button can wipe it if needed.
     this.dispatchEvent(new CustomEvent('changed'));
+  }
+
+  // Drop the cached primitives for the active scene so the next load
+  // re-runs detect() fresh.
+  clearCache() {
+    const key = this._cacheKey();
+    if (key && typeof localStorage !== 'undefined') {
+      try { localStorage.removeItem(key); } catch {}
+    }
   }
 
   setHelpersVisible(visible) {
@@ -232,6 +253,38 @@ export class SplatWorld extends EventTarget {
     const dy = Math.max(0, Math.abs(p.y - prim.center.y) - prim.halfExtents.y);
     const dz = Math.max(0, Math.abs(p.z - prim.center.z) - prim.halfExtents.z);
     return Math.hypot(dx, dy, dz);
+  }
+
+  // ── Cache (localStorage) ─────────────────────────────────────────────
+  _cacheKey() {
+    return this._currentSceneId ? `splatworld:primitives:v1:${this._currentSceneId}` : null;
+  }
+  _saveToCache() {
+    const key = this._cacheKey();
+    if (!key || typeof localStorage === 'undefined') return;
+    try {
+      const data = this.primitives.map(p => ({
+        id: p.id, type: p.type, sound: p.sound,
+        center: { x: p.center.x, y: p.center.y, z: p.center.z },
+        halfExtents: { x: p.halfExtents.x, y: p.halfExtents.y, z: p.halfExtents.z },
+      }));
+      localStorage.setItem(key, JSON.stringify(data));
+    } catch {}
+  }
+  _loadFromCache() {
+    const key = this._cacheKey();
+    if (!key || typeof localStorage === 'undefined') return null;
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) return null;
+      const data = JSON.parse(raw);
+      if (!Array.isArray(data)) return null;
+      return data.map(p => ({
+        id: p.id, type: p.type, sound: p.sound,
+        center: new pc.Vec3(p.center.x, p.center.y, p.center.z),
+        halfExtents: new pc.Vec3(p.halfExtents.x, p.halfExtents.y, p.halfExtents.z),
+      }));
+    } catch { return null; }
   }
 }
 

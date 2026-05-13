@@ -55,6 +55,7 @@ export class Drone extends EventTarget {
 
     this.model = model;
     this._aabb = this._readAABB(ent);
+    this._loadDiscoveredFromCache();
     // Spawn the drone near the AABB centre, looking down the +Z axis.
     this._pos.set(this._aabb.center.x, this._aabb.center.y, this._aabb.center.z);
     this._heading = Math.random() * 360;
@@ -90,7 +91,40 @@ export class Drone extends EventTarget {
 
   resetSurvey() {
     this.discovered.clear();
+    this._clearDiscoveredCache();
     this.dispatchEvent(new CustomEvent('changed'));
+  }
+
+  // ── Discovered cache (localStorage, keyed by current scene id) ───────
+  _discoveredCacheKey() {
+    const s = this.scene.currentScene?.();
+    return s ? `drone:discovered:v1:${s.id}` : null;
+  }
+  _loadDiscoveredFromCache() {
+    const key = this._discoveredCacheKey();
+    if (!key || typeof localStorage === 'undefined') return;
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      this.discovered.clear();
+      for (const [label, val] of Object.entries(data)) {
+        this.discovered.set(label, val);
+      }
+    } catch {}
+  }
+  _saveDiscoveredToCache() {
+    const key = this._discoveredCacheKey();
+    if (!key || typeof localStorage === 'undefined') return;
+    try {
+      const obj = Object.fromEntries(this.discovered.entries());
+      localStorage.setItem(key, JSON.stringify(obj));
+    } catch {}
+  }
+  _clearDiscoveredCache() {
+    const key = this._discoveredCacheKey();
+    if (!key || typeof localStorage === 'undefined') return;
+    try { localStorage.removeItem(key); } catch {}
   }
 
   // ── Flight ───────────────────────────────────────────────────────────
@@ -193,6 +227,7 @@ export class Drone extends EventTarget {
           cur.lastSeenMs = now;
         }
       }
+      this._saveDiscoveredToCache();
       this.dispatchEvent(new CustomEvent('survey', {
         detail: { detections, newLabels, total: this.discovered.size },
       }));

@@ -89,6 +89,22 @@
       "transform": { "rotation": [180, 0, 0] }
     },
     {
+      "id": "lancia-037", "title": "Lancia Rally 037 Evo 2", "author": "kikooooo2",
+      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/99a9f110",
+      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/99a9f110/v1/meta.json",
+      "size_mb": 24, "category": "objects", "subcategory": "Vehicle",
+      "camera": { "position": [0, 1.2, 4], "lookAt": [0, 0.5, 0] },
+      "transform": { "rotation": [180, 0, 0] }
+    },
+    {
+      "id": "ivin-presley", "title": "Ivin & Presley", "author": "laanlabs",
+      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/07aa3dd9",
+      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/07aa3dd9/v1/meta.json",
+      "size_mb": 62, "category": "objects", "subcategory": "Portrait",
+      "camera": { "position": [0, 0.8, 2.5], "lookAt": [0, 0.5, 0] },
+      "transform": { "rotation": [180, 0, 0] }
+    },
+    {
       "id": "the-moon", "title": "The Moon — Artemis II Data", "author": "Nicolas Diolez",
       "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/2ac8f423",
       "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/2ac8f423/v1/meta.json",
@@ -104,6 +120,15 @@
       "size_mb": 27, "category": "places", "subcategory": "Room",
       "camera": { "position": [0, 1.6, 4], "lookAt": [0, 1, 0] },
       "transform": { "rotation": [180, 0, 0] }
+    },
+    {
+      "id": "xinhua-bookstore", "title": "Xinhua Bookstore", "author": "ethan3111",
+      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/aed1e4f9",
+      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/aed1e4f9/v1/meta.json",
+      "size_mb": 120, "category": "places", "subcategory": "Room",
+      "camera": { "position": [0, 1.6, 4], "lookAt": [0, 1, 0] },
+      "transform": { "rotation": [180, 0, 0] },
+      "warning": "~120 MB — slow on cellular."
     },
     {
       "id": "cochem-castle", "title": "Cochem Castle", "author": "dok11",
@@ -164,6 +189,14 @@
       "camera": { "position": [0, 5, 20], "lookAt": [0, 1, 0] },
       "transform": { "rotation": [180, 0, 0] },
       "warning": "~161 MB — slow on cellular."
+    },
+    {
+      "id": "tugboat-engine", "title": "Tugboat Bat Engine Room", "author": "tosolini",
+      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/1a14e1e7",
+      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/1a14e1e7/v1/meta.json",
+      "size_mb": 88, "category": "places", "subcategory": "Marine",
+      "camera": { "position": [0, 1.6, 4], "lookAt": [0, 1, 0] },
+      "transform": { "rotation": [180, 0, 0] }
     }
   ]
 }
