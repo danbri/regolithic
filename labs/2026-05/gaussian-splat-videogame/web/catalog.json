@@ -81,6 +81,46 @@
       "transform": { "rotation": [180, 0, 0] }
     },
     {
+      "id": "earth-crochet", "title": "Earth Crochet (Project Hail Mary)", "author": "wanxi",
+      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/8d1a69d2",
+      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/8d1a69d2/v1/meta.json",
+      "size_mb": 9, "category": "objects", "subcategory": "Sculpture",
+      "camera": { "position": [0, 0.2, 0.5], "lookAt": [0, 0, 0] },
+      "transform": { "rotation": [180, 0, 0] }
+    },
+    {
+      "id": "wild-boar", "title": "Wild Boar (pewter figurine)", "author": "alfred2010",
+      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/df9b316e",
+      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/df9b316e/v1/meta.json",
+      "size_mb": 4, "category": "objects", "subcategory": "Sculpture",
+      "camera": { "position": [0, 0.15, 0.3], "lookAt": [0, 0, 0] },
+      "transform": { "rotation": [180, 0, 0] }
+    },
+    {
+      "id": "fox-head", "title": "Fox Head", "author": "mwesigwa",
+      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/8098fd0f",
+      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/8098fd0f/v1/meta.json",
+      "size_mb": 15, "category": "objects", "subcategory": "Specimen",
+      "camera": { "position": [0, 0.2, 0.5], "lookAt": [0, 0.1, 0] },
+      "transform": { "rotation": [180, 0, 0] }
+    },
+    {
+      "id": "frog-skeleton", "title": "Frog Skeleton (synthetic)", "author": "les83machines",
+      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/e99a2b07",
+      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/e99a2b07/v1/meta.json",
+      "size_mb": 5, "category": "objects", "subcategory": "Specimen",
+      "camera": { "position": [0, 0.15, 0.4], "lookAt": [0, 0.05, 0] },
+      "transform": { "rotation": [180, 0, 0] }
+    },
+    {
+      "id": "gameboy-color", "title": "Nintendo GameBoy Color + Printer", "author": "crusade",
+      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/fcb2ea49",
+      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/fcb2ea49/v1/meta.json",
+      "size_mb": 11, "category": "objects", "subcategory": "Retro",
+      "camera": { "position": [0, 0.2, 0.5], "lookAt": [0, 0, 0] },
+      "transform": { "rotation": [180, 0, 0] }
+    },
+    {
       "id": "boeing-40b", "title": "Boeing Model 40B", "author": "tosolini",
       "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/aba8c704",
       "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/aba8c704/v1/meta.json",
@@ -177,6 +217,22 @@
       "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/9b18007e/v1/meta.json",
       "size_mb": 26, "category": "places", "subcategory": "Castle",
       "camera": { "position": [0, 8, 25], "lookAt": [0, 4, 0] },
+      "transform": { "rotation": [180, 0, 0] }
+    },
+    {
+      "id": "bolton-priory", "title": "Bolton Priory", "author": "dok11",
+      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/56496eab",
+      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/56496eab/v1/meta.json",
+      "size_mb": 23, "category": "places", "subcategory": "Castle",
+      "camera": { "position": [0, 5, 15], "lookAt": [0, 3, 0] },
+      "transform": { "rotation": [180, 0, 0] }
+    },
+    {
+      "id": "le-querce", "title": "Country Hotel Le Querce, Italy", "author": "dok11",
+      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/8f4c0957",
+      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/8f4c0957/v1/meta.json",
+      "size_mb": 28, "category": "places", "subcategory": "Building",
+      "camera": { "position": [0, 5, 15], "lookAt": [0, 2, 0] },
       "transform": { "rotation": [180, 0, 0] }
     },
     {
