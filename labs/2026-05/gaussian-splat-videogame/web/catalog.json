@@ -105,6 +105,22 @@
       "transform": { "rotation": [180, 0, 0] }
     },
     {
+      "id": "tennis-blue", "title": "Tennis Player in Blue", "author": "splatboss",
+      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/c1773239",
+      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/c1773239/v1/meta.json",
+      "size_mb": 4, "category": "objects", "subcategory": "Portrait",
+      "camera": { "position": [0, 1, 2.5], "lookAt": [0, 0.8, 0] },
+      "transform": { "rotation": [180, 0, 0] }
+    },
+    {
+      "id": "pickleball-pink", "title": "Pickleball Player in Pink", "author": "splatboss",
+      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/9e5458cc",
+      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/9e5458cc/v1/meta.json",
+      "size_mb": 5, "category": "objects", "subcategory": "Portrait",
+      "camera": { "position": [0, 1, 2.5], "lookAt": [0, 0.8, 0] },
+      "transform": { "rotation": [180, 0, 0] }
+    },
+    {
       "id": "the-moon", "title": "The Moon — Artemis II Data", "author": "Nicolas Diolez",
       "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/2ac8f423",
       "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/2ac8f423/v1/meta.json",
