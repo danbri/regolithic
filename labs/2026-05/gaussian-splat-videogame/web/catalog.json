@@ -153,6 +153,14 @@
       "transform": { "rotation": [180, 0, 0] }
     },
     {
+      "id": "bamboo", "title": "Bamboo 观音竹", "author": "ethan3111",
+      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/8ee7cf4e",
+      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/8ee7cf4e/v1/meta.json",
+      "size_mb": 3, "category": "objects", "subcategory": "Plant",
+      "camera": { "position": [0, 0.3, 0.6], "lookAt": [0, 0.1, 0] },
+      "transform": { "rotation": [180, 0, 0] }
+    },
+    {
       "id": "boeing-40b", "title": "Boeing Model 40B", "author": "tosolini",
       "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/aba8c704",
       "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/aba8c704/v1/meta.json",
@@ -251,6 +259,14 @@
       "camera": { "position": [0, 0.2, 0.4], "lookAt": [0, 0, 0] },
       "transform": { "rotation": [180, 0, 0] }
     },
+    {
+      "id": "driver-women", "title": "Driver Women (CG)", "author": "ethan3111",
+      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/78e3c031",
+      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/78e3c031/v1/meta.json",
+      "size_mb": 2, "category": "objects", "subcategory": "Sculpture",
+      "camera": { "position": [0, 0.3, 0.6], "lookAt": [0, 0.1, 0] },
+      "transform": { "rotation": [180, 0, 0] }
+    },
 
     {
       "id": "bar-mipmap", "title": "Bar", "author": "ethan3111",
@@ -318,6 +334,22 @@
       "transform": { "rotation": [180, 0, 0] }
     },
     {
+      "id": "seem-kirke", "title": "Seem Kirke (Denmark)", "author": "roedsgaard",
+      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/e832997f",
+      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/e832997f/v1/meta.json",
+      "size_mb": 11, "category": "places", "subcategory": "Castle",
+      "camera": { "position": [0, 4, 12], "lookAt": [0, 2, 0] },
+      "transform": { "rotation": [180, 0, 0] }
+    },
+    {
+      "id": "trostburg", "title": "Trostburg Waidbruck (South Tyrol)", "author": "mpskin",
+      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/ccb40d3c",
+      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/ccb40d3c/v1/meta.json",
+      "size_mb": 43, "category": "places", "subcategory": "Castle",
+      "camera": { "position": [0, 5, 18], "lookAt": [0, 3, 0] },
+      "transform": { "rotation": [180, 0, 0] }
+    },
+    {
       "id": "le-querce", "title": "Country Hotel Le Querce, Italy", "author": "dok11",
       "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/8f4c0957",
       "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/8f4c0957/v1/meta.json",
@@ -331,6 +363,38 @@
       "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/18e6d72d/v1/meta.json",
       "size_mb": 68, "category": "places", "subcategory": "Building",
       "camera": { "position": [0, 4, 12], "lookAt": [0, 2, 0] },
+      "transform": { "rotation": [180, 0, 0] }
+    },
+    {
+      "id": "spornberg", "title": "Spornberg Mountain Living", "author": "mpskin",
+      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/77a8a45b",
+      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/77a8a45b/v1/meta.json",
+      "size_mb": 43, "category": "places", "subcategory": "Building",
+      "camera": { "position": [0, 4, 12], "lookAt": [0, 2, 0] },
+      "transform": { "rotation": [180, 0, 0] }
+    },
+    {
+      "id": "sunnyvale-heritage", "title": "Sunnyvale Heritage Park Museum", "author": "zeitgeistarchivescans",
+      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/d5d397aa",
+      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/d5d397aa/v1/meta.json",
+      "size_mb": 55, "category": "places", "subcategory": "Building",
+      "camera": { "position": [0, 3, 10], "lookAt": [0, 1.5, 0] },
+      "transform": { "rotation": [180, 0, 0] }
+    },
+    {
+      "id": "sydney-fountain", "title": "Sydney Eye Hospital Fountain", "author": "eggman",
+      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/99079a22",
+      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/99079a22/v1/meta.json",
+      "size_mb": 54, "category": "places", "subcategory": "Building",
+      "camera": { "position": [0, 2, 6], "lookAt": [0, 1, 0] },
+      "transform": { "rotation": [180, 0, 0] }
+    },
+    {
+      "id": "muddy-excavator", "title": "Muddy Excavator Site", "author": "dok11",
+      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/ded12920",
+      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/ded12920/v1/meta.json",
+      "size_mb": 34, "category": "places", "subcategory": "Building",
+      "camera": { "position": [0, 3, 10], "lookAt": [0, 1, 0] },
       "transform": { "rotation": [180, 0, 0] }
     },
     {
