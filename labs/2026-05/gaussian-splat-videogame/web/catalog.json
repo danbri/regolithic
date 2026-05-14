@@ -2,476 +2,2163 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "version": 2,
   "categories": {
-    "places":  { "title": "Places",  "order": 1 },
-    "objects": { "title": "Objects", "order": 2 }
+    "places": {
+      "title": "Places",
+      "order": 1
+    },
+    "objects": {
+      "title": "Objects",
+      "order": 2
+    }
   },
   "scenes": [
-
     {
-      "id": "kitchen-table", "title": "Kitchen Table", "author": "wrender",
+      "id": "kitchen-table",
+      "title": "Kitchen Table",
+      "author": "wrender",
       "license": "Creative Commons (variant per scene page)",
       "license_url": "https://superspl.at/scene/ffa72aa0",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/ffa72aa0/v1/meta.json",
-      "size_mb": 38, "category": "objects", "subcategory": "Furniture",
-      "camera": { "position": [0, 0.6, 1.2], "lookAt": [0, 0.2, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/ffa72aa0/v1/meta.json",
+      "size_mb": 38,
+      "category": "objects",
+      "subcategory": "Furniture",
+      "camera": {
+        "position": [
+          0,
+          0.6,
+          1.2
+        ],
+        "lookAt": [
+          0,
+          0.2,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     },
     {
-      "id": "tomatoes", "title": "Tomatoes", "author": "simonbethke",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/0101ad57",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/0101ad57/v2/meta.json",
-      "size_mb": 4, "category": "objects", "subcategory": "Food",
-      "camera": { "position": [0, 0.2, 0.5], "lookAt": [0, 0, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "id": "tomatoes",
+      "title": "Tomatoes",
+      "author": "simonbethke",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/0101ad57",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/0101ad57/v2/meta.json",
+      "size_mb": 4,
+      "category": "objects",
+      "subcategory": "Food",
+      "camera": {
+        "position": [
+          0,
+          0.2,
+          0.5
+        ],
+        "lookAt": [
+          0,
+          0,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     },
     {
-      "id": "heart-cookie", "title": "Heart Cookie", "author": "danylyon",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/bd964899",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/bd964899/v3/meta.json",
-      "size_mb": 8, "category": "objects", "subcategory": "Food",
-      "camera": { "position": [0, 0.2, 0.4], "lookAt": [0, 0, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "id": "heart-cookie",
+      "title": "Heart Cookie",
+      "author": "danylyon",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/bd964899",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/bd964899/v3/meta.json",
+      "size_mb": 8,
+      "category": "objects",
+      "subcategory": "Food",
+      "camera": {
+        "position": [
+          0,
+          0.2,
+          0.4
+        ],
+        "lookAt": [
+          0,
+          0,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     },
     {
-      "id": "cinnamon-star", "title": "Cinnamon Star Cookie", "author": "danylyon",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/6584b96e",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/6584b96e/v3/meta.json",
-      "size_mb": 7, "category": "objects", "subcategory": "Food",
-      "camera": { "position": [0, 0.2, 0.4], "lookAt": [0, 0, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "id": "cinnamon-star",
+      "title": "Cinnamon Star Cookie",
+      "author": "danylyon",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/6584b96e",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/6584b96e/v3/meta.json",
+      "size_mb": 7,
+      "category": "objects",
+      "subcategory": "Food",
+      "camera": {
+        "position": [
+          0,
+          0.2,
+          0.4
+        ],
+        "lookAt": [
+          0,
+          0,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     },
     {
-      "id": "vegetables-hq", "title": "Vegetables HQ", "author": "simonbethke",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/f592397a",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/f592397a/v1/meta.json",
-      "size_mb": 31, "category": "objects", "subcategory": "Food",
-      "camera": { "position": [0, 0.5, 1.2], "lookAt": [0, 0.2, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "id": "vegetables-hq",
+      "title": "Vegetables HQ",
+      "author": "simonbethke",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/f592397a",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/f592397a/v1/meta.json",
+      "size_mb": 31,
+      "category": "objects",
+      "subcategory": "Food",
+      "camera": {
+        "position": [
+          0,
+          0.5,
+          1.2
+        ],
+        "lookAt": [
+          0,
+          0.2,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     },
     {
-      "id": "cluster-fly", "title": "Cluster Fly", "author": "danylyon",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/285082b2",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/285082b2/v2/meta.json",
-      "size_mb": 11, "category": "objects", "subcategory": "Specimen",
-      "camera": { "position": [0, 0.1, 0.25], "lookAt": [0, 0, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "id": "cluster-fly",
+      "title": "Cluster Fly",
+      "author": "danylyon",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/285082b2",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/285082b2/v2/meta.json",
+      "size_mb": 11,
+      "category": "objects",
+      "subcategory": "Specimen",
+      "camera": {
+        "position": [
+          0,
+          0.1,
+          0.25
+        ],
+        "lookAt": [
+          0,
+          0,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     },
     {
-      "id": "bumblebee", "title": "Brown-banded Carder Bumblebee", "author": "macroscans",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/65ff2330",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/65ff2330/v1/meta.json",
-      "size_mb": 109, "category": "objects", "subcategory": "Specimen",
-      "camera": { "position": [0, 0.05, 0.15], "lookAt": [0, 0, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "id": "bumblebee",
+      "title": "Brown-banded Carder Bumblebee",
+      "author": "macroscans",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/65ff2330",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/65ff2330/v1/meta.json",
+      "size_mb": 109,
+      "category": "objects",
+      "subcategory": "Specimen",
+      "camera": {
+        "position": [
+          0,
+          0.05,
+          0.15
+        ],
+        "lookAt": [
+          0,
+          0,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     },
     {
-      "id": "quechua", "title": "QUECHUA", "author": "schindelar3d",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/f83d530f",
-      "format": "ply-compressed", "url": "https://d28zzqy0iyovbz.cloudfront.net/f83d530f/v1/scene.compressed.ply",
-      "size_mb": 12, "category": "objects", "subcategory": "Sculpture",
-      "camera": { "position": [0, 0.3, 0.8], "lookAt": [0, 0.1, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "id": "quechua",
+      "title": "QUECHUA",
+      "author": "schindelar3d",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/f83d530f",
+      "format": "ply-compressed",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/f83d530f/v1/scene.compressed.ply",
+      "size_mb": 12,
+      "category": "objects",
+      "subcategory": "Sculpture",
+      "camera": {
+        "position": [
+          0,
+          0.3,
+          0.8
+        ],
+        "lookAt": [
+          0,
+          0.1,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     },
     {
-      "id": "cthulhu", "title": "Cthulhu Statue", "author": "schindelar3d",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/44e8fe8f",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/44e8fe8f/v1/meta.json",
-      "size_mb": 47, "category": "objects", "subcategory": "Sculpture",
-      "camera": { "position": [0, 0.4, 1.2], "lookAt": [0, 0.2, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "id": "cthulhu",
+      "title": "Cthulhu Statue",
+      "author": "schindelar3d",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/44e8fe8f",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/44e8fe8f/v1/meta.json",
+      "size_mb": 47,
+      "category": "objects",
+      "subcategory": "Sculpture",
+      "camera": {
+        "position": [
+          0,
+          0.4,
+          1.2
+        ],
+        "lookAt": [
+          0,
+          0.2,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     },
     {
-      "id": "earth-crochet", "title": "Earth Crochet (Project Hail Mary)", "author": "wanxi",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/8d1a69d2",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/8d1a69d2/v1/meta.json",
-      "size_mb": 9, "category": "objects", "subcategory": "Sculpture",
-      "camera": { "position": [0, 0.2, 0.5], "lookAt": [0, 0, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "id": "earth-crochet",
+      "title": "Earth Crochet (Project Hail Mary)",
+      "author": "wanxi",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/8d1a69d2",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/8d1a69d2/v1/meta.json",
+      "size_mb": 9,
+      "category": "objects",
+      "subcategory": "Sculpture",
+      "camera": {
+        "position": [
+          0,
+          0.2,
+          0.5
+        ],
+        "lookAt": [
+          0,
+          0,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     },
     {
-      "id": "wild-boar", "title": "Wild Boar (pewter figurine)", "author": "alfred2010",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/df9b316e",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/df9b316e/v1/meta.json",
-      "size_mb": 4, "category": "objects", "subcategory": "Sculpture",
-      "camera": { "position": [0, 0.15, 0.3], "lookAt": [0, 0, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "id": "wild-boar",
+      "title": "Wild Boar (pewter figurine)",
+      "author": "alfred2010",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/df9b316e",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/df9b316e/v1/meta.json",
+      "size_mb": 4,
+      "category": "objects",
+      "subcategory": "Sculpture",
+      "camera": {
+        "position": [
+          0,
+          0.15,
+          0.3
+        ],
+        "lookAt": [
+          0,
+          0,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     },
     {
-      "id": "knight-figurine", "title": "Knight (pewter figurine)", "author": "alfred2010",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/ff1b7e71",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/ff1b7e71/v1/meta.json",
-      "size_mb": 5, "category": "objects", "subcategory": "Sculpture",
-      "camera": { "position": [0, 0.15, 0.3], "lookAt": [0, 0, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "id": "knight-figurine",
+      "title": "Knight (pewter figurine)",
+      "author": "alfred2010",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/ff1b7e71",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/ff1b7e71/v1/meta.json",
+      "size_mb": 5,
+      "category": "objects",
+      "subcategory": "Sculpture",
+      "camera": {
+        "position": [
+          0,
+          0.15,
+          0.3
+        ],
+        "lookAt": [
+          0,
+          0,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     },
     {
-      "id": "fox-head", "title": "Fox Head", "author": "mwesigwa",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/8098fd0f",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/8098fd0f/v1/meta.json",
-      "size_mb": 15, "category": "objects", "subcategory": "Specimen",
-      "camera": { "position": [0, 0.2, 0.5], "lookAt": [0, 0.1, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "id": "fox-head",
+      "title": "Fox Head",
+      "author": "mwesigwa",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/8098fd0f",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/8098fd0f/v1/meta.json",
+      "size_mb": 15,
+      "category": "objects",
+      "subcategory": "Specimen",
+      "camera": {
+        "position": [
+          0,
+          0.2,
+          0.5
+        ],
+        "lookAt": [
+          0,
+          0.1,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     },
     {
-      "id": "frog-skeleton", "title": "Frog Skeleton (synthetic)", "author": "les83machines",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/e99a2b07",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/e99a2b07/v1/meta.json",
-      "size_mb": 5, "category": "objects", "subcategory": "Specimen",
-      "camera": { "position": [0, 0.15, 0.4], "lookAt": [0, 0.05, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "id": "frog-skeleton",
+      "title": "Frog Skeleton (synthetic)",
+      "author": "les83machines",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/e99a2b07",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/e99a2b07/v1/meta.json",
+      "size_mb": 5,
+      "category": "objects",
+      "subcategory": "Specimen",
+      "camera": {
+        "position": [
+          0,
+          0.15,
+          0.4
+        ],
+        "lookAt": [
+          0,
+          0.05,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     },
     {
-      "id": "gameboy-color", "title": "Nintendo GameBoy Color + Printer", "author": "crusade",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/fcb2ea49",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/fcb2ea49/v1/meta.json",
-      "size_mb": 11, "category": "objects", "subcategory": "Retro",
-      "camera": { "position": [0, 0.2, 0.5], "lookAt": [0, 0, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "id": "gameboy-color",
+      "title": "Nintendo GameBoy Color + Printer",
+      "author": "crusade",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/fcb2ea49",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/fcb2ea49/v1/meta.json",
+      "size_mb": 11,
+      "category": "objects",
+      "subcategory": "Retro",
+      "camera": {
+        "position": [
+          0,
+          0.2,
+          0.5
+        ],
+        "lookAt": [
+          0,
+          0,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     },
     {
-      "id": "daiei-hawks-n64", "title": "Daiei Hawks Nintendo 64", "author": "crusade",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/d98cd0a5",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/d98cd0a5/v1/meta.json",
-      "size_mb": 6, "category": "objects", "subcategory": "Retro",
-      "camera": { "position": [0, 0.2, 0.4], "lookAt": [0, 0, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "id": "daiei-hawks-n64",
+      "title": "Daiei Hawks Nintendo 64",
+      "author": "crusade",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/d98cd0a5",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/d98cd0a5/v1/meta.json",
+      "size_mb": 6,
+      "category": "objects",
+      "subcategory": "Retro",
+      "camera": {
+        "position": [
+          0,
+          0.2,
+          0.4
+        ],
+        "lookAt": [
+          0,
+          0,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     },
     {
-      "id": "lego-perseverance", "title": "Lego Perseverance Rover", "author": "tmate",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/6480cdcf",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/6480cdcf/v1/meta.json",
-      "size_mb": 11, "category": "objects", "subcategory": "Retro",
-      "camera": { "position": [0, 0.3, 0.6], "lookAt": [0, 0.1, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "id": "lego-perseverance",
+      "title": "Lego Perseverance Rover",
+      "author": "tmate",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/6480cdcf",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/6480cdcf/v1/meta.json",
+      "size_mb": 11,
+      "category": "objects",
+      "subcategory": "Retro",
+      "camera": {
+        "position": [
+          0,
+          0.3,
+          0.6
+        ],
+        "lookAt": [
+          0,
+          0.1,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     },
     {
-      "id": "weigela", "title": "Weigela", "author": "naturalai",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/11709263",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/11709263/v2/meta.json",
-      "size_mb": 7, "category": "objects", "subcategory": "Plant",
-      "camera": { "position": [0, 0.3, 0.6], "lookAt": [0, 0.1, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "id": "weigela",
+      "title": "Weigela",
+      "author": "naturalai",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/11709263",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/11709263/v2/meta.json",
+      "size_mb": 7,
+      "category": "objects",
+      "subcategory": "Plant",
+      "camera": {
+        "position": [
+          0,
+          0.3,
+          0.6
+        ],
+        "lookAt": [
+          0,
+          0.1,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     },
     {
-      "id": "bamboo", "title": "Bamboo 观音竹", "author": "ethan3111",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/8ee7cf4e",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/8ee7cf4e/v1/meta.json",
-      "size_mb": 3, "category": "objects", "subcategory": "Plant",
-      "camera": { "position": [0, 0.3, 0.6], "lookAt": [0, 0.1, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "id": "bamboo",
+      "title": "Bamboo 观音竹",
+      "author": "ethan3111",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/8ee7cf4e",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/8ee7cf4e/v1/meta.json",
+      "size_mb": 3,
+      "category": "objects",
+      "subcategory": "Plant",
+      "camera": {
+        "position": [
+          0,
+          0.3,
+          0.6
+        ],
+        "lookAt": [
+          0,
+          0.1,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     },
     {
-      "id": "boeing-40b", "title": "Boeing Model 40B", "author": "tosolini",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/aba8c704",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/aba8c704/v1/meta.json",
-      "size_mb": 35, "category": "objects", "subcategory": "Vehicle",
-      "camera": { "position": [0, 2, 6], "lookAt": [0, 1, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "id": "boeing-40b",
+      "title": "Boeing Model 40B",
+      "author": "tosolini",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/aba8c704",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/aba8c704/v1/meta.json",
+      "size_mb": 35,
+      "category": "objects",
+      "subcategory": "Vehicle",
+      "camera": {
+        "position": [
+          0,
+          2,
+          6
+        ],
+        "lookAt": [
+          0,
+          1,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     },
     {
-      "id": "lancia-037", "title": "Lancia Rally 037 Evo 2", "author": "kikooooo2",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/99a9f110",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/99a9f110/v1/meta.json",
-      "size_mb": 24, "category": "objects", "subcategory": "Vehicle",
-      "camera": { "position": [0, 1.2, 4], "lookAt": [0, 0.5, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "id": "lancia-037",
+      "title": "Lancia Rally 037 Evo 2",
+      "author": "kikooooo2",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/99a9f110",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/99a9f110/v1/meta.json",
+      "size_mb": 24,
+      "category": "objects",
+      "subcategory": "Vehicle",
+      "camera": {
+        "position": [
+          0,
+          1.2,
+          4
+        ],
+        "lookAt": [
+          0,
+          0.5,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     },
     {
-      "id": "ivin-presley", "title": "Ivin & Presley", "author": "laanlabs",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/07aa3dd9",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/07aa3dd9/v1/meta.json",
-      "size_mb": 62, "category": "objects", "subcategory": "Portrait",
-      "camera": { "position": [0, 0.8, 2.5], "lookAt": [0, 0.5, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "id": "ivin-presley",
+      "title": "Ivin & Presley",
+      "author": "laanlabs",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/07aa3dd9",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/07aa3dd9/v1/meta.json",
+      "size_mb": 62,
+      "category": "objects",
+      "subcategory": "Portrait",
+      "camera": {
+        "position": [
+          0,
+          0.8,
+          2.5
+        ],
+        "lookAt": [
+          0,
+          0.5,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     },
     {
-      "id": "tennis-blue", "title": "Tennis Player in Blue", "author": "splatboss",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/c1773239",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/c1773239/v1/meta.json",
-      "size_mb": 4, "category": "objects", "subcategory": "Portrait",
-      "camera": { "position": [0, 1, 2.5], "lookAt": [0, 0.8, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "id": "tennis-blue",
+      "title": "Tennis Player in Blue",
+      "author": "splatboss",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/c1773239",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/c1773239/v1/meta.json",
+      "size_mb": 4,
+      "category": "objects",
+      "subcategory": "Portrait",
+      "camera": {
+        "position": [
+          0,
+          1,
+          2.5
+        ],
+        "lookAt": [
+          0,
+          0.8,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     },
     {
-      "id": "pickleball-pink", "title": "Pickleball Player in Pink", "author": "splatboss",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/9e5458cc",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/9e5458cc/v1/meta.json",
-      "size_mb": 5, "category": "objects", "subcategory": "Portrait",
-      "camera": { "position": [0, 1, 2.5], "lookAt": [0, 0.8, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "id": "pickleball-pink",
+      "title": "Pickleball Player in Pink",
+      "author": "splatboss",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/9e5458cc",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/9e5458cc/v1/meta.json",
+      "size_mb": 5,
+      "category": "objects",
+      "subcategory": "Portrait",
+      "camera": {
+        "position": [
+          0,
+          1,
+          2.5
+        ],
+        "lookAt": [
+          0,
+          0.8,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     },
     {
-      "id": "the-moon", "title": "The Moon — Artemis II Data", "author": "Nicolas Diolez",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/2ac8f423",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/2ac8f423/v1/meta.json",
-      "size_mb": 64, "category": "objects", "subcategory": "Astro",
-      "camera": { "position": [0, 0, 5], "lookAt": [0, 0, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "id": "the-moon",
+      "title": "The Moon — Artemis II Data",
+      "author": "Nicolas Diolez",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/2ac8f423",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/2ac8f423/v1/meta.json",
+      "size_mb": 64,
+      "category": "objects",
+      "subcategory": "Astro",
+      "camera": {
+        "position": [
+          0,
+          0,
+          5
+        ],
+        "lookAt": [
+          0,
+          0,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     },
     {
-      "id": "iss", "title": "International Space Station", "author": "tmate",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/cc026f6a",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/cc026f6a/v1/meta.json",
-      "size_mb": 131, "category": "objects", "subcategory": "Astro",
-      "camera": { "position": [0, 2, 10], "lookAt": [0, 0, 0] },
-      "transform": { "rotation": [180, 0, 0] },
+      "id": "iss",
+      "title": "International Space Station",
+      "author": "tmate",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/cc026f6a",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/cc026f6a/v1/meta.json",
+      "size_mb": 131,
+      "category": "objects",
+      "subcategory": "Astro",
+      "camera": {
+        "position": [
+          0,
+          2,
+          10
+        ],
+        "lookAt": [
+          0,
+          0,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      },
       "warning": "~131 MB — slow on cellular."
     },
     {
-      "id": "iss-sunset", "title": "ISS — Sunset", "author": "tmate",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/916466f4",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/916466f4/v1/meta.json",
-      "size_mb": 124, "category": "objects", "subcategory": "Astro",
-      "camera": { "position": [0, 2, 10], "lookAt": [0, 0, 0] },
-      "transform": { "rotation": [180, 0, 0] },
+      "id": "iss-sunset",
+      "title": "ISS — Sunset",
+      "author": "tmate",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/916466f4",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/916466f4/v1/meta.json",
+      "size_mb": 124,
+      "category": "objects",
+      "subcategory": "Astro",
+      "camera": {
+        "position": [
+          0,
+          2,
+          10
+        ],
+        "lookAt": [
+          0,
+          0,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      },
       "warning": "~124 MB — slow on cellular."
     },
     {
-      "id": "perseverance", "title": "Perseverance Rover", "author": "tmate",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/8d5c3046",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/8d5c3046/v1/meta.json",
-      "size_mb": 84, "category": "objects", "subcategory": "Vehicle",
-      "camera": { "position": [0, 1, 3], "lookAt": [0, 0.3, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "id": "perseverance",
+      "title": "Perseverance Rover",
+      "author": "tmate",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/8d5c3046",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/8d5c3046/v1/meta.json",
+      "size_mb": 84,
+      "category": "objects",
+      "subcategory": "Vehicle",
+      "camera": {
+        "position": [
+          0,
+          1,
+          3
+        ],
+        "lookAt": [
+          0,
+          0.3,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     },
     {
-      "id": "audi-a5", "title": "Audi A5 Sportback", "author": "talha17",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/97ae0ba1",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/97ae0ba1/v1/meta.json",
-      "size_mb": 13, "category": "objects", "subcategory": "Vehicle",
-      "camera": { "position": [0, 1.2, 4], "lookAt": [0, 0.5, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "id": "audi-a5",
+      "title": "Audi A5 Sportback",
+      "author": "talha17",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/97ae0ba1",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/97ae0ba1/v1/meta.json",
+      "size_mb": 13,
+      "category": "objects",
+      "subcategory": "Vehicle",
+      "camera": {
+        "position": [
+          0,
+          1.2,
+          4
+        ],
+        "lookAt": [
+          0,
+          0.5,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     },
     {
-      "id": "ford-ranger", "title": "Ford Ranger", "author": "joaogrisoste",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/b06bd18f",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/b06bd18f/v1/meta.json",
-      "size_mb": 131, "category": "objects", "subcategory": "Vehicle",
-      "camera": { "position": [0, 1.5, 5], "lookAt": [0, 0.8, 0] },
-      "transform": { "rotation": [180, 0, 0] },
+      "id": "ford-ranger",
+      "title": "Ford Ranger",
+      "author": "joaogrisoste",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/b06bd18f",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/b06bd18f/v1/meta.json",
+      "size_mb": 131,
+      "category": "objects",
+      "subcategory": "Vehicle",
+      "camera": {
+        "position": [
+          0,
+          1.5,
+          5
+        ],
+        "lookAt": [
+          0,
+          0.8,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      },
       "warning": "~131 MB — slow on cellular."
     },
     {
-      "id": "stitch-doll", "title": "Stitch Doll", "author": "qjayo",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/ea6c724e",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/ea6c724e/v1/meta.json",
-      "size_mb": 7, "category": "objects", "subcategory": "Sculpture",
-      "camera": { "position": [0, 0.2, 0.4], "lookAt": [0, 0, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "id": "stitch-doll",
+      "title": "Stitch Doll",
+      "author": "qjayo",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/ea6c724e",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/ea6c724e/v1/meta.json",
+      "size_mb": 7,
+      "category": "objects",
+      "subcategory": "Sculpture",
+      "camera": {
+        "position": [
+          0,
+          0.2,
+          0.4
+        ],
+        "lookAt": [
+          0,
+          0,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     },
     {
-      "id": "driver-women", "title": "Driver Women (CG)", "author": "ethan3111",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/78e3c031",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/78e3c031/v1/meta.json",
-      "size_mb": 2, "category": "objects", "subcategory": "Sculpture",
-      "camera": { "position": [0, 0.3, 0.6], "lookAt": [0, 0.1, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "id": "driver-women",
+      "title": "Driver Women (CG)",
+      "author": "ethan3111",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/78e3c031",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/78e3c031/v1/meta.json",
+      "size_mb": 2,
+      "category": "objects",
+      "subcategory": "Sculpture",
+      "camera": {
+        "position": [
+          0,
+          0.3,
+          0.6
+        ],
+        "lookAt": [
+          0,
+          0.1,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     },
-
     {
-      "id": "bar-mipmap", "title": "Bar", "author": "ethan3111",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/c491d277",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/c491d277/v1/meta.json",
-      "size_mb": 27, "category": "places", "subcategory": "Room",
-      "camera": { "position": [0, 1.6, 4], "lookAt": [0, 1, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "id": "bar-mipmap",
+      "title": "Bar",
+      "author": "ethan3111",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/c491d277",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/c491d277/v1/meta.json",
+      "size_mb": 27,
+      "category": "places",
+      "subcategory": "Room",
+      "camera": {
+        "position": [
+          0,
+          1.6,
+          4
+        ],
+        "lookAt": [
+          0,
+          1,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     },
     {
-      "id": "xinhua-bookstore", "title": "Xinhua Bookstore", "author": "ethan3111",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/aed1e4f9",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/aed1e4f9/v1/meta.json",
-      "size_mb": 120, "category": "places", "subcategory": "Room",
-      "camera": { "position": [0, 1.6, 4], "lookAt": [0, 1, 0] },
-      "transform": { "rotation": [180, 0, 0] },
+      "id": "xinhua-bookstore",
+      "title": "Xinhua Bookstore",
+      "author": "ethan3111",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/aed1e4f9",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/aed1e4f9/v1/meta.json",
+      "size_mb": 120,
+      "category": "places",
+      "subcategory": "Room",
+      "camera": {
+        "position": [
+          0,
+          1.6,
+          4
+        ],
+        "lookAt": [
+          0,
+          1,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      },
       "warning": "~120 MB — slow on cellular."
     },
     {
-      "id": "seedance-2", "title": "Seedance 2.0 — Synthetic Interior", "author": "cognitive",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/1420f92d",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/1420f92d/v1/meta.json",
-      "size_mb": 14, "category": "places", "subcategory": "Synthetic",
-      "camera": { "position": [0, 1.6, 4], "lookAt": [0, 1, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "id": "seedance-2",
+      "title": "Seedance 2.0 — Synthetic Interior",
+      "author": "cognitive",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/1420f92d",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/1420f92d/v1/meta.json",
+      "size_mb": 14,
+      "category": "places",
+      "subcategory": "Synthetic",
+      "camera": {
+        "position": [
+          0,
+          1.6,
+          4
+        ],
+        "lookAt": [
+          0,
+          1,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     },
     {
-      "id": "cochem-castle", "title": "Cochem Castle", "author": "dok11",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/9b18007e",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/9b18007e/v1/meta.json",
-      "size_mb": 26, "category": "places", "subcategory": "Castle",
-      "camera": { "position": [0, 8, 25], "lookAt": [0, 4, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "id": "cochem-castle",
+      "title": "Cochem Castle",
+      "author": "dok11",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/9b18007e",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/9b18007e/v1/meta.json",
+      "size_mb": 26,
+      "category": "places",
+      "subcategory": "Castle",
+      "camera": {
+        "position": [
+          0,
+          8,
+          25
+        ],
+        "lookAt": [
+          0,
+          4,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     },
     {
-      "id": "bolton-priory", "title": "Bolton Priory", "author": "dok11",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/56496eab",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/56496eab/v1/meta.json",
-      "size_mb": 23, "category": "places", "subcategory": "Castle",
-      "camera": { "position": [0, 5, 15], "lookAt": [0, 3, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "id": "bolton-priory",
+      "title": "Bolton Priory",
+      "author": "dok11",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/56496eab",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/56496eab/v1/meta.json",
+      "size_mb": 23,
+      "category": "places",
+      "subcategory": "Castle",
+      "camera": {
+        "position": [
+          0,
+          5,
+          15
+        ],
+        "lookAt": [
+          0,
+          3,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     },
     {
-      "id": "st-wilfrid", "title": "St Wilfrid's Church Halton", "author": "dok11",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/85f63eb0",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/85f63eb0/v1/meta.json",
-      "size_mb": 38, "category": "places", "subcategory": "Castle",
-      "camera": { "position": [0, 4, 12], "lookAt": [0, 2, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "id": "st-wilfrid",
+      "title": "St Wilfrid's Church Halton",
+      "author": "dok11",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/85f63eb0",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/85f63eb0/v1/meta.json",
+      "size_mb": 38,
+      "category": "places",
+      "subcategory": "Castle",
+      "camera": {
+        "position": [
+          0,
+          4,
+          12
+        ],
+        "lookAt": [
+          0,
+          2,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     },
     {
-      "id": "pflixbourg", "title": "Pflixbourg Castle, Alsace", "author": "bbeaumatin",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/92f764dc",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/92f764dc/v2/meta.json",
-      "size_mb": 99, "category": "places", "subcategory": "Castle",
-      "camera": { "position": [0, 5, 20], "lookAt": [0, 3, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "id": "pflixbourg",
+      "title": "Pflixbourg Castle, Alsace",
+      "author": "bbeaumatin",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/92f764dc",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/92f764dc/v2/meta.json",
+      "size_mb": 99,
+      "category": "places",
+      "subcategory": "Castle",
+      "camera": {
+        "position": [
+          0,
+          5,
+          20
+        ],
+        "lookAt": [
+          0,
+          3,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     },
     {
-      "id": "rosa-coeli", "title": "Rosa Coeli Monastery", "author": "vojtech_dofek",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/d2d4ae2d",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/d2d4ae2d/v26/meta.json",
-      "size_mb": 5, "category": "places", "subcategory": "Castle",
-      "camera": { "position": [0, 4, 12], "lookAt": [0, 2, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "id": "rosa-coeli",
+      "title": "Rosa Coeli Monastery",
+      "author": "vojtech_dofek",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/d2d4ae2d",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/d2d4ae2d/v26/meta.json",
+      "size_mb": 5,
+      "category": "places",
+      "subcategory": "Castle",
+      "camera": {
+        "position": [
+          0,
+          4,
+          12
+        ],
+        "lookAt": [
+          0,
+          2,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     },
     {
-      "id": "seem-kirke", "title": "Seem Kirke (Denmark)", "author": "roedsgaard",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/e832997f",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/e832997f/v1/meta.json",
-      "size_mb": 11, "category": "places", "subcategory": "Castle",
-      "camera": { "position": [0, 4, 12], "lookAt": [0, 2, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "id": "seem-kirke",
+      "title": "Seem Kirke (Denmark)",
+      "author": "roedsgaard",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/e832997f",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/e832997f/v1/meta.json",
+      "size_mb": 11,
+      "category": "places",
+      "subcategory": "Castle",
+      "camera": {
+        "position": [
+          0,
+          4,
+          12
+        ],
+        "lookAt": [
+          0,
+          2,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     },
     {
-      "id": "trostburg", "title": "Trostburg Waidbruck (South Tyrol)", "author": "mpskin",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/ccb40d3c",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/ccb40d3c/v1/meta.json",
-      "size_mb": 43, "category": "places", "subcategory": "Castle",
-      "camera": { "position": [0, 5, 18], "lookAt": [0, 3, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "id": "trostburg",
+      "title": "Trostburg Waidbruck (South Tyrol)",
+      "author": "mpskin",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/ccb40d3c",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/ccb40d3c/v1/meta.json",
+      "size_mb": 43,
+      "category": "places",
+      "subcategory": "Castle",
+      "camera": {
+        "position": [
+          0,
+          5,
+          18
+        ],
+        "lookAt": [
+          0,
+          3,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     },
     {
-      "id": "le-querce", "title": "Country Hotel Le Querce, Italy", "author": "dok11",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/8f4c0957",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/8f4c0957/v1/meta.json",
-      "size_mb": 28, "category": "places", "subcategory": "Building",
-      "camera": { "position": [0, 5, 15], "lookAt": [0, 2, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "id": "le-querce",
+      "title": "Country Hotel Le Querce, Italy",
+      "author": "dok11",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/8f4c0957",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/8f4c0957/v1/meta.json",
+      "size_mb": 28,
+      "category": "places",
+      "subcategory": "Building",
+      "camera": {
+        "position": [
+          0,
+          5,
+          15
+        ],
+        "lookAt": [
+          0,
+          2,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     },
     {
-      "id": "norman-house", "title": "Norman Constables House", "author": "nebulousflynn",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/18e6d72d",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/18e6d72d/v1/meta.json",
-      "size_mb": 68, "category": "places", "subcategory": "Building",
-      "camera": { "position": [0, 4, 12], "lookAt": [0, 2, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "id": "norman-house",
+      "title": "Norman Constables House",
+      "author": "nebulousflynn",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/18e6d72d",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/18e6d72d/v1/meta.json",
+      "size_mb": 68,
+      "category": "places",
+      "subcategory": "Building",
+      "camera": {
+        "position": [
+          0,
+          4,
+          12
+        ],
+        "lookAt": [
+          0,
+          2,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     },
     {
-      "id": "spornberg", "title": "Spornberg Mountain Living", "author": "mpskin",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/77a8a45b",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/77a8a45b/v1/meta.json",
-      "size_mb": 43, "category": "places", "subcategory": "Building",
-      "camera": { "position": [0, 4, 12], "lookAt": [0, 2, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "id": "spornberg",
+      "title": "Spornberg Mountain Living",
+      "author": "mpskin",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/77a8a45b",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/77a8a45b/v1/meta.json",
+      "size_mb": 43,
+      "category": "places",
+      "subcategory": "Building",
+      "camera": {
+        "position": [
+          0,
+          4,
+          12
+        ],
+        "lookAt": [
+          0,
+          2,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     },
     {
-      "id": "sunnyvale-heritage", "title": "Sunnyvale Heritage Park Museum", "author": "zeitgeistarchivescans",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/d5d397aa",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/d5d397aa/v1/meta.json",
-      "size_mb": 55, "category": "places", "subcategory": "Building",
-      "camera": { "position": [0, 3, 10], "lookAt": [0, 1.5, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "id": "sunnyvale-heritage",
+      "title": "Sunnyvale Heritage Park Museum",
+      "author": "zeitgeistarchivescans",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/d5d397aa",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/d5d397aa/v1/meta.json",
+      "size_mb": 55,
+      "category": "places",
+      "subcategory": "Building",
+      "camera": {
+        "position": [
+          0,
+          3,
+          10
+        ],
+        "lookAt": [
+          0,
+          1.5,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     },
     {
-      "id": "sydney-fountain", "title": "Sydney Eye Hospital Fountain", "author": "eggman",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/99079a22",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/99079a22/v1/meta.json",
-      "size_mb": 54, "category": "places", "subcategory": "Building",
-      "camera": { "position": [0, 2, 6], "lookAt": [0, 1, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "id": "sydney-fountain",
+      "title": "Sydney Eye Hospital Fountain",
+      "author": "eggman",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/99079a22",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/99079a22/v1/meta.json",
+      "size_mb": 54,
+      "category": "places",
+      "subcategory": "Building",
+      "camera": {
+        "position": [
+          0,
+          2,
+          6
+        ],
+        "lookAt": [
+          0,
+          1,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     },
     {
-      "id": "muddy-excavator", "title": "Muddy Excavator Site", "author": "dok11",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/ded12920",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/ded12920/v1/meta.json",
-      "size_mb": 34, "category": "places", "subcategory": "Building",
-      "camera": { "position": [0, 3, 10], "lookAt": [0, 1, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "id": "muddy-excavator",
+      "title": "Muddy Excavator Site",
+      "author": "dok11",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/ded12920",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/ded12920/v1/meta.json",
+      "size_mb": 34,
+      "category": "places",
+      "subcategory": "Building",
+      "camera": {
+        "position": [
+          0,
+          3,
+          10
+        ],
+        "lookAt": [
+          0,
+          1,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     },
     {
-      "id": "cactus-garden", "title": "Cactus Garden", "author": "splatmachine",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/4826d984",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/4826d984/v1/meta.json",
-      "size_mb": 62, "category": "places", "subcategory": "Garden",
-      "camera": { "position": [0, 1.6, 4], "lookAt": [0, 1, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "id": "cactus-garden",
+      "title": "Cactus Garden",
+      "author": "splatmachine",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/4826d984",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/4826d984/v1/meta.json",
+      "size_mb": 62,
+      "category": "places",
+      "subcategory": "Garden",
+      "camera": {
+        "position": [
+          0,
+          1.6,
+          4
+        ],
+        "lookAt": [
+          0,
+          1,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     },
     {
-      "id": "ludlow", "title": "Ludlow — Quality Square", "author": "ijenko",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/ca36efcc",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/ca36efcc/v1/meta.json",
-      "size_mb": 49, "category": "places", "subcategory": "Street",
-      "camera": { "position": [0, 2, 8], "lookAt": [0, 1, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "id": "ludlow",
+      "title": "Ludlow — Quality Square",
+      "author": "ijenko",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/ca36efcc",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/ca36efcc/v1/meta.json",
+      "size_mb": 49,
+      "category": "places",
+      "subcategory": "Street",
+      "camera": {
+        "position": [
+          0,
+          2,
+          8
+        ],
+        "lookAt": [
+          0,
+          1,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     },
     {
-      "id": "la-night", "title": "LA Night", "author": "matousekfoto",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/d1ea0b35",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/d1ea0b35/v1/meta.json",
-      "size_mb": 42, "category": "places", "subcategory": "Street",
-      "camera": { "position": [0, 2, 6], "lookAt": [0, 1, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "id": "la-night",
+      "title": "LA Night",
+      "author": "matousekfoto",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/d1ea0b35",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/d1ea0b35/v1/meta.json",
+      "size_mb": 42,
+      "category": "places",
+      "subcategory": "Street",
+      "camera": {
+        "position": [
+          0,
+          2,
+          6
+        ],
+        "lookAt": [
+          0,
+          1,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     },
     {
-      "id": "interlaken", "title": "Dorfplatz Interlaken", "author": "dewaisol",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/16a90551",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/16a90551/v1/meta.json",
-      "size_mb": 53, "category": "places", "subcategory": "Street",
-      "camera": { "position": [0, 2, 6], "lookAt": [0, 1, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "id": "interlaken",
+      "title": "Dorfplatz Interlaken",
+      "author": "dewaisol",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/16a90551",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/16a90551/v1/meta.json",
+      "size_mb": 53,
+      "category": "places",
+      "subcategory": "Street",
+      "camera": {
+        "position": [
+          0,
+          2,
+          6
+        ],
+        "lookAt": [
+          0,
+          1,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     },
     {
-      "id": "nebula-house", "title": "Botanical Garden — Nebula House", "author": "simonbethke",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/e76f4905",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/e76f4905/v1/meta.json",
-      "size_mb": 170, "category": "places", "subcategory": "Greenhouse",
-      "camera": { "position": [0, 1.6, 4], "lookAt": [0, 1, 0] },
-      "transform": { "rotation": [180, 0, 0] },
+      "id": "nebula-house",
+      "title": "Botanical Garden — Nebula House",
+      "author": "simonbethke",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/e76f4905",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/e76f4905/v1/meta.json",
+      "size_mb": 170,
+      "category": "places",
+      "subcategory": "Greenhouse",
+      "camera": {
+        "position": [
+          0,
+          1.6,
+          4
+        ],
+        "lookAt": [
+          0,
+          1,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      },
       "warning": "~170 MB — slow on cellular."
     },
     {
-      "id": "america-house", "title": "Botanical Garden — America v2", "author": "simonbethke",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/e2b36b69",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/e2b36b69/v1/meta.json",
-      "size_mb": 242, "category": "places", "subcategory": "Greenhouse",
-      "camera": { "position": [0, 1.6, 4], "lookAt": [0, 1, 0] },
-      "transform": { "rotation": [180, 0, 0] },
+      "id": "america-house",
+      "title": "Botanical Garden — America v2",
+      "author": "simonbethke",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/e2b36b69",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/e2b36b69/v1/meta.json",
+      "size_mb": 242,
+      "category": "places",
+      "subcategory": "Greenhouse",
+      "camera": {
+        "position": [
+          0,
+          1.6,
+          4
+        ],
+        "lookAt": [
+          0,
+          1,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      },
       "warning": "~242 MB — slow on cellular."
     },
     {
-      "id": "victoria-house", "title": "Botanical Garden — Victoria House (LOD)", "author": "simonbethke",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/6f697c4d",
-      "format": "sog-lod", "url": "https://d28zzqy0iyovbz.cloudfront.net/6f697c4d/v1/lod-meta.json",
-      "size_mb": 305, "category": "places", "subcategory": "Greenhouse",
-      "camera": { "position": [0, 1.6, 4], "lookAt": [0, 1, 0] },
-      "transform": { "rotation": [180, 0, 0] },
+      "id": "victoria-house",
+      "title": "Botanical Garden — Victoria House (LOD)",
+      "author": "simonbethke",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/6f697c4d",
+      "format": "sog-lod",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/6f697c4d/v1/lod-meta.json",
+      "size_mb": 305,
+      "category": "places",
+      "subcategory": "Greenhouse",
+      "camera": {
+        "position": [
+          0,
+          1.6,
+          4
+        ],
+        "lookAt": [
+          0,
+          1,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      },
       "warning": "~305 MB streaming LOD bundle — slow on mobile."
     },
     {
-      "id": "tugboats", "title": "OceanTeam Tugboats", "author": "tosolini",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/45877bc9",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/45877bc9/v1/meta.json",
-      "size_mb": 161, "category": "places", "subcategory": "Marine",
-      "camera": { "position": [0, 5, 20], "lookAt": [0, 1, 0] },
-      "transform": { "rotation": [180, 0, 0] },
+      "id": "tugboats",
+      "title": "OceanTeam Tugboats",
+      "author": "tosolini",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/45877bc9",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/45877bc9/v1/meta.json",
+      "size_mb": 161,
+      "category": "places",
+      "subcategory": "Marine",
+      "camera": {
+        "position": [
+          0,
+          5,
+          20
+        ],
+        "lookAt": [
+          0,
+          1,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      },
       "warning": "~161 MB — slow on cellular."
     },
     {
-      "id": "tugboat-engine", "title": "Tugboat Bat Engine Room", "author": "tosolini",
-      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/1a14e1e7",
-      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/1a14e1e7/v1/meta.json",
-      "size_mb": 88, "category": "places", "subcategory": "Marine",
-      "camera": { "position": [0, 1.6, 4], "lookAt": [0, 1, 0] },
-      "transform": { "rotation": [180, 0, 0] }
+      "id": "tugboat-engine",
+      "title": "Tugboat Bat Engine Room",
+      "author": "tosolini",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/1a14e1e7",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/1a14e1e7/v1/meta.json",
+      "size_mb": 88,
+      "category": "places",
+      "subcategory": "Marine",
+      "camera": {
+        "position": [
+          0,
+          1.6,
+          4
+        ],
+        "lookAt": [
+          0,
+          1,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "soldier-schwejk",
+      "title": "Soldier Švejk",
+      "author": "alfred2010",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/8e3c7aac",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/8e3c7aac/v1/meta.json",
+      "size_mb": 2,
+      "category": "objects",
+      "subcategory": "Sculpture",
+      "camera": {
+        "position": [
+          0,
+          0.15,
+          0.3
+        ],
+        "lookAt": [
+          0,
+          0,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "bottle-cork",
+      "title": "Bottle Cork",
+      "author": "alfred2010",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/b30bb2b2",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/b30bb2b2/v1/meta.json",
+      "size_mb": 5,
+      "category": "objects",
+      "subcategory": "Sculpture",
+      "camera": {
+        "position": [
+          0,
+          0.1,
+          0.2
+        ],
+        "lookAt": [
+          0,
+          0,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "old-wall",
+      "title": "Old Wall (Benediktbeuern)",
+      "author": "alfred2010",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/6b4c98d8",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/6b4c98d8/v1/meta.json",
+      "size_mb": 12,
+      "category": "places",
+      "subcategory": "Building",
+      "camera": {
+        "position": [
+          0,
+          1.5,
+          3
+        ],
+        "lookAt": [
+          0,
+          1,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "wuhan-gift",
+      "title": "Wuhan Gift 武汉礼物",
+      "author": "ethan3111",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/9d7bf5c7",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/9d7bf5c7/v1/meta.json",
+      "size_mb": 22,
+      "category": "objects",
+      "subcategory": "Sculpture",
+      "camera": {
+        "position": [
+          0,
+          0.3,
+          0.6
+        ],
+        "lookAt": [
+          0,
+          0.1,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "dirtpark",
+      "title": "Dirtpark",
+      "author": "florian_schill",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/71df25e2",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/71df25e2/v1/meta.json",
+      "size_mb": 138,
+      "category": "places",
+      "subcategory": "Street",
+      "camera": {
+        "position": [
+          0,
+          3,
+          10
+        ],
+        "lookAt": [
+          0,
+          1,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      },
+      "warning": "~138 MB — slow on cellular."
+    },
+    {
+      "id": "mothers-day",
+      "title": "Mother's Day",
+      "author": "ethan3111",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/bba06edf",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/bba06edf/v1/meta.json",
+      "size_mb": 6,
+      "category": "objects",
+      "subcategory": "Sculpture",
+      "camera": {
+        "position": [
+          0,
+          0.2,
+          0.4
+        ],
+        "lookAt": [
+          0,
+          0.05,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "lizhongtang",
+      "title": "Lizhongtang Photo Studio 立中堂照相馆",
+      "author": "ethan3111",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/ab0dbfdc",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/ab0dbfdc/v1/meta.json",
+      "size_mb": 16,
+      "category": "places",
+      "subcategory": "Room",
+      "camera": {
+        "position": [
+          0,
+          1.6,
+          4
+        ],
+        "lookAt": [
+          0,
+          1,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "lmd-30000-2",
+      "title": "LMD-30000-2",
+      "author": "ntphong",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/60ec36ff",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/60ec36ff/v1/meta.json",
+      "size_mb": 13,
+      "category": "objects",
+      "subcategory": "Sculpture",
+      "camera": {
+        "position": [
+          0,
+          0.3,
+          0.6
+        ],
+        "lookAt": [
+          0,
+          0.1,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "if-walls",
+      "title": "\"if these walls could talk\" (4335 25-26)",
+      "author": "mattmp",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/5051a76e",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/5051a76e/v1/meta.json",
+      "size_mb": 17,
+      "category": "places",
+      "subcategory": "Building",
+      "camera": {
+        "position": [
+          0,
+          1.5,
+          3
+        ],
+        "lookAt": [
+          0,
+          1,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "karangkidul",
+      "title": "Karangkidul Kota Semarang",
+      "author": "kudaterbang",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/b4b950fe",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/b4b950fe/v1/meta.json",
+      "size_mb": 70,
+      "category": "places",
+      "subcategory": "Street",
+      "camera": {
+        "position": [
+          0,
+          2,
+          6
+        ],
+        "lookAt": [
+          0,
+          1,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "trash-can",
+      "title": "Trash Can",
+      "author": "speedray",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/8ecfafe5",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/8ecfafe5/v2/meta.json",
+      "size_mb": 5,
+      "category": "objects",
+      "subcategory": "Sculpture",
+      "camera": {
+        "position": [
+          0,
+          0.3,
+          0.6
+        ],
+        "lookAt": [
+          0,
+          0.1,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "splat-barrel",
+      "title": "Splat Barrel",
+      "author": "warlune",
+      "license": "CC BY 4.0",
+      "license_url": "https://superspl.at/scene/fdccca2e",
+      "format": "sog",
+      "url": "https://d28zzqy0iyovbz.cloudfront.net/fdccca2e/v1/meta.json",
+      "size_mb": 18,
+      "category": "objects",
+      "subcategory": "Sculpture",
+      "camera": {
+        "position": [
+          0,
+          0.4,
+          0.8
+        ],
+        "lookAt": [
+          0,
+          0.2,
+          0
+        ]
+      },
+      "transform": {
+        "rotation": [
+          180,
+          0,
+          0
+        ]
+      }
     }
   ]
 }
