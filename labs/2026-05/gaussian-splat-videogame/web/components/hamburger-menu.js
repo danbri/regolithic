@@ -42,35 +42,32 @@ function attach(scene) {
     btn.setAttribute('aria-expanded', String(!panel.classList.contains('hidden')));
   });
 
-  // ── Catalog ───────────────────────────────────────────────────────────
-  const catalogSec = makeSection('Catalog', false, 'catalog');
-  panel.appendChild(catalogSec.el);
-  buildCatalog(catalogSec.body, scene);
-
-  // ── Scene credit ──────────────────────────────────────────────────────
-  const sceneSec = makeSection('Scene', true, 'scene');
-  panel.appendChild(sceneSec.el);
+  // ── Scenes (catalog + active scene credit at top) ─────────────────────
+  const scenesSec = makeSection('Scenes', false, 'scenes');
+  panel.appendChild(scenesSec.el);
+  const credit = document.createElement('div');
+  credit.className = 'credit';
+  credit.innerHTML = '<span class="meta">Loading…</span>';
+  scenesSec.body.appendChild(credit);
   const updateCredit = (s) => {
-    sceneSec.body.innerHTML = s
-      ? `<div class="credit">
-           <strong>${esc(s.title)}</strong><br>
-           by ${esc(s.author)} —
-           <a href="${escAttr(s.license_url)}" target="_blank" rel="noopener">${esc(s.license)}</a>
-           ${s.size_mb ? `<br><span class="meta">${s.size_mb} MB · ${esc(s.format)}</span>` : ''}
-         </div>`
-      : '<div class="credit">No scene loaded.</div>';
+    credit.innerHTML = s
+      ? `<strong>Now showing:</strong> ${esc(s.title)} <span class="meta">·
+         by ${esc(s.author)} ·
+         <a href="${escAttr(s.license_url)}" target="_blank" rel="noopener">${esc(s.license)}</a>
+         ${s.size_mb ? ` · ${s.size_mb} MB` : ''}</span>`
+      : '<span class="meta">No scene loaded.</span>';
   };
   scene.addEventListener('scene-loading', e => updateCredit(e.detail.scene));
   scene.addEventListener('scene-loaded',  e => updateCredit(e.detail.scene));
+  buildCatalog(scenesSec.body, scene);
 
-  // ── Render ────────────────────────────────────────────────────────────
-  const renderSec = makeSection('Render', true, 'render');
-  panel.appendChild(renderSec.el);
-  renderSec.body.appendChild(slider('Move speed', 0.2, 8, 0.1, scene._input.moveSpeed, v => scene._input.moveSpeed = v));
-  renderSec.body.appendChild(slider('FOV', 40, 110, 1, scene.camera?.camera?.fov ?? 70, v => {
+  // ── View (camera + render) ────────────────────────────────────────────
+  const viewSec = makeSection('View', true, 'view');
+  panel.appendChild(viewSec.el);
+  viewSec.body.appendChild(slider('Move speed', 0.2, 8, 0.1, scene._input.moveSpeed, v => scene._input.moveSpeed = v));
+  viewSec.body.appendChild(slider('FOV', 40, 110, 1, scene.camera?.camera?.fov ?? 70, v => {
     if (scene.camera?.camera) scene.camera.camera.fov = v;
   }));
-  // Mode toggle as a dropdown
   const modeRow = row();
   modeRow.appendChild(span('Mode'));
   const modeSel = document.createElement('select');
@@ -84,22 +81,38 @@ function attach(scene) {
   modeSel.addEventListener('change', () => scene.setMode(modeSel.value));
   scene.addEventListener('mode-changed', () => { modeSel.value = scene.mode; });
   modeRow.appendChild(modeSel);
-  renderSec.body.appendChild(modeRow);
+  viewSec.body.appendChild(modeRow);
 
-  // ── SplatWorld ────────────────────────────────────────────────────────
-  const swSec = makeSection('SplatWorld', false, 'splatworld');
-  panel.appendChild(swSec.el);
-  buildSplatWorldSection(swSec.body, scene);
+  // ── World (mesh detection + sonar + cane) ─────────────────────────────
+  const worldSec = makeSection('World', false, 'world');
+  panel.appendChild(worldSec.el);
+  buildSplatWorldSection(worldSec.body, scene);
 
-  // ── Tour ──────────────────────────────────────────────────────────────
-  const tourSec = makeSection('Tour', false, 'tour');
-  panel.appendChild(tourSec.el);
-  buildTourSection(tourSec.body, scene);
+  // ── Explore (Tour + Drone as nested folders) ──────────────────────────
+  const exploreSec = makeSection('Explore', false, 'explore');
+  panel.appendChild(exploreSec.el);
 
-  // ── Drone ─────────────────────────────────────────────────────────────
-  const droneSec = makeSection('Drone', false, 'drone');
-  panel.appendChild(droneSec.el);
-  buildDroneSection(droneSec.body, scene);
+  const tourSub = document.createElement('details');
+  tourSub.className = 'tree-group tree-sub';
+  const tourSum = document.createElement('summary');
+  tourSum.textContent = 'Tour — spiral fly-through';
+  tourSub.appendChild(tourSum);
+  const tourBody = document.createElement('div');
+  tourBody.className = 'menu-body';
+  tourSub.appendChild(tourBody);
+  exploreSec.body.appendChild(tourSub);
+  buildTourSection(tourBody, scene);
+
+  const droneSub = document.createElement('details');
+  droneSub.className = 'tree-group tree-sub';
+  const droneSum = document.createElement('summary');
+  droneSum.textContent = 'Drone — autonomous survey';
+  droneSub.appendChild(droneSum);
+  const droneBody = document.createElement('div');
+  droneBody.className = 'menu-body';
+  droneSub.appendChild(droneBody);
+  exploreSec.body.appendChild(droneSub);
+  buildDroneSection(droneBody, scene);
 
   // ── AI ────────────────────────────────────────────────────────────────
   const aiSec = makeSection('AI', true, 'ai');
