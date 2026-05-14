@@ -182,8 +182,6 @@ function attach(scene) {
   setupSlideAnimations(panel);
 }
 
-const ANIM_MS = 250;
-
 function setupSlideAnimations(panel) {
   for (const d of panel.querySelectorAll('details')) hookSlide(d);
   // Re-hook anything added later (rebuildExperiments etc).
@@ -204,60 +202,15 @@ function hookSlide(det) {
   if (det._slideHooked) return;
   det._slideHooked = true;
   // Wrap non-summary children in .collapse (skip if already wrapped).
-  let collapse = det.querySelector(':scope > .collapse');
-  if (!collapse) {
-    const children = Array.from(det.children).filter(c => c.tagName !== 'SUMMARY');
-    if (children.length === 0) return;
-    collapse = document.createElement('div');
-    collapse.className = 'collapse';
-    for (const c of children) collapse.appendChild(c);
-    det.appendChild(collapse);
-  }
-  // Seed initial inline height matching the current open state.
-  collapse.style.height = det.open ? 'auto' : '0';
-
-  // Intercept the summary click so we own the [open]-flip timing.
-  // The default `toggle` event fires after iOS Safari has already
-  // applied content-visibility:hidden on closed ::details-content,
-  // which makes scrollHeight return 0 and the animation never
-  // happens. By preventing default and managing [open] ourselves,
-  // we measure scrollHeight while the contents are guaranteed in
-  // flow.
-  const summary = det.querySelector(':scope > summary');
-  if (!summary) return;
-  summary.addEventListener('click', (e) => {
-    e.preventDefault();
-    if (det._slideBusy) return;
-    det._slideBusy = true;
-
-    const wasOpen = det.hasAttribute('open');
-    if (wasOpen) {
-      // CLOSE: measure current height (still open), pin it, reflow, animate to 0,
-      // then drop the [open] attribute once the animation has finished.
-      const cur = collapse.scrollHeight;
-      collapse.style.height = cur + 'px';
-      void collapse.offsetHeight;
-      collapse.style.height = '0';
-      setTimeout(() => {
-        det.removeAttribute('open');
-        det._slideBusy = false;
-      }, ANIM_MS);
-    } else {
-      // OPEN: flip [open] first so the UA makes contents visible (we also
-      // force visibility via CSS but this keeps the dispatch consistent),
-      // force layout, measure, then animate 0 → target.
-      det.setAttribute('open', '');
-      void collapse.offsetHeight;
-      const target = collapse.scrollHeight;
-      collapse.style.height = '0';
-      void collapse.offsetHeight;
-      collapse.style.height = target + 'px';
-      setTimeout(() => {
-        if (det.hasAttribute('open')) collapse.style.height = 'auto';
-        det._slideBusy = false;
-      }, ANIM_MS);
-    }
-  });
+  // That's the only thing the JS does — CSS owns the transition via
+  // grid-template-rows: 0fr ↔ 1fr on `[open]`.
+  if (det.querySelector(':scope > .collapse')) return;
+  const children = Array.from(det.children).filter(c => c.tagName !== 'SUMMARY');
+  if (children.length === 0) return;
+  const collapse = document.createElement('div');
+  collapse.className = 'collapse';
+  for (const c of children) collapse.appendChild(c);
+  det.appendChild(collapse);
 }
 
 // ── Catalog tree (Category → Subcategory → Scene) ───────────────────────

@@ -130,8 +130,8 @@ splat-scene canvas {
 /* Force the details' children to stay in flow regardless of [open]
    state. Modern WebKit hides them via ::details-content's content-
    visibility; older UAs use display:none on non-summary children.
-   We override both so our .collapse wrapper's scrollHeight is always
-   the real content height. */
+   We override both so our .collapse wrapper renders unconditionally
+   and the grid-template-rows transition has something to animate. */
 .menu-panel details > :not(summary) {
   display: block;
 }
@@ -140,12 +140,21 @@ splat-scene canvas {
   content-visibility: visible;
 }
 
+/* CSS-only slide-open/close via `grid-template-rows: 0fr ↔ 1fr`. The
+   `<details>` native click toggles [open]; CSS does the rest, no JS
+   click-handlers. hookSlide() in hamburger-menu.js just wraps the
+   non-summary children in this .collapse div. */
 .menu-panel details > .collapse {
-  display: block;
+  display: grid;
+  grid-template-rows: 0fr;
   overflow: hidden;
-  transition: height 250ms cubic-bezier(0.4, 0, 0.2, 1);
-  /* Height is owned entirely by hookSlide() in hamburger-menu.js —
-     CSS rules for height would race with the inline JS animation. */
+  transition: grid-template-rows 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.menu-panel details[open] > .collapse {
+  grid-template-rows: 1fr;
+}
+.menu-panel details > .collapse > * {
+  min-height: 0;
 }
 
 /* ── Candy colour bands ─────────────────────────────────────────────────
