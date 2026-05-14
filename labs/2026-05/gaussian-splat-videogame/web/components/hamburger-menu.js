@@ -171,6 +171,69 @@ function attach(scene) {
     const s = scene._catalog?.scenes.find(x => x.id === scene._currentSceneId);
     if (s) updateCredit(s);
   }
+
+  // Slide-open/close animation for every <details> in the panel.
+  // We wrap each details' non-summary children in a `.collapse` div
+  // (styled overflow:hidden + height transition) and on each toggle
+  // animate height between 0 and the measured scrollHeight.
+  // Works in every browser with CSS transitions — no reliance on
+  // interpolate-size / ::details-content which iOS Safari hasn't
+  // landed reliably yet.
+  setupSlideAnimations(panel);
+}
+
+const ANIM_MS = 250;
+
+function setupSlideAnimations(panel) {
+  for (const d of panel.querySelectorAll('details')) hookSlide(d);
+  // Re-hook anything added later (rebuildExperiments etc).
+  const obs = new MutationObserver((muts) => {
+    for (const m of muts) {
+      for (const n of m.addedNodes) {
+        if (n.nodeType !== 1) continue;
+        if (n.tagName === 'DETAILS') hookSlide(n);
+        const inner = n.querySelectorAll?.('details');
+        if (inner) for (const d of inner) hookSlide(d);
+      }
+    }
+  });
+  obs.observe(panel, { childList: true, subtree: true });
+}
+
+function hookSlide(det) {
+  if (det._slideHooked) return;
+  det._slideHooked = true;
+  // Wrap non-summary children in .collapse (skip if already wrapped).
+  let collapse = det.querySelector(':scope > .collapse');
+  if (!collapse) {
+    const children = Array.from(det.children).filter(c => c.tagName !== 'SUMMARY');
+    if (children.length === 0) return;
+    collapse = document.createElement('div');
+    collapse.className = 'collapse';
+    for (const c of children) collapse.appendChild(c);
+    det.appendChild(collapse);
+  }
+  det.addEventListener('toggle', () => {
+    // scrollHeight is reliable because .collapse is display:block always
+    // (no UA visibility toggle on this wrapper).
+    const target = collapse.scrollHeight;
+    if (det.open) {
+      collapse.style.height = '0';
+      requestAnimationFrame(() => {
+        collapse.style.height = target + 'px';
+      });
+    } else {
+      collapse.style.height = target + 'px';
+      requestAnimationFrame(() => {
+        collapse.style.height = '0';
+      });
+    }
+  });
+  collapse.addEventListener('transitionend', (e) => {
+    if (e.propertyName === 'height' && det.open) {
+      collapse.style.height = '';   // revert to CSS auto so contents can grow
+    }
+  });
 }
 
 // ── Catalog tree (Category → Subcategory → Scene) ───────────────────────

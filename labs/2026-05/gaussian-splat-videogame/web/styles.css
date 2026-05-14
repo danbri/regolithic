@@ -120,23 +120,23 @@ splat-scene canvas {
   gap: 6px;
 }
 
-/* ── Open / close animation (modern browsers) ──────────────────────────
-   <details>::details-content + interpolate-size lets us animate the
-   contents from height:0 ↔ height:auto smoothly. Supported in Chrome
-   131+, Firefox 137+, Safari 18.4+ (May 2025 onwards). Browsers
-   without it just snap open/close as before. */
-@supports (interpolate-size: allow-keywords) {
-  :root { interpolate-size: allow-keywords; }
-  .menu-panel details::details-content {
-    height: 0;
-    overflow: hidden;
-    transition:
-      height            250ms cubic-bezier(0.4, 0, 0.2, 1),
-      content-visibility 250ms allow-discrete;
-  }
-  .menu-panel details[open]::details-content {
-    height: auto;
-  }
+/* ── Open / close animation ────────────────────────────────────────────
+   hamburger-menu.js wraps every <details>' non-summary children in a
+   `.collapse` div and hooks a toggle handler that animates `height`
+   between 0 and the measured scrollHeight. Works in every browser
+   that supports CSS transitions; no reliance on interpolate-size or
+   ::details-content (those landed too recently to be stable on iOS
+   Safari).                                                              */
+.menu-panel details > .collapse {
+  display: block;
+  overflow: hidden;
+  transition: height 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.menu-panel details:not([open]) > .collapse {
+  height: 0;
+}
+.menu-panel details[open] > .collapse {
+  height: auto;
 }
 
 /* ── Candy colour bands ─────────────────────────────────────────────────
@@ -186,12 +186,14 @@ splat-scene canvas {
     0 0 18px hsla(var(--band-h), 95%, 60%, 0.28);
 }
 
-.menu-panel > details[data-band] > .menu-body {
+.menu-panel > details[data-band] > .menu-body,
+.menu-panel > details[data-band] > .collapse > .menu-body {
   background: hsla(var(--band-h), var(--band-s), var(--band-l), 0.04);
   border-left: 1px solid hsla(var(--band-h), var(--band-s), var(--band-l), 0.18);
   padding-left: 12px;
 }
-.menu-panel > details[data-band][open] > .menu-body {
+.menu-panel > details[data-band][open] > .menu-body,
+.menu-panel > details[data-band][open] > .collapse > .menu-body {
   background: hsla(var(--band-h), var(--band-s), var(--band-l), 0.08);
   border-left: 1px solid hsla(var(--band-h), var(--band-s), var(--band-l), 0.32);
 }
