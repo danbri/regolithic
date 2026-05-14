@@ -97,6 +97,14 @@
       "transform": { "rotation": [180, 0, 0] }
     },
     {
+      "id": "knight-figurine", "title": "Knight (pewter figurine)", "author": "alfred2010",
+      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/ff1b7e71",
+      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/ff1b7e71/v1/meta.json",
+      "size_mb": 5, "category": "objects", "subcategory": "Sculpture",
+      "camera": { "position": [0, 0.15, 0.3], "lookAt": [0, 0, 0] },
+      "transform": { "rotation": [180, 0, 0] }
+    },
+    {
       "id": "fox-head", "title": "Fox Head", "author": "mwesigwa",
       "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/8098fd0f",
       "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/8098fd0f/v1/meta.json",
@@ -118,6 +126,22 @@
       "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/fcb2ea49/v1/meta.json",
       "size_mb": 11, "category": "objects", "subcategory": "Retro",
       "camera": { "position": [0, 0.2, 0.5], "lookAt": [0, 0, 0] },
+      "transform": { "rotation": [180, 0, 0] }
+    },
+    {
+      "id": "daiei-hawks-n64", "title": "Daiei Hawks Nintendo 64", "author": "crusade",
+      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/d98cd0a5",
+      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/d98cd0a5/v1/meta.json",
+      "size_mb": 6, "category": "objects", "subcategory": "Retro",
+      "camera": { "position": [0, 0.2, 0.4], "lookAt": [0, 0, 0] },
+      "transform": { "rotation": [180, 0, 0] }
+    },
+    {
+      "id": "weigela", "title": "Weigela", "author": "naturalai",
+      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/11709263",
+      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/11709263/v2/meta.json",
+      "size_mb": 7, "category": "objects", "subcategory": "Plant",
+      "camera": { "position": [0, 0.3, 0.6], "lookAt": [0, 0.1, 0] },
       "transform": { "rotation": [180, 0, 0] }
     },
     {
@@ -241,6 +265,14 @@
       "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/56496eab/v1/meta.json",
       "size_mb": 23, "category": "places", "subcategory": "Castle",
       "camera": { "position": [0, 5, 15], "lookAt": [0, 3, 0] },
+      "transform": { "rotation": [180, 0, 0] }
+    },
+    {
+      "id": "st-wilfrid", "title": "St Wilfrid's Church Halton", "author": "dok11",
+      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/85f63eb0",
+      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/85f63eb0/v1/meta.json",
+      "size_mb": 38, "category": "places", "subcategory": "Castle",
+      "camera": { "position": [0, 4, 12], "lookAt": [0, 2, 0] },
       "transform": { "rotation": [180, 0, 0] }
     },
     {
