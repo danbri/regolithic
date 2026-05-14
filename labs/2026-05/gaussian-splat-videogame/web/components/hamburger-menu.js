@@ -88,9 +88,22 @@ function attach(scene) {
   panel.appendChild(worldSec.el);
   buildSplatWorldSection(worldSec.body, scene);
 
-  // ── Explore (Tour + Drone as nested folders) ──────────────────────────
-  const exploreSec = makeSection('Explore', false, 'explore');
-  panel.appendChild(exploreSec.el);
+  // ── Experiments (umbrella for everything else) ────────────────────────
+  // Holds Explore (Tour + Drone), AI, and each registered experiment
+  // (Cane, WubWub) — each as its own collapsible sub-folder.
+  const xpSec = makeSection('Experiments', true, 'experiments');
+  panel.appendChild(xpSec.el);
+
+  // Explore sub-folder
+  const exploreDet = document.createElement('details');
+  exploreDet.className = 'tree-group tree-sub';
+  const exploreSum = document.createElement('summary');
+  exploreSum.textContent = 'Explore — Tour & Drone';
+  exploreDet.appendChild(exploreSum);
+  const exploreBody = document.createElement('div');
+  exploreBody.className = 'menu-body';
+  exploreDet.appendChild(exploreBody);
+  xpSec.body.appendChild(exploreDet);
 
   const tourSub = document.createElement('details');
   tourSub.className = 'tree-group tree-sub';
@@ -100,7 +113,7 @@ function attach(scene) {
   const tourBody = document.createElement('div');
   tourBody.className = 'menu-body';
   tourSub.appendChild(tourBody);
-  exploreSec.body.appendChild(tourSub);
+  exploreBody.appendChild(tourSub);
   buildTourSection(tourBody, scene);
 
   const droneSub = document.createElement('details');
@@ -111,29 +124,44 @@ function attach(scene) {
   const droneBody = document.createElement('div');
   droneBody.className = 'menu-body';
   droneSub.appendChild(droneBody);
-  exploreSec.body.appendChild(droneSub);
+  exploreBody.appendChild(droneSub);
   buildDroneSection(droneBody, scene);
 
-  // ── AI ────────────────────────────────────────────────────────────────
-  const aiSec = makeSection('AI', true, 'ai');
-  panel.appendChild(aiSec.el);
-  buildAISection(aiSec.body, scene);
+  // AI sub-folder
+  const aiDet = document.createElement('details');
+  aiDet.className = 'tree-group tree-sub';
+  const aiSum = document.createElement('summary');
+  aiSum.textContent = 'AI — vision models & speech';
+  aiDet.appendChild(aiSum);
+  const aiBody = document.createElement('div');
+  aiBody.className = 'menu-body';
+  aiDet.appendChild(aiBody);
+  xpSec.body.appendChild(aiDet);
+  buildAISection(aiBody, scene);
 
-  // ── Experiments ───────────────────────────────────────────────────────
-  const xpSec = makeSection('Experiments', true, 'experiments');
-  panel.appendChild(xpSec.el);
-  xpSec.body.appendChild(emptyHint('(none registered yet)'));
+  // Each registered experiment (Cane, WubWub, …) gets its own sub-folder
+  const expsContainer = document.createElement('div');
+  expsContainer.className = 'experiments-container';
+  xpSec.body.appendChild(expsContainer);
 
   const rebuildExperiments = () => {
-    xpSec.body.innerHTML = '';
+    expsContainer.innerHTML = '';
     const names = scene.experiments();
     if (names.length === 0) {
-      xpSec.body.appendChild(emptyHint('(none registered yet)'));
+      expsContainer.appendChild(emptyHint('(no other experiments registered)'));
       return;
     }
     for (const name of names) {
-      const wrap = document.createElement('div');
-      wrap.className = 'experiment';
+      const det = document.createElement('details');
+      det.className = 'tree-group tree-sub';
+      const sum = document.createElement('summary');
+      sum.textContent = humanise(name);
+      det.appendChild(sum);
+      const body = document.createElement('div');
+      body.className = 'menu-body';
+      det.appendChild(body);
+
+      // Toggle row inside the sub-folder
       const toggleRow = document.createElement('label');
       toggleRow.className = 'experiment-toggle';
       const cb = document.createElement('input');
@@ -142,25 +170,16 @@ function attach(scene) {
       cb.addEventListener('change', () => scene.toggleExperiment(name, cb.checked));
       toggleRow.appendChild(cb);
       const lbl = document.createElement('strong');
-      lbl.textContent = humanise(name);
+      lbl.textContent = 'Enabled';
       toggleRow.appendChild(lbl);
-      wrap.appendChild(toggleRow);
+      body.appendChild(toggleRow);
 
-      // Per-experiment settings nested as a closed-by-default <details>
+      // Settings inline (no extra "Settings" sub-details)
       const ex = scene._experiments.get(name);
       if (typeof ex?.renderSettings === 'function') {
-        const sub = document.createElement('details');
-        sub.className = 'experiment-settings';
-        const sum = document.createElement('summary');
-        sum.textContent = 'Settings';
-        sub.appendChild(sum);
-        const body = document.createElement('div');
-        body.className = 'menu-body';
-        sub.appendChild(body);
         ex.renderSettings(body);
-        wrap.appendChild(sub);
       }
-      xpSec.body.appendChild(wrap);
+      expsContainer.appendChild(det);
     }
   };
   scene.addEventListener('experiment-registered', rebuildExperiments);
@@ -289,13 +308,12 @@ function buildSplatWorldSection(host, scene) {
 
   const intro = document.createElement('div');
   intro.className = 'credit';
-  intro.innerHTML = `
-    Approximate world model derived from the current splat. Mesh
-    detection is <strong>off until you enable it</strong>; on enable, a
-    handful of typed primitives (ground / wall / obstacle / pip) are
-    synthesised from the splat's AABB. Real mesh extraction
-    (<code>splat-transform&nbsp;-K</code>) is the upgrade path.
-  `;
+  intro.innerHTML = `Approximate world model derived automatically
+    every time you load a scene, then cached per scene so reloads
+    are instant (<code>localStorage</code>). A handful of typed
+    primitives (ground / wall / obstacle / pip) are synthesised from
+    the splat's AABB. Real mesh extraction
+    (<code>splat-transform&nbsp;-K</code>) is the upgrade path.`;
   host.appendChild(intro);
 
   const status = document.createElement('div');
