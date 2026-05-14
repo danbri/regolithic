@@ -213,26 +213,34 @@ function hookSlide(det) {
     for (const c of children) collapse.appendChild(c);
     det.appendChild(collapse);
   }
+  // Seed the initial inline height matching the current open state.
+  // We own the height entirely from here (no CSS height rules); that
+  // avoids the first-click race where CSS snap auto→0 then our raf
+  // setting target+0 get coalesced into one paint and the transition
+  // never fires.
+  collapse.style.height = det.open ? 'auto' : '0';
+
   det.addEventListener('toggle', () => {
-    // scrollHeight is reliable because .collapse is display:block always
-    // (no UA visibility toggle on this wrapper).
-    const target = collapse.scrollHeight;
     if (det.open) {
+      // 0 → measured-target. We need a layout flush between the
+      // "from" and "to" values so the browser registers them as
+      // distinct transition endpoints.
       collapse.style.height = '0';
-      requestAnimationFrame(() => {
-        collapse.style.height = target + 'px';
-      });
+      void collapse.offsetHeight;             // force synchronous layout
+      collapse.style.height = collapse.scrollHeight + 'px';
     } else {
-      collapse.style.height = target + 'px';
-      requestAnimationFrame(() => {
-        collapse.style.height = '0';
-      });
+      // measured-source → 0. scrollHeight works while children remain
+      // in flow (we set display:block on .collapse permanently, so
+      // the UA's "hide non-summary children when closed" rule never
+      // wins here).
+      collapse.style.height = collapse.scrollHeight + 'px';
+      void collapse.offsetHeight;             // force synchronous layout
+      collapse.style.height = '0';
     }
   });
   collapse.addEventListener('transitionend', (e) => {
-    if (e.propertyName === 'height' && det.open) {
-      collapse.style.height = '';   // revert to CSS auto so contents can grow
-    }
+    if (e.propertyName !== 'height') return;
+    if (det.open) collapse.style.height = 'auto';  // let contents grow freely
   });
 }
 
