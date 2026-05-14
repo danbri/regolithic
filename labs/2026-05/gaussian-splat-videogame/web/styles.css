@@ -127,6 +127,19 @@ splat-scene canvas {
    that supports CSS transitions; no reliance on interpolate-size or
    ::details-content (those landed too recently to be stable on iOS
    Safari).                                                              */
+/* Force the details' children to stay in flow regardless of [open]
+   state. Modern WebKit hides them via ::details-content's content-
+   visibility; older UAs use display:none on non-summary children.
+   We override both so our .collapse wrapper's scrollHeight is always
+   the real content height. */
+.menu-panel details > :not(summary) {
+  display: block;
+}
+.menu-panel details::details-content {
+  display: block;
+  content-visibility: visible;
+}
+
 .menu-panel details > .collapse {
   display: block;
   overflow: hidden;

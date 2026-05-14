@@ -213,34 +213,50 @@ function hookSlide(det) {
     for (const c of children) collapse.appendChild(c);
     det.appendChild(collapse);
   }
-  // Seed the initial inline height matching the current open state.
-  // We own the height entirely from here (no CSS height rules); that
-  // avoids the first-click race where CSS snap auto→0 then our raf
-  // setting target+0 get coalesced into one paint and the transition
-  // never fires.
+  // Seed initial inline height matching the current open state.
   collapse.style.height = det.open ? 'auto' : '0';
 
-  det.addEventListener('toggle', () => {
-    if (det.open) {
-      // 0 → measured-target. We need a layout flush between the
-      // "from" and "to" values so the browser registers them as
-      // distinct transition endpoints.
+  // Intercept the summary click so we own the [open]-flip timing.
+  // The default `toggle` event fires after iOS Safari has already
+  // applied content-visibility:hidden on closed ::details-content,
+  // which makes scrollHeight return 0 and the animation never
+  // happens. By preventing default and managing [open] ourselves,
+  // we measure scrollHeight while the contents are guaranteed in
+  // flow.
+  const summary = det.querySelector(':scope > summary');
+  if (!summary) return;
+  summary.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (det._slideBusy) return;
+    det._slideBusy = true;
+
+    const wasOpen = det.hasAttribute('open');
+    if (wasOpen) {
+      // CLOSE: measure current height (still open), pin it, reflow, animate to 0,
+      // then drop the [open] attribute once the animation has finished.
+      const cur = collapse.scrollHeight;
+      collapse.style.height = cur + 'px';
+      void collapse.offsetHeight;
       collapse.style.height = '0';
-      void collapse.offsetHeight;             // force synchronous layout
-      collapse.style.height = collapse.scrollHeight + 'px';
+      setTimeout(() => {
+        det.removeAttribute('open');
+        det._slideBusy = false;
+      }, ANIM_MS);
     } else {
-      // measured-source → 0. scrollHeight works while children remain
-      // in flow (we set display:block on .collapse permanently, so
-      // the UA's "hide non-summary children when closed" rule never
-      // wins here).
-      collapse.style.height = collapse.scrollHeight + 'px';
-      void collapse.offsetHeight;             // force synchronous layout
+      // OPEN: flip [open] first so the UA makes contents visible (we also
+      // force visibility via CSS but this keeps the dispatch consistent),
+      // force layout, measure, then animate 0 → target.
+      det.setAttribute('open', '');
+      void collapse.offsetHeight;
+      const target = collapse.scrollHeight;
       collapse.style.height = '0';
+      void collapse.offsetHeight;
+      collapse.style.height = target + 'px';
+      setTimeout(() => {
+        if (det.hasAttribute('open')) collapse.style.height = 'auto';
+        det._slideBusy = false;
+      }, ANIM_MS);
     }
-  });
-  collapse.addEventListener('transitionend', (e) => {
-    if (e.propertyName !== 'height') return;
-    if (det.open) collapse.style.height = 'auto';  // let contents grow freely
   });
 }
 
