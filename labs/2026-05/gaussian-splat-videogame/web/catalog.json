@@ -137,6 +137,14 @@
       "transform": { "rotation": [180, 0, 0] }
     },
     {
+      "id": "lego-perseverance", "title": "Lego Perseverance Rover", "author": "tmate",
+      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/6480cdcf",
+      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/6480cdcf/v1/meta.json",
+      "size_mb": 11, "category": "objects", "subcategory": "Retro",
+      "camera": { "position": [0, 0.3, 0.6], "lookAt": [0, 0.1, 0] },
+      "transform": { "rotation": [180, 0, 0] }
+    },
+    {
       "id": "weigela", "title": "Weigela", "author": "naturalai",
       "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/11709263",
       "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/11709263/v2/meta.json",
@@ -202,6 +210,15 @@
       "warning": "~131 MB — slow on cellular."
     },
     {
+      "id": "iss-sunset", "title": "ISS — Sunset", "author": "tmate",
+      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/916466f4",
+      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/916466f4/v1/meta.json",
+      "size_mb": 124, "category": "objects", "subcategory": "Astro",
+      "camera": { "position": [0, 2, 10], "lookAt": [0, 0, 0] },
+      "transform": { "rotation": [180, 0, 0] },
+      "warning": "~124 MB — slow on cellular."
+    },
+    {
       "id": "perseverance", "title": "Perseverance Rover", "author": "tmate",
       "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/8d5c3046",
       "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/8d5c3046/v1/meta.json",
@@ -216,6 +233,15 @@
       "size_mb": 13, "category": "objects", "subcategory": "Vehicle",
       "camera": { "position": [0, 1.2, 4], "lookAt": [0, 0.5, 0] },
       "transform": { "rotation": [180, 0, 0] }
+    },
+    {
+      "id": "ford-ranger", "title": "Ford Ranger", "author": "joaogrisoste",
+      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/b06bd18f",
+      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/b06bd18f/v1/meta.json",
+      "size_mb": 131, "category": "objects", "subcategory": "Vehicle",
+      "camera": { "position": [0, 1.5, 5], "lookAt": [0, 0.8, 0] },
+      "transform": { "rotation": [180, 0, 0] },
+      "warning": "~131 MB — slow on cellular."
     },
     {
       "id": "stitch-doll", "title": "Stitch Doll", "author": "qjayo",
@@ -276,6 +302,22 @@
       "transform": { "rotation": [180, 0, 0] }
     },
     {
+      "id": "pflixbourg", "title": "Pflixbourg Castle, Alsace", "author": "bbeaumatin",
+      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/92f764dc",
+      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/92f764dc/v2/meta.json",
+      "size_mb": 99, "category": "places", "subcategory": "Castle",
+      "camera": { "position": [0, 5, 20], "lookAt": [0, 3, 0] },
+      "transform": { "rotation": [180, 0, 0] }
+    },
+    {
+      "id": "rosa-coeli", "title": "Rosa Coeli Monastery", "author": "vojtech_dofek",
+      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/d2d4ae2d",
+      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/d2d4ae2d/v26/meta.json",
+      "size_mb": 5, "category": "places", "subcategory": "Castle",
+      "camera": { "position": [0, 4, 12], "lookAt": [0, 2, 0] },
+      "transform": { "rotation": [180, 0, 0] }
+    },
+    {
       "id": "le-querce", "title": "Country Hotel Le Querce, Italy", "author": "dok11",
       "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/8f4c0957",
       "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/8f4c0957/v1/meta.json",
@@ -312,6 +354,14 @@
       "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/d1ea0b35",
       "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/d1ea0b35/v1/meta.json",
       "size_mb": 42, "category": "places", "subcategory": "Street",
+      "camera": { "position": [0, 2, 6], "lookAt": [0, 1, 0] },
+      "transform": { "rotation": [180, 0, 0] }
+    },
+    {
+      "id": "interlaken", "title": "Dorfplatz Interlaken", "author": "dewaisol",
+      "license": "CC BY 4.0", "license_url": "https://superspl.at/scene/16a90551",
+      "format": "sog", "url": "https://d28zzqy0iyovbz.cloudfront.net/16a90551/v1/meta.json",
+      "size_mb": 53, "category": "places", "subcategory": "Street",
       "camera": { "position": [0, 2, 6], "lookAt": [0, 1, 0] },
       "transform": { "rotation": [180, 0, 0] }
     },
