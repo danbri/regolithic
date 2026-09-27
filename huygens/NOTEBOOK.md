@@ -59,3 +59,91 @@ Orientation of stored rows/columns:
 Consequence: App. 3 poses plus the G-image camera model already give
 sub-footprint consistency on a flat-ground assumption. Relief must be
 recovered from the residual parallax, which is the next step.
+
+## 2026-09-27: prior-art check (continued)
+
+- de Almeida et al., arXiv:2604.13235 (Apr 2026), "Neural 3D
+  Reconstruction of Planetary Surfaces from Descent-Phase Wide-Angle
+  Imagery": explicit neural height field for descent imaging, tested on
+  simulated lunar and Mars descents only. Not Huygens. Closest
+  methodological precedent for this project's height-field formulation;
+  any write-up must cite it.
+- Karkoschka & Schröder 2016, Icarus 270, 307-325,
+  doi:10.1016/j.icarus.2015.08.006, "The DISR imaging mosaic of Titan's
+  surface and its dependence on emission angle": secondary summaries
+  state that comparing images at different emission angles "yielded
+  topographic information". Full text not yet read (publisher blocks
+  access from here). Before claiming that using all images is new, this
+  paper's topographic result (area, method, resolution) must be read
+  and compared.
+- No Huygens NeRF / Gaussian splatting / neural height-field work found.
+
+## 2026-09-27: reconstruction method, first runs
+
+Region: 5 x 5 km, x in [-3.5, 1.5], y in [1.5, 6.5] km relative to the
+landing site; it contains the footprints of the eight IPGP frames
+(located via App. 3 poses and frame numbers only).
+
+Views: G-images with App. 3 pose, altitude 0.3-20 km, at least 5% of a
+flat-ground footprint inside the region: 40 views (7 SLI, 14 MRI,
+19 HRI) from 29 exposures.
+
+Model (`hdtm/recon.py`): height field + shared brightness field +
+per-exposure pose correction (rotation, position; Gaussian priors of 1 deg,
+200 m horizontal, 50 m vertical) + per-view gain and linear offset.
+Each grid texel is projected into each view and the sampled value is
+compared to the view-blurred brightness (Charbonnier loss). Smoothness on
+second differences of h, TV on brightness. Coarse to fine: 80, 40, 20 m.
+Occlusion is ignored; rays beyond 65 deg nadir angle are excluded.
+
+This is a surface-constrained differentiable-rendering reconstruction.
+It is the 2.5D analogue of fitting surface-attached Gaussians; the
+brightness grid plays the role of the splat colours. No free-floating
+3D Gaussians are used, because the images constrain only the visible
+surface and free Gaussians would be unconstrained in the textureless
+plain.
+
+First run (w_smooth 1, pose prior weight 50), held-out 5 exposures /
+8 views: band-passed NCC median 0.785, mean 0.709, vs flat ground with
+prior poses 0.753 / 0.607. Height field shows +-200-300 m blobs in the
+textureless dark plain: regularisation too weak there. Brightness map
+shows the known dendritic channels, the bright highland and the
+shoreline-like boundary near y = 3.3 km.
+
+Implementation note: running two torch processes at 4 threads each on
+the 4-core machine slowed both by more than 10x (thread oversubscription).
+Runs are now sequential. Per-view cropping to the footprint cut a full
+three-level run from 22 min to 1.5 min.
+
+## 2026-09-27: cross-validation of the height field
+
+Protocol: 3 folds over the 29 exposures (every third exposure held out,
+with all its SLI/MRI/HRI images). Fit on the rest. Score each held-out
+view by band-passed NCC between the view resampled onto the recovered
+surface and the model prediction.
+
+First attempt scored held-out views at their App. 3 prior poses
+(`logs/cv/sweep1_priorpose.txt`). No height-field setting beat flat
+ground. The reason: a 0.5-1 deg attitude error at 10 km moves the
+footprint by 90-170 m, far more than the terrain parallax under test.
+
+Corrected protocol: with h and brightness frozen, refit only the
+held-out exposure's pose (same priors) and the view's gain/offset,
+coarse to fine, then score (`recon.fit_views_only`). Held-out NCC rises
+from about 0.71 to 0.88 for all models, and differences between models
+now reflect geometry.
+
+Results (`logs/cv/sweep2_posefit.txt`, paired bootstrap against flat
+ground in `logs/cv/sweep2_paired.txt`, 37 held-out views):
+
+| config (w_smooth, w_prior) | mean diff vs flat | 95% CI | views better |
+|---|---|---|---|
+| 1, 50   | -0.019 | [-0.058, +0.008] | 18/37 |
+| 10, 50  | +0.004 | [-0.014, +0.019] | 23/37 |
+| 10, 5   | +0.011 | [-0.006, +0.026] | 26/37 |
+| 100, 50 | +0.019 | [+0.009, +0.029] | 27/37 |
+
+With enough smoothing, the recovered height field predicts unseen views
+better than a flat surface does, with a confidence interval that excludes
+zero. Weak smoothing overfits. The effect is small in NCC terms, which
+is consistent with parallax of only a few pixels.

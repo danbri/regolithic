@@ -1,0 +1,5 @@
+baseline                     n= 37 median 0.880 mean 0.826
+s100_p50                     n= 37 median 0.901 mean 0.845
+s10_p5                       n= 38 median 0.904 mean 0.840
+s10_p50                      n= 37 median 0.890 mean 0.830
+s1_p50                       n= 37 median 0.856 mean 0.806

@@ -107,10 +107,16 @@ def eval_views(idx):
 
 
 held_idx = [i for i, v in enumerate(views) if round(v["mt"], 1) in held]
+ev0 = eval_views(held_idx)
+if ev0:
+    log("held-out views (prior pose)", len(ev0), "median NCC %.3f mean %.3f" % (np.median([e["ncc"] for e in ev0]), np.mean([e["ncc"] for e in ev0])))
+if held_idx:
+    recon.fit_views_only(scene, model, held_idx, w_prior=args.w_prior, sig_rot_deg=args.sig_rot)
 ev = eval_views(held_idx)
 if ev:
     log("held-out views", len(ev), "median NCC %.3f mean %.3f" % (np.median([e["ncc"] for e in ev]), np.mean([e["ncc"] for e in ev])))
 json.dump(ev, open(os.path.join(args.out, "heldout.json"), "w"), indent=1)
+json.dump(ev0, open(os.path.join(args.out, "heldout_priorpose.json"), "w"), indent=1)
 
 np.savez_compressed(os.path.join(args.out, "result.npz"), h=model.h.detach().numpy(), A=model.A.detach().numpy(),
                     xs=scene.xs.numpy(), ys=scene.ys.numpy(), w=model.w.detach().numpy(), dC=model.dC.detach().numpy(),

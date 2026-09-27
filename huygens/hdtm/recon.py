@@ -243,3 +243,37 @@ def init_albedo(scene, model, img_sigma=0.0):
         A = torch.where(cnt > 0, acc / cnt.clamp_min(1), torch.ones_like(acc))
         model.A.copy_(A)
     return cnt
+
+
+def fit_views_only(scene, model, idx, iters=150, img_sigmas=(2.0, 1.0, 0.0), lr=0.01,
+                   sig_rot_deg=1.0, sig_pos_h=0.2, sig_pos_v=0.05, w_prior=50.0):
+    """Refit pose (per exposure) and photometry (per view) for views idx only,
+    with the surface (h, A) frozen. Used to score held-out views fairly."""
+    exps = sorted({int(scene.ev[i]) for i in idx})
+    emask = torch.zeros(len(scene.exp_index), 1)
+    emask[exps] = 1
+    vmask = torch.zeros(len(scene.views), 1)
+    vmask[idx] = 1
+    h_req, A_req = model.h.requires_grad, model.A.requires_grad
+    model.h.requires_grad_(False); model.A.requires_grad_(False)
+    opt = torch.optim.Adam([{"params": [model.w, model.dC], "lr": lr * 0.1},
+                            {"params": [model.gain, model.off], "lr": lr}])
+    sr = math.radians(sig_rot_deg)
+    for isig in img_sigmas:
+        for it in range(iters):
+            opt.zero_grad()
+            data, n = 0.0, 0
+            for i in idx:
+                r, m = view_residuals(scene, model, i, isig)
+                if m.sum() < 50:
+                    continue
+                data = data + charbonnier(r[m]).sum()
+                n += int(m.sum())
+            w, dC = model.w[exps], model.dC[exps]
+            prior = ((w / sr) ** 2).sum() + ((dC[:, :2] / sig_pos_h) ** 2).sum() + ((dC[:, 2] / sig_pos_v) ** 2).sum()
+            loss = (data + prior * w_prior) / max(n, 1)
+            loss.backward()
+            model.w.grad *= emask; model.dC.grad *= emask
+            model.gain.grad *= vmask[:, 0]; model.off.grad *= vmask
+            opt.step()
+    model.h.requires_grad_(h_req); model.A.requires_grad_(A_req)
