@@ -1,0 +1,17 @@
+41 views
+{'az': 1, 'pitch': 1, 'roll': 1, 'flip_x': False} median NCC 0.872 over 52 pairs
+{'az': 1, 'pitch': 1, 'roll': 1, 'flip_x': True} median NCC 0.039 over 52 pairs
+{'az': 1, 'pitch': 1, 'roll': -1, 'flip_x': False} median NCC 0.157 over 45 pairs
+{'az': 1, 'pitch': 1, 'roll': -1, 'flip_x': True} median NCC 0.014 over 45 pairs
+{'az': 1, 'pitch': -1, 'roll': 1, 'flip_x': False} median NCC 0.083 over 48 pairs
+{'az': 1, 'pitch': -1, 'roll': 1, 'flip_x': True} median NCC 0.047 over 48 pairs
+{'az': 1, 'pitch': -1, 'roll': -1, 'flip_x': False} median NCC 0.032 over 43 pairs
+{'az': 1, 'pitch': -1, 'roll': -1, 'flip_x': True} median NCC 0.031 over 43 pairs
+{'az': -1, 'pitch': 1, 'roll': 1, 'flip_x': False} median NCC 0.017 over 48 pairs
+{'az': -1, 'pitch': 1, 'roll': 1, 'flip_x': True} median NCC 0.132 over 48 pairs
+{'az': -1, 'pitch': 1, 'roll': -1, 'flip_x': False} median NCC 0.047 over 51 pairs
+{'az': -1, 'pitch': 1, 'roll': -1, 'flip_x': True} median NCC 0.552 over 51 pairs
+{'az': -1, 'pitch': -1, 'roll': 1, 'flip_x': False} median NCC 0.043 over 45 pairs
+{'az': -1, 'pitch': -1, 'roll': 1, 'flip_x': True} median NCC 0.008 over 45 pairs
+{'az': -1, 'pitch': -1, 'roll': -1, 'flip_x': False} median NCC 0.036 over 48 pairs
+{'az': -1, 'pitch': -1, 'roll': -1, 'flip_x': True} median NCC 0.084 over 48 pairs
