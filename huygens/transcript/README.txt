@@ -1,0 +1,1 @@
+This directory contains a reconstructed transcript of the Huygens DTM discussion visible to the assistant in this conversation. It is not a platform/account export and may omit hidden system/tool material or conversation content not available in the visible context.

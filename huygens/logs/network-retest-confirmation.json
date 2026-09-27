@@ -1,0 +1,130 @@
+{
+  "checked_utc": "2026-09-27T12:24:19.991067+00:00",
+  "resolver": "nameserver 168.63.129.16\n",
+  "tests": [
+    {
+      "name": "dns_esa",
+      "started_utc": "2026-09-27T12:24:09.982605+00:00",
+      "command": [
+        "getent",
+        "ahostsv4",
+        "archives.esac.esa.int"
+      ],
+      "returncode": 2,
+      "stdout": "",
+      "stderr": "",
+      "finished_utc": "2026-09-27T12:24:09.984385+00:00"
+    },
+    {
+      "name": "dns_nasa",
+      "started_utc": "2026-09-27T12:24:09.982981+00:00",
+      "command": [
+        "getent",
+        "ahostsv4",
+        "www.nasa.gov"
+      ],
+      "returncode": 2,
+      "stdout": "",
+      "stderr": "",
+      "finished_utc": "2026-09-27T12:24:09.984735+00:00"
+    },
+    {
+      "name": "dns_github",
+      "started_utc": "2026-09-27T12:24:09.983191+00:00",
+      "command": [
+        "getent",
+        "ahostsv4",
+        "github.com"
+      ],
+      "returncode": 2,
+      "stdout": "",
+      "stderr": "",
+      "finished_utc": "2026-09-27T12:24:09.984928+00:00"
+    },
+    {
+      "name": "dns_example",
+      "started_utc": "2026-09-27T12:24:09.983692+00:00",
+      "command": [
+        "getent",
+        "ahostsv4",
+        "example.com"
+      ],
+      "returncode": 2,
+      "stdout": "",
+      "stderr": "",
+      "finished_utc": "2026-09-27T12:24:14.990393+00:00"
+    },
+    {
+      "name": "esa_https",
+      "started_utc": "2026-09-27T12:24:09.984005+00:00",
+      "command": [
+        "curl",
+        "-sS",
+        "-I",
+        "--connect-timeout",
+        "5",
+        "--max-time",
+        "10",
+        "https://archives.esac.esa.int/psa/ftp/CASSINI-HUYGENS/DISR/HP-SSA-DISR-2-3-EDR-RDR-V1.3/EXTRAS/"
+      ],
+      "returncode": 28,
+      "stdout": "",
+      "stderr": "curl: (28) Resolving timed out after 10000 milliseconds\n",
+      "finished_utc": "2026-09-27T12:24:19.990540+00:00"
+    },
+    {
+      "name": "nasa_https",
+      "started_utc": "2026-09-27T12:24:09.984291+00:00",
+      "command": [
+        "curl",
+        "-sS",
+        "-I",
+        "--connect-timeout",
+        "5",
+        "--max-time",
+        "10",
+        "https://www.nasa.gov/"
+      ],
+      "returncode": 6,
+      "stdout": "",
+      "stderr": "curl: (6) Could not resolve host: www.nasa.gov\n",
+      "finished_utc": "2026-09-27T12:24:14.991253+00:00"
+    },
+    {
+      "name": "direct_https_cloudflare",
+      "started_utc": "2026-09-27T12:24:09.986157+00:00",
+      "command": [
+        "curl",
+        "-sS",
+        "-I",
+        "--connect-timeout",
+        "5",
+        "--max-time",
+        "10",
+        "https://1.1.1.1/"
+      ],
+      "returncode": 7,
+      "stdout": "",
+      "stderr": "curl: (7) Failed to connect to 1.1.1.1 port 443 after 2053 ms: Could not connect to server\n",
+      "finished_utc": "2026-09-27T12:24:12.043662+00:00"
+    },
+    {
+      "name": "direct_https_google_dns",
+      "started_utc": "2026-09-27T12:24:09.986263+00:00",
+      "command": [
+        "curl",
+        "-sS",
+        "--connect-timeout",
+        "5",
+        "--max-time",
+        "10",
+        "https://8.8.8.8/resolve?name=archives.esac.esa.int&type=A"
+      ],
+      "returncode": 7,
+      "stdout": "",
+      "stderr": "curl: (7) Failed to connect to 8.8.8.8 port 443 after 1029 ms: Could not connect to server\n",
+      "finished_utc": "2026-09-27T12:24:11.019839+00:00"
+    }
+  ],
+  "interpretation": "Point-in-time observations only; no root cause or permanence established."
+}
