@@ -1,0 +1,16 @@
+{
+ "method": "COLMAP/LightGlue tracks + navigation-constrained BA, inverse-variance Gaussian gridding, 70 m kernel, no dense stage",
+ "kernel_m": 70,
+ "calib": 1.24,
+ "area_km2": 6.977200000000001,
+ "relief_std_after_plane_m": 23.351053924809225,
+ "plane_m_per_km": [
+  5.042729963941296,
+  0.7055988245425837
+ ],
+ "sigma_median_m": 33.72981789416959,
+ "height_p5_p95": [
+  -41.959719941059106,
+  37.64598128779006
+ ]
+}
