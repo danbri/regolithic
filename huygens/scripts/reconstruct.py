@@ -30,6 +30,8 @@ ap.add_argument("--baseline", action="store_true")
 ap.add_argument("--flat", action="store_true", help="refine poses but keep h = 0")
 ap.add_argument("--plane", action="store_true", help="fit a plane (2 params) plus flat, poses refined")
 ap.add_argument("--h-file", default=None, help="npz with h_m on the final grid; held fixed (hypothesis test)")
+ap.add_argument("--h-init", default=None, help="npz with a height grid (m) on the final grid to start from")
+ap.add_argument("--h-init-key", default="h_all_m")
 ap.add_argument("--alt-max", type=float, default=20.0)
 ap.add_argument("--imagers", default="SLI,MRI,HRI")
 ap.add_argument("--levels", type=int, default=3)
@@ -79,6 +81,11 @@ for li, (res, isig, iters) in enumerate(LEVELS[:args.levels]):
     train = [i for i, v in enumerate(views) if round(v["mt"], 1) in train_set]
     if model is None:
         model = recon.Model(scene)
+        if args.h_init:   # start from a given surface (e.g. gridded SfM points), heights stay free
+            hi_ = np.load(args.h_init)
+            hi_ = np.nan_to_num(hi_[args.h_init_key] if args.h_init_key in hi_.files else hi_["h_m"]) / 1e3
+            with torch.no_grad():
+                model.h.copy_(recon.resample(torch.tensor(hi_ - hi_.mean(), dtype=torch.float32), tuple(scene.X.shape)))
         recon.init_albedo(scene, model, isig)
     else:
         model = recon.upsample_model(scene, model)

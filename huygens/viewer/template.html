@@ -1,0 +1,209 @@
+<title>Huygens Landing Site Terrain</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#e9edf0; --surface:#f8fafb; --ink:#1b222c; --muted:#56616f; --line:#c9d1d9;
+  --accent:#b8701a; --accent-soft:#f1dfc6; --canvas:#d9dfe4;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#11151b; --surface:#181e26; --ink:#e4e8ee; --muted:#98a3b1; --line:#2b3440;
+    --accent:#e0a04a; --accent-soft:#3a2c18; --canvas:#0c1015; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#11151b; --surface:#181e26; --ink:#e4e8ee; --muted:#98a3b1; --line:#2b3440;
+  --accent:#e0a04a; --accent-soft:#3a2c18; --canvas:#0c1015; color-scheme:dark;
+}
+body{background:var(--bg);color:var(--ink);font:15px/1.55 var(--sans);}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:16px;padding-block:28px 48px;display:grid;gap:22px}
+header{display:grid;gap:6px}
+.eyebrow{font:500 12px/1.2 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+h1{margin:0;font-weight:600;font-size:clamp(26px,4vw,38px);line-height:1.15;text-wrap:balance}
+.lede{margin:0;max-width:68ch;color:var(--muted)}
+.stage{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:18px;align-items:start}
+@media (max-width:860px){.stage{grid-template-columns:1fr}}
+.view{position:relative;background:var(--canvas);border:1px solid var(--line);border-radius:6px;overflow:hidden;aspect-ratio:16/11;max-width:100%}
+.view canvas{display:block;width:100%;height:100%}
+.overlay{position:absolute;left:12px;bottom:10px;font:12px/1.35 var(--mono);color:var(--ink);background:color-mix(in srgb,var(--surface) 82%,transparent);padding:6px 8px;border-radius:4px;pointer-events:none}
+.legend{position:absolute;right:12px;bottom:10px;display:grid;gap:4px;font:11px/1.2 var(--mono);color:var(--ink);background:color-mix(in srgb,var(--surface) 82%,transparent);padding:6px 8px;border-radius:4px;min-width:150px}
+.legend canvas{width:100%;height:10px;border-radius:2px}
+.legend .ends{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:16px;display:grid;gap:16px}
+.ctl{display:grid;gap:6px}
+.ctl label,.ctl .lab{font:500 12px/1.2 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{font:500 13px var(--sans);color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:4px;padding:6px 10px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink)}
+.seg button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.val{font:13px var(--mono);font-variant-numeric:tabular-nums}
+.note{font-size:13px;color:var(--muted);margin:0}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
+.facts section{display:grid;gap:8px;align-content:start}
+.facts h2{margin:0;font-size:16px;font-weight:600}
+dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:14px}
+dt{color:var(--muted)} dd{margin:0;font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums}
+ul{margin:0;padding-left:18px;display:grid;gap:6px;font-size:14px}
+p{margin:0;max-width:68ch}
+a{color:var(--accent)}
+footer{font-size:13px;color:var(--muted);max-width:90ch}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Titan · 10.3°S 192.3°W · Huygens DISR descent imagery</div>
+    <h1>Terrain north of the Huygens landing site</h1>
+    <p class="lede" id="lede"></p>
+  </header>
+
+  <div class="stage">
+    <div class="view" id="view">
+      <div class="overlay" id="readout">Drag to rotate · scroll to zoom</div>
+      <div class="legend" id="legend" hidden><canvas id="lgbar" width="150" height="10"></canvas><div class="ends"><span id="lgmin"></span><span id="lgmid"></span><span id="lgmax"></span></div></div>
+    </div>
+    <div class="panel">
+      <div class="ctl"><span class="lab">Surface</span>
+        <div class="seg" id="surf">
+          <button type="button" id="s-ours" aria-pressed="true" data-v="ours">This model</button>
+          <button type="button" id="s-ipgp" aria-pressed="false" data-v="ipgp">IPGP 2020</button>
+        </div>
+      </div>
+      <div class="ctl"><span class="lab">Colour</span>
+        <div class="seg" id="col">
+          <button type="button" id="c-img" aria-pressed="true" data-v="img">Image mosaic</button>
+          <button type="button" id="c-h" aria-pressed="false" data-v="h">Height</button>
+          <button type="button" id="c-s" aria-pressed="false" data-v="s">Uncertainty</button>
+        </div>
+      </div>
+      <div class="ctl"><label for="exag">Vertical exaggeration <span class="val" id="exagv">3×</span></label>
+        <input type="range" id="exag" min="1" max="8" step="0.5" value="3">
+      </div>
+      <div class="ctl"><span class="lab">Low-confidence cells</span>
+        <div class="seg" id="msk">
+          <button type="button" id="m-dim" aria-pressed="true" data-v="dim">Dim</button>
+          <button type="button" id="m-show" aria-pressed="false" data-v="show">Show</button>
+        </div>
+      </div>
+      <p class="note" id="panelnote"></p>
+    </div>
+  </div>
+
+  <div class="facts">
+    <section><h2>How it was made</h2><p id="method"></p></section>
+    <section><h2>Validation</h2><dl id="valid"></dl></section>
+    <section><h2>Read it with care</h2><ul id="caveats"></ul></section>
+  </div>
+  <footer id="foot"></footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+const DATA = /*__DATA__*/null;
+(function(){
+  const S = DATA.summary;
+  document.getElementById('lede').textContent = S.lede;
+  document.getElementById('method').textContent = S.method;
+  document.getElementById('panelnote').textContent = S.panel_note;
+  const dl = document.getElementById('valid');
+  S.validation.forEach(([k,v])=>{const dt=document.createElement('dt');dt.textContent=k;const dd=document.createElement('dd');dd.textContent=v;dl.append(dt,dd);});
+  const ul = document.getElementById('caveats');
+  S.caveats.forEach(t=>{const li=document.createElement('li');li.textContent=t;ul.append(li);});
+  document.getElementById('foot').textContent = S.footer;
+
+  function dec16(b64, scale){const bin=atob(b64);const u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);
+    const a=new Int16Array(u.buffer);const f=new Float32Array(a.length);for(let i=0;i<a.length;i++)f[i]=a[i]===-32768?NaN:a[i]/scale;return f;}
+  function decBits(b64,n){const bin=atob(b64);const out=new Uint8Array(n);for(let i=0;i<n;i++){out[i]=(bin.charCodeAt(i>>3)>>(7-(i&7)))&1;}return out;}
+  const nx=DATA.nx, ny=DATA.ny, cell=DATA.cell_m;
+  const H=dec16(DATA.h,10), SIG=dec16(DATA.sig,10), M=decBits(DATA.mask,nx*ny);
+  const IP=DATA.ipgp?dec16(DATA.ipgp,10):null;
+  if(!IP){document.getElementById('s-ipgp').disabled=true;}
+
+  const state={surf:'ours',col:'img',exag:3,msk:'dim'};
+  try{const s=JSON.parse(localStorage.getItem('huygens-view')||'{}');Object.assign(state,s);}catch(e){}
+
+  const view=document.getElementById('view');
+  const renderer=new THREE.WebGLRenderer({antialias:true});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+  view.prepend(renderer.domElement);
+  const scene=new THREE.Scene();
+  const cam=new THREE.PerspectiveCamera(40,1,1,2000);
+  const U=100; // metres per scene unit
+  const W=(nx-1)*cell/U, D=(ny-1)*cell/U;
+  cam.position.set(0,-D*0.95,D*0.62);cam.up.set(0,0,1);
+  const ctl=new THREE.OrbitControls(cam,renderer.domElement);ctl.target.set(0,0,0);ctl.enableDamping=true;ctl.maxPolarAngle=Math.PI*0.49;
+  scene.add(new THREE.AmbientLight(0xffffff,0.55));
+  const sun=new THREE.DirectionalLight(0xffffff,0.75);sun.position.set(-40,30,50);scene.add(sun);
+
+  const geo=new THREE.PlaneGeometry(W,D,nx-1,ny-1);
+  const texCanvas=document.createElement('canvas');texCanvas.width=nx;texCanvas.height=ny;
+  const tex=new THREE.CanvasTexture(texCanvas);tex.minFilter=THREE.LinearFilter;
+  const mat=new THREE.MeshLambertMaterial({map:tex,side:THREE.DoubleSide});
+  const mesh=new THREE.Mesh(geo,mat);scene.add(mesh);
+  const img=new Image();img.onload=()=>{paint();render();};img.src=DATA.tex;
+
+  // north arrow and 1 km scale bar
+  const ink=new THREE.LineBasicMaterial({color:0xb8701a});
+  const arrow=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(W/2+3,D/2-8,0),new THREE.Vector3(W/2+3,D/2,0),new THREE.Vector3(W/2+2,D/2-1.5,0),new THREE.Vector3(W/2+3,D/2,0),new THREE.Vector3(W/2+4,D/2-1.5,0)]);
+  scene.add(new THREE.Line(arrow,ink));
+  const bar=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-W/2,-D/2-2,0),new THREE.Vector3(-W/2+10,-D/2-2,0)]);
+  scene.add(new THREE.Line(bar,ink));
+
+  function surfArr(){return state.surf==='ipgp'&&IP?IP:H;}
+  function valid(i){return state.surf==='ipgp'?!isNaN(IP[i]):(M[i]===1);}
+  function ramp(t){ // perceptual-ish ramp: deep slate -> teal -> ochre -> pale
+    const s=[[38,56,84],[46,118,128],[176,152,82],[232,214,170]];t=Math.max(0,Math.min(1,t))*3;const k=Math.min(2,Math.floor(t));const f=t-k;
+    return s[k].map((c,j)=>Math.round(c+(s[k+1][j]-c)*f));}
+  function range(arr,useMask){const v=[];for(let i=0;i<arr.length;i++){if(!isNaN(arr[i])&&(!useMask||valid(i)))v.push(arr[i]);}v.sort((a,b)=>a-b);
+    return [v[Math.floor(v.length*0.02)]||0,v[Math.floor(v.length*0.98)]||1];}
+
+  function paint(){
+    const ctx=texCanvas.getContext('2d');
+    const arr=surfArr();
+    let data;
+    if(state.col==='img'){ctx.drawImage(img,0,0,nx,ny);data=ctx.getImageData(0,0,nx,ny);}
+    else{data=ctx.createImageData(nx,ny);}
+    const src=state.col==='s'?SIG:arr;
+    const [lo,hi]=state.col==='img'?[0,1]:(state.col==='s'?[0,Math.max(60,range(SIG,false)[1])]:range(arr,true));
+    for(let r=0;r<ny;r++){for(let c=0;c<nx;c++){
+      const i=r*nx+c; const p=((ny-1-r)*nx+c)*4; // texture row 0 = north
+      if(state.col!=='img'){const v=src[i];const col=isNaN(v)?[120,120,120]:ramp((v-lo)/(hi-lo));data.data[p]=col[0];data.data[p+1]=col[1];data.data[p+2]=col[2];data.data[p+3]=255;}
+      if(!valid(i)&&state.msk==='dim'){data.data[p]=data.data[p]*0.35+70;data.data[p+1]=data.data[p+1]*0.35+72;data.data[p+2]=data.data[p+2]*0.35+78;}
+    }}
+    ctx.putImageData(data,0,0);tex.needsUpdate=true;
+    const lg=document.getElementById('legend');
+    if(state.col==='img'){lg.hidden=true;}else{lg.hidden=false;
+      const b=document.getElementById('lgbar').getContext('2d');for(let x=0;x<150;x++){const c=ramp(x/149);b.fillStyle=`rgb(${c})`;b.fillRect(x,0,1,10);}
+      const unit=' m';document.getElementById('lgmin').textContent=lo.toFixed(0)+unit;document.getElementById('lgmid').textContent=state.col==='s'?'height σ':'height';document.getElementById('lgmax').textContent=hi.toFixed(0)+unit;}
+  }
+  function shape(){
+    const arr=surfArr(); const pos=geo.attributes.position;
+    for(let r=0;r<ny;r++){for(let c=0;c<nx;c++){
+      const i=r*nx+c; const v=(ny-1-r)*nx+c; // PlaneGeometry vertex rows run north to south
+      let z=arr[i]; if(isNaN(z)) z=0;
+      pos.setZ(v, z*state.exag/U);
+    }}
+    pos.needsUpdate=true;geo.computeVertexNormals();
+    document.getElementById('readout').textContent=`${state.surf==='ipgp'?'IPGP 2020 DTM':'This model'} · ${state.exag}× vertical · grid ${cell} m · orange bar = 1 km, arrow = north`;
+  }
+  function size(){const w=view.clientWidth,h=view.clientHeight;renderer.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();}
+  function render(){renderer.render(scene,cam);}
+  function save(){try{localStorage.setItem('huygens-view',JSON.stringify(state));}catch(e){}}
+  function sync(){
+    for(const [gid,key] of [['surf','surf'],['col','col'],['msk','msk']]){
+      document.querySelectorAll('#'+gid+' button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===state[key])));}
+    document.getElementById('exag').value=state.exag;document.getElementById('exagv').textContent=state.exag+'×';
+  }
+  for(const [gid,key] of [['surf','surf'],['col','col'],['msk','msk']]){
+    document.getElementById(gid).addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.disabled)return;state[key]=b.dataset.v;sync();shape();paint();save();});}
+  document.getElementById('exag').addEventListener('input',e=>{state.exag=parseFloat(e.target.value);sync();shape();save();});
+  new ResizeObserver(size).observe(view);
+  sync();size();shape();paint();
+  (function loop(){ctl.update();render();requestAnimationFrame(loop);})();
+})();
+</script>

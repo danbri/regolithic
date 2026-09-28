@@ -150,9 +150,38 @@ if a.tilt_scan:
 else:
     cost, X, w, dC, keep = run()
 nv = torch.bincount(tid[keep], minlength=len(X0)).numpy()
+# per-point height sigma (poses fixed at the solution) and max ray intersection angle
+Xo = X[tid[keep]].clone().requires_grad_(True)
+uvp = project(Xo, w, dC, vi[keep])
+J = torch.zeros(int(keep.sum()), 2, 3)
+for kk in range(2):
+    J[:, kk, :] = torch.autograd.grad(uvp[:, kk].sum(), Xo, retain_graph=True)[0]
+Nm = torch.zeros(len(X0), 3, 3)
+Nm.index_add_(0, tid[keep], torch.einsum("nki,nkj->nij", J, J) / a.px ** 2)
+sig = np.full(len(X0), np.nan)
+Nn = Nm.numpy().astype(np.float64)
+for t in np.where(nv >= a.min_track)[0]:
+    try:
+        cv_ = np.linalg.inv(Nn[t])
+        if cv_[2, 2] > 0:
+            sig[t] = math.sqrt(cv_[2, 2]) * 1e3
+    except np.linalg.LinAlgError:
+        pass
+with torch.no_grad():
+    ev_ = scene.ev[vi[keep]]
+    Cc = (scene.C0[vi[keep]] + dC[ev_]).numpy()
+    Xk = X[tid[keep]].numpy()
+    rays = Cc - Xk
+    rays /= np.linalg.norm(rays, axis=1, keepdims=True)
+maxang = np.zeros(len(X0))
+tk = tid[keep].numpy()
+for t in np.unique(tk):
+    R_t = rays[tk == t]
+    if len(R_t) > 1:
+        maxang[t] = np.degrees(np.arccos(np.clip((R_t @ R_t.T).min(), -1, 1)))
 P = X.numpy()
 x0, x1, y0, y1 = REGION
-ok = (nv >= a.min_track) & (P[:, 0] > x0) & (P[:, 0] < x1) & (P[:, 1] > y0) & (P[:, 1] < y1)
+ok = (nv >= a.min_track) & np.isfinite(sig) & (P[:, 0] > x0) & (P[:, 0] < x1) & (P[:, 1] > y0) & (P[:, 1] < y1)
 P = P[ok]
 G = np.c_[np.ones(len(P)), P[:, 0] - P[:, 0].mean(), P[:, 1] - P[:, 1].mean()]
 c, *_ = np.linalg.lstsq(G, P[:, 2], rcond=None)
@@ -162,5 +191,7 @@ k = abs(rr - np.median(rr)) < 5 * mad
 P = P[k]
 log("points in region %d; plane dE %.1f dN %.1f m/km; relief std after plane %.0f m" % (len(P), c[1] * 1e3, c[2] * 1e3, 1e3 * rr[k].std()))
 np.savez_compressed(os.path.join(od, "sfm.npz"), E=P[:, 0], N=P[:, 1], h_m=(P[:, 2] - P[:, 2].mean()) * 1e3,
-                    sigma_h_m=np.ones(len(P)), nviews=nv[ok][k], w=w.numpy(), dC=dC.numpy())
+                    sigma_h_m=sig[ok][k], max_angle_deg=maxang[ok][k], nviews=nv[ok][k], w=w.numpy(), dC=dC.numpy())
+log("median sigma_h %.0f m (px sigma %.1f); median max intersection angle %.1f deg" % (
+    np.median(sig[ok][k]), a.px, np.median(maxang[ok][k])))
 json.dump(vars(a), open(os.path.join(od, "args.json"), "w"))
