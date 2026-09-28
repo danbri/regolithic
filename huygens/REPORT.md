@@ -66,7 +66,15 @@ site than the eight-image photogrammetric DTM of Daudon et al. (2020,
    0 to +14 m/km against IPGP's -75 m/km. The north-south slope is less
    certain (+24 to +63 m/km, prior-dependent). This conclusion rests on the
    DISR images together with the published descent altitudes and
-   positions. It inherits any systematic error in them.
+   positions. It inherits any systematic error in them. Caveat from the
+   literature (Karkoschka et al. 2007, Section 3): the App. 3 attitudes
+   and the horizontal trajectory below 12 km were themselves fitted by
+   projecting the images onto a sphere, so they partly encode a
+   flat-ground assumption. Loosening the attitude prior to 10 deg keeps
+   the result, so it rests mainly on the pressure-derived altitudes and
+   the horizontal trajectory. It is partly, not fully, independent of that
+   assumption. For comparison, the USGS DTM (Soderblom et al. 2007) was
+   "arbitrarily leveled".
 
 5. Frame. The IPGP world axes, as stored in its .tfw files, are rotated
    -109 deg from east/north in our frame (which reproduces the standard
@@ -109,8 +117,9 @@ site than the eight-image photogrammetric DTM of Daudon et al. (2020,
   (2026), neural height fields for simulated lunar/Mars descent imagery.
   Not applied to Huygens. Karkoschka & Schröder (2016, Icarus 270) report
   topographic information from emission-angle comparisons across the DISR
-  mosaic; their full text has not yet been read. Any novelty claim must
-  wait until it has been.
+  mosaic; having now read it, their topography is qualitative (blinking
+  side- and down-looking mosaics, about 50 m detection limit), with no
+  DTM and no regional slope. See NOTEBOOK.md, literature entry.
 
 ## Limitations
 
@@ -141,6 +150,8 @@ site than the eight-image photogrammetric DTM of Daudon et al. (2020,
 2. Replace the per-texel height parameters with a multi-scale basis, and
    select smoothing by the injection tests (known truth) rather than only
    by held-out NCC. The held-out metric is blind to smooth relief.
-3. Read Karkoschka & Schröder (2016) and the full Daudon et al. (2020).
+3. Read the full Daudon et al. (2020) (done for Karkoschka 2007, 2016 and
+   Karkoschka & Schröder 2016, Soderblom 2007). Request the 2016
+   per-exposure orientation angles, which are not tabulated in the paper.
 4. Extend to the landing-site plain and to lower-altitude views with an
    occlusion-aware renderer.

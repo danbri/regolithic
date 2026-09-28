@@ -531,3 +531,92 @@ Earlier figures that existed only in the ignored `work/` directory were
 copied in; stages that had no figures got them via `scripts/make_figures.py`.
 Rule from here on: every figure used to reach a conclusion is added to
 `figures/` and the index in the same commit as the conclusion.
+
+## 2026-09-28: literature read (full texts supplied by the user)
+
+Papers (PDFs kept outside git, in `work/lit/`, for copyright reasons):
+Karkoschka et al. 2007 (PSS 55, 1896-1935, doi:10.1016/j.pss.2007.04.019);
+Karkoschka 2016 (Icarus 270, 326-338, doi:10.1016/j.icarus.2015.06.012);
+Karkoschka & Schröder 2016 (Icarus 270, 307-325, doi:10.1016/j.icarus.2015.08.006,
+accepted manuscript); Soderblom et al. 2007 (PSS 55, 2015-2024).
+
+### How the App. 3 poses were made (Karkoschka et al. 2007, Sections 3-4)
+- Altitude: taken from the Descent Trajectory Working Group (HASI
+  pressure/temperature, GCMS molecular weight), independent of DISR.
+  Image-scale checks confirm it to within a few percent (2% below 3 km).
+  Radar altimeter altitudes (6% higher) were rejected.
+- Position, azimuth, pitch, roll: fitted so that all images form one
+  mosaic "projected onto Titan's surface, which is assumed here to be a
+  perfect sphere of radius 2575 km". Iterative, largely manual.
+- Average pitch/roll per altitude range: from sky-brightness mosaics
+  (independent of terrain). The one component the sky cannot fix, tilt
+  toward or away from the Sun (Sun azimuth about 113 deg, nearly east),
+  was set from Doppler Wind Experiment zonal accelerations (parachute
+  tilt). The last 20 SLI images (below 3 km) give pitch and roll from the
+  horizon (0.2 deg and 1 deg), assuming a flat spherical surface.
+- Zonal trajectory agrees with DWE above 12 km; between 12 and 5 km
+  (where the IPGP frames lie, 6.5-16 km) it rests on DISR imaging alone.
+
+Consequence for this project's tilt result: the attitude priors are
+partly the product of a flat-sphere fit. A real regional tilt could
+have been absorbed into per-exposure pitch and roll. What does not come
+from that fit: the altitudes (pressure-based), the sky-derived average
+attitudes, and the DWE-derived east-west parachute tilt. The dense CV
+test still preferred level ground with the attitude prior loosened to
+10 deg, so the rejection of IPGP's slope does not rest mainly on the
+attitude priors. It rests on the pressure altitudes and on the
+horizontal trajectory, and the horizontal trajectory below 12 km is
+itself image-derived under the sphere assumption. The result is
+therefore partly, not fully, independent of a flat-ground assumption.
+This must be stated with the result.
+
+### Karkoschka 2016 (orientation and swing)
+- A re-derivation with the improved image calibration: 1600 manually
+  measured image-pair offsets, 501 orientation angles plus 27 trajectory
+  parameters, computational iteration. Stated to be four times more
+  accurate than 2007. Tie points are still projected onto the sphere.
+  Offsets are measured on flat regions where possible (the dark
+  lakebed); hilly regions are down-weighted or used only for similar
+  viewing directions. Horizon-detected tilts enter as constraints.
+- Parameters are well determined at 5-20 km altitude (panoramas
+  P10-P17), which includes the IPGP frames.
+- The per-exposure angles are not tabulated in the paper, so the 2012
+  archive table (App. 3, 2007 solution) remains the numerical source
+  used here. Asking the PSA or the author for the 2016 angles would
+  tighten the priors.
+- The mosaic azimuth was rotated 1 +- 1 deg counterclockwise to match
+  Cassini RADAR. This is far too small to explain the -109 deg rotation
+  between our frame and the IPGP .tfw axes, which remains unexplained.
+- The author reports small-scale distortions in bright ridges and
+  highlands that must be due to topography, while lakebed features fit
+  one offset. This agrees qualitatively with the COLMAP-track points.
+
+### Karkoschka & Schröder 2016 (mosaic vs emission angle)
+Their topography is qualitative: blinking side-looking against
+down-looking mosaics (both projected on the sphere), with a detection
+limit of about 50 m. Findings: the highland north of the landing site has
+terrain elevated by more than 100 m, with a steep slope at the front
+shoreline; the islands and most bright ridges in the lakebed are flat and
+not elevated; no evidence for the USGS 180-200 m plateau. They produce no
+DTM and no regional slope. So their work does not duplicate this
+project's quantitative multi-view reconstruction, and their qualitative
+findings are a check any DTM here should pass.
+
+### Soderblom et al. 2007 (USGS DTMs)
+- SOCET SET; Region 1 from 6 stereo pairs (HRI 414, 450; MRI 553, 601,
+  634), about 3 x 5 km, 30 m stated accuracy; Region 2 from HRI 498 /
+  MRI 595, 30-50 m. Automated matching was attempted and failed; posts
+  were collected manually.
+- "The integrated DTM was then arbitrarily leveled (residual tilt
+  reduced); this was necessary as no surface datum yet exists." The
+  USGS regional slope is therefore an assumption, not a measurement.
+- Camera positions (Karkoschka 2006) agree with App. 3 to within tens
+  of metres (e.g. #414: 16.61 km altitude, 1.96 km west, 0.13 km south).
+
+### Effect on claims
+- Novelty: no prior work gives a measured regional slope for this area
+  (USGS levelled arbitrarily; IPGP chose one of an ambiguous family;
+  K&S 2016 qualitative). Automated matching of DISR frames with learned
+  features (37/40 registered) contrasts with the failure reported by
+  USGS. Both are new, within the caveats above.
+- The tilt statement must carry the partial-circularity caveat.
