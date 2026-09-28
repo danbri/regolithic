@@ -522,3 +522,12 @@ Summary across methods: dense photometric CV (two draws, 37/37 and
 both indicate that the images plus the descent navigation favour
 near-level ground over IPGP's 4.5 deg east-down slope. The hand-built
 SfM v2 had no power for this question.
+
+## 2026-09-28: figure archive
+
+All generated images are now kept in `figures/` (index with provenance and
+attribution in `figures/INDEX.md`, checksums in `figures/SHA256SUMS`).
+Earlier figures that existed only in the ignored `work/` directory were
+copied in; stages that had no figures got them via `scripts/make_figures.py`.
+Rule from here on: every figure used to reach a conclusion is added to
+`figures/` and the index in the same commit as the conclusion.
