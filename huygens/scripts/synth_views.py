@@ -28,6 +28,7 @@ ap.add_argument("--rot", type=float, default=0.0)
 ap.add_argument("--pos", type=float, default=0.0)
 ap.add_argument("--noise", type=float, default=0.01)
 ap.add_argument("--seed", type=int, default=0)
+ap.add_argument("--mask-outside", action="store_true", help="replace pixels outside the grid by a featureless constant (for whole-frame matchers)")
 a = ap.parse_args()
 os.environ.pop("HDTM_SYNTH", None)
 meta = json.load(open("products/v1/FREEZE.json"))["meta"]
@@ -73,6 +74,8 @@ for v in views:
     if ins.sum() > 100:
         s = np.median(img[ins]) / np.median(val[ins])
         img[ins] = val[ins] * s
+    if a.mask_outside:
+        img[~ins] = np.median(img[ins]) if ins.sum() > 100 else med
     img = img + rng.normal(size=img.shape).astype(np.float32) * a.noise * med
     out[str(v["num"])] = img.astype(np.float32)
 np.savez_compressed(a.out, **out)

@@ -1,0 +1,1 @@
+{"out": "work/colmap_real", "model": "sparse_priorpose_tri", "px": 2.5, "huber": 2.0, "reject": 6.0, "sig_rot": 1.0, "sig_h": 0.2, "sig_v": 0.05, "min_track": 3, "tilt_scan": "-120,-80,-40,0,40,80"}
