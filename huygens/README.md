@@ -28,5 +28,6 @@ Monte Carlo: `scripts/mc_colmap.sh`.
 - `scripts/check_*.py`: convention and consistency tests.
 - `derived/`: small tables derived from archive documents.
 - `logs/`: outputs of checks and runs.
+- `figures/`: archived images from every stage, indexed in `figures/INDEX.md`.
 
 Requirements: Python 3.11, numpy, scipy, opencv-python-headless, torch (CPU), pypdf.
