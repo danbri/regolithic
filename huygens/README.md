@@ -8,6 +8,9 @@ No archive terrain product is ever placed in `data/raw`. Existing DTMs/orthomosa
 ## Novelty rule
 A result is not called new merely because it was regenerated. We distinguish: (A) exact/near reproduction, (B) reprocessing with new software, (C) additional observations/constraints, (D) materially new inferred geometry. Claims require comparison against archived USGS/IPGP products and literature.
 
+## Status
+See `REPORT.md` for current findings and `NOTEBOOK.md` for the full record.
+
 ## Layout
 - `NOTEBOOK.md`: dated log of steps, findings and open questions.
 - `scripts/fetch.py`, `scripts/fetch_all.sh`: download with provenance. `data/` itself is not committed; `data/MANIFEST.jsonl` is.

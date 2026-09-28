@@ -1,0 +1,7 @@
+subset seed 1:    plane slope dE 12.0 dN 36.3 m/km
+subset seed 2:    plane slope dE 3.8 dN 40.1 m/km
+subset seed 3:    plane slope dE 3.8 dN 40.8 m/km
+subset seed 4:    plane slope dE 13.8 dN 27.9 m/km
+subset seed 5:    plane slope dE 11.6 dN 23.9 m/km
+sig_rot 3:    plane slope dE 7.3 dN 38.8 m/km
+sig_rot 10:    plane slope dE 1.4 dN 63.3 m/km

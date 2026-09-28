@@ -335,3 +335,40 @@ recovers almost none of a real 4.5 deg tilt. Therefore:
 - v1's near-zero tilt is not evidence against IPGP's tilt.
 Whether the IPGP-plane-versus-flat CV test can detect a real tilt is being
 checked on the tilted synthetic views (`logs/cv/injection_tilt_cv.txt`).
+
+### Tilt test has power (`logs/cv/injection_tilt_cv.txt`)
+On synthetic views whose truth carries IPGP's full heights (4.5 deg tilt),
+with 0.5 deg / 50 m pose perturbations, the same CV test gives IPGP plane
+minus flat = +0.092 [+0.048, +0.153], better in 37/37 views. On real data it
+gives -0.069, better in 3/37. So the CV test detects a real tilt of this
+size, and the real-data rejection is not an artefact of the test.
+
+### Direct plane fit (`--plane`, `logs/reference/plane_fit_real.txt`)
+Two plane parameters fitted jointly with poses and brightness (h = 0
+otherwise). Validation: synthetic truth (-75.4, +20.4) m/km (east, north)
+is recovered as (-67.4, +24.5). Synthetic level truth gives (+6.0, +1.1).
+
+Real data:
+
+| fit | dh/dE (m/km) | dh/dN (m/km) |
+|---|---|---|
+| all exposures | +12.2 | +28.2 |
+| 80% subsets, seeds 1-5 | +3.8 to +13.8 | +23.9 to +40.8 |
+| attitude prior 3 deg | +7.3 | +38.8 |
+| attitude prior 10 deg | +1.4 | +63.3 |
+| IPGP DTM, same area | -75.4 | +20.4 |
+
+The east-west component is stable across subsets and priors at about
+0 to +14 m/km, against IPGP's -75 m/km. The north-south component is less
+certain (24 to 63 m/km) and depends on the attitude prior; IPGP's value
+is at the low end of that range. The disagreement with IPGP is therefore
+mainly the east-west slope.
+
+Untested hypothesis: IPGP used SPICE attitude (ESA re-computation of the
+DTWG solution), and the probe's east-west tilt is the least constrained
+attitude component (the DISR archive lists it separately: Users' Guide
+App. 4 and HUYGENS_DESCENT_PARAMETERS column 8, derived from radio Doppler
+with rapid swings not modelled). A difference in east-west tilt between
+the SPICE attitude and Karkoschka's image-based attitudes would map into
+an east-west terrain slope. Checking this needs the SPICE kernels
+(doi:10.5270/esa-ssem3np), which have not been fetched.
