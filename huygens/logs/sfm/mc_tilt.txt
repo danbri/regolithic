@@ -1,0 +1,4 @@
+tilt seed 21 min dE -40.6 dN 11.6
+tilt seed 22 min dE -25.3 dN -22.8
+tilt seed 23 min dE 33.1 dN -5.9
+tilt seed 24 min dE 26.4 dN 8.5

@@ -1,0 +1,72 @@
+cycle 0: tracks 497, observations 2545 (5.1 views/track), 1 s
+    BA round 0: reprojection RMS 1.80 px on 2545 kept obs (-> 2532); rot rms 0.31 deg, dC rms 28 m
+    BA round 1: reprojection RMS 1.71 px on 2532 kept obs (-> 2531); rot rms 0.28 deg, dC rms 35 m
+    BA round 2: reprojection RMS 1.69 px on 2531 kept obs (-> 2531); rot rms 0.29 deg, dC rms 42 m
+  points 496, median views 5, median sigma_h 108 m, height p5/p95 -95/117 m, weighted plane (-1.4, 6.4) m/km, cost 619.0
+cycle 1: tracks 503, observations 2658 (5.3 views/track), 1 s
+    BA round 0: reprojection RMS 1.66 px on 2658 kept obs (-> 2649); rot rms 0.29 deg, dC rms 43 m
+    BA round 1: reprojection RMS 1.60 px on 2649 kept obs (-> 2649); rot rms 0.26 deg, dC rms 44 m
+  points 502, median views 5, median sigma_h 105 m, height p5/p95 -78/85 m, weighted plane (-6.1, 10.3) m/km, cost 565.2
+cycle 2: tracks 499, observations 2640 (5.3 views/track), 1 s
+    BA round 0: reprojection RMS 1.59 px on 2640 kept obs (-> 2637); rot rms 0.32 deg, dC rms 47 m
+    BA round 1: reprojection RMS 1.55 px on 2637 kept obs (-> 2636); rot rms 0.33 deg, dC rms 52 m
+    BA round 2: reprojection RMS 1.53 px on 2636 kept obs (-> 2636); rot rms 0.32 deg, dC rms 52 m
+  points 499, median views 5, median sigma_h 106 m, height p5/p95 -88/104 m, weighted plane (-1.5, 9.5) m/km, cost 510.2
+cycle 3: tracks 494, observations 2646 (5.4 views/track), 1 s
+    BA round 0: reprojection RMS 1.59 px on 2646 kept obs (-> 2641); rot rms 0.35 deg, dC rms 58 m
+    BA round 1: reprojection RMS 1.55 px on 2641 kept obs (-> 2639); rot rms 0.35 deg, dC rms 64 m
+    BA round 2: reprojection RMS 1.54 px on 2639 kept obs (-> 2639); rot rms 0.34 deg, dC rms 61 m
+  points 493, median views 5, median sigma_h 107 m, height p5/p95 -94/103 m, weighted plane (-5.6, 17.9) m/km, cost 517.7
+cycle 4: tracks 517, observations 2663 (5.2 views/track), 1 s
+    BA round 0: reprojection RMS 1.53 px on 2663 kept obs (-> 2656); rot rms 0.46 deg, dC rms 66 m
+    BA round 1: reprojection RMS 1.49 px on 2656 kept obs (-> 2656); rot rms 0.40 deg, dC rms 60 m
+  points 515, median views 5, median sigma_h 106 m, height p5/p95 -97/100 m, weighted plane (-2.6, 17.9) m/km, cost 485.4
+cycle 5: tracks 521, observations 2742 (5.3 views/track), 1 s
+    BA round 0: reprojection RMS 1.62 px on 2742 kept obs (-> 2724); rot rms 0.44 deg, dC rms 62 m
+    BA round 1: reprojection RMS 1.52 px on 2724 kept obs (-> 2724); rot rms 0.43 deg, dC rms 64 m
+  points 517, median views 5, median sigma_h 102 m, height p5/p95 -84/94 m, weighted plane (-1.6, 18.7) m/km, cost 542.0
+cycle 6: tracks 521, observations 2754 (5.3 views/track), 1 s
+    BA round 0: reprojection RMS 1.65 px on 2754 kept obs (-> 2746); rot rms 0.44 deg, dC rms 62 m
+    BA round 1: reprojection RMS 1.58 px on 2746 kept obs (-> 2746); rot rms 0.44 deg, dC rms 68 m
+  points 521, median views 5, median sigma_h 106 m, height p5/p95 -96/103 m, weighted plane (0.5, 18.0) m/km, cost 575.3
+cycle 7: tracks 524, observations 2733 (5.2 views/track), 1 s
+  profile slope (-120, -120) m/km: cost 682.4
+  profile slope (-120, -80) m/km: cost 667.4
+  profile slope (-120, -40) m/km: cost 631.9
+  profile slope (-120, +0) m/km: cost 617.3
+  profile slope (-120, +40) m/km: cost 617.2
+  profile slope (-120, +80) m/km: cost 625.9
+  profile slope (-80, -120) m/km: cost 663.7
+  profile slope (-80, -80) m/km: cost 630.5
+  profile slope (-80, -40) m/km: cost 605.1
+  profile slope (-80, +0) m/km: cost 591.8
+  profile slope (-80, +40) m/km: cost 588.6
+  profile slope (-80, +80) m/km: cost 599.2
+  profile slope (-40, -120) m/km: cost 646.0
+  profile slope (-40, -80) m/km: cost 613.4
+  profile slope (-40, -40) m/km: cost 589.4
+  profile slope (-40, +0) m/km: cost 576.1
+  profile slope (-40, +40) m/km: cost 579.9
+  profile slope (-40, +80) m/km: cost 592.0
+  profile slope (+0, -120) m/km: cost 636.9
+  profile slope (+0, -80) m/km: cost 603.2
+  profile slope (+0, -40) m/km: cost 580.1
+  profile slope (+0, +0) m/km: cost 576.2
+  profile slope (+0, +40) m/km: cost 575.0
+  profile slope (+0, +80) m/km: cost 582.2
+  profile slope (+40, -120) m/km: cost 624.8
+  profile slope (+40, -80) m/km: cost 607.6
+  profile slope (+40, -40) m/km: cost 586.5
+  profile slope (+40, +0) m/km: cost 574.2
+  profile slope (+40, +40) m/km: cost 581.6
+  profile slope (+40, +80) m/km: cost 595.2
+  profile slope (+80, -120) m/km: cost 646.5
+  profile slope (+80, -80) m/km: cost 618.9
+  profile slope (+80, -40) m/km: cost 598.7
+  profile slope (+80, +0) m/km: cost 590.0
+  profile slope (+80, +40) m/km: cost 591.5
+  profile slope (+80, +80) m/km: cost 612.3
+  profile minimum: dh/dE 0.2, dh/dN 16.0 m/km; formal 1-sigma 12.9, 12.4 m/km; quadratic fit rms 3.6
+    BA round 0: reprojection RMS 1.65 px on 2733 kept obs (-> 2723); rot rms 0.48 deg, dC rms 65 m
+    BA round 1: reprojection RMS 1.58 px on 2723 kept obs (-> 2723); rot rms 0.45 deg, dC rms 70 m
+  points 523, median views 5, median sigma_h 102 m, height p5/p95 -94/103 m, weighted plane (0.9, 22.6) m/km, cost 574.0

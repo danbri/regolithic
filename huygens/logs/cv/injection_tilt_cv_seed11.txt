@@ -1,0 +1,1 @@
+SYNTH tilted truth, pose draw seed 11: ipgp_plane minus flat +0.0952 CI [+0.0441,+0.1636] better 34/37

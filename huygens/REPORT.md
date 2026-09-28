@@ -74,6 +74,17 @@ site than the eight-image photogrammetric DTM of Daudon et al. (2020,
    explained; it should be checked against the figures of Daudon et al.
    (2020), whose full text could not be retrieved from this environment.
 
+6. A new SfM pipeline (tie-point tracks, bundle adjustment, tilt
+   profile; `scripts/sfm.py`, frozen real-data output in
+   `products/sfm_v2`) was built and calibrated on synthetic data. On real
+   data it gives a plane of +0.2 m/km east, +16 m/km north. A Monte Carlo
+   over realistic pose errors shows its tilt estimate is not informative:
+   six draws of a true -75 m/km slope give a mean of -7 m/km with a
+   standard deviation of 39. Its relief correlates only 0.05-0.30 with
+   synthetic truth. It does not change findings 2-4. The dense
+   cross-validation test, in contrast, detects a true tilt on two
+   independent pose-error draws (37/37 and 34/37 views).
+
 ## Novelty (per the project's A-D scale)
 
 - (C) Additional observations and constraints: 40 views instead of 8, in
@@ -99,6 +110,12 @@ site than the eight-image photogrammetric DTM of Daudon et al. (2020,
   (fetched) were not reprocessed.
 
 ## Next steps
+
+0. SfM: the limiting factor is tie-point precision (1-2 px from 320 m
+   windows) against smooth pose-error shifts of similar size. Options are
+   pairwise matching at native image resolution instead of orthos, and
+   priors on pose correlation over time (the probe's swing is smooth
+   between closely spaced exposures).
 
 1. Fetch the ESA SPICE kernels used by IPGP. Compare their attitude,
    especially east-west tilt, with App. 3 for the eight IPGP frames. This

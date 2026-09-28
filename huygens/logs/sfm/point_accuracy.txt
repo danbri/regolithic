@@ -1,0 +1,4 @@
+full_p1            n=602  plane (dE,dN m/km) truth (-74.5, 19.7) sfm (-62.9, 17.2) | after plane removal: corr 0.261, regression slope sfm~truth 0.47, std truth 37 sfm 66, rms diff 67 m, median sigma 104 m, normalised residual rms 0.65
+full_p1s11         n=585  plane (dE,dN m/km) truth (-75.8, 18.8) sfm (24.5, -15.9) | after plane removal: corr 0.052, regression slope sfm~truth 0.13, std truth 37 sfm 93, rms diff 98 m, median sigma 110 m, normalised residual rms 1.03
+detr_p1            n=637  plane (dE,dN m/km) truth (-0.1, -0.8) sfm (-7.3, -11.4) | after plane removal: corr 0.189, regression slope sfm~truth 0.36, std truth 37 sfm 71, rms diff 74 m, median sigma 105 m, normalised residual rms 0.76
+real_vs_IPGP       n=359  plane (dE,dN m/km) truth (-76.2, 16.2) sfm (0.3, 15.2) | after plane removal: corr 0.094, regression slope sfm~truth 0.13, std truth 40 sfm 55, rms diff 65 m, median sigma 100 m, normalised residual rms 0.66

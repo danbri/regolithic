@@ -372,3 +372,72 @@ with rapid swings not modelled). A difference in east-west tilt between
 the SPICE attitude and Karkoschka's image-based attitudes would map into
 an east-west terrain slope. Checking this needs the SPICE kernels
 (doi:10.5270/esa-ssem3np), which have not been fetched.
+
+## 2026-09-28: new SfM pipeline (v2)
+
+Goal: a structure-from-motion reconstruction with explicit tie points,
+triangulation and bundle adjustment, as an alternative to the dense
+height field (which the injection tests showed under-recovers relief).
+
+Method (`scripts/sfm.py`):
+- Multi-view tracks by guided matching. Each view is orthorectified onto
+  the current surface with the current poses. At a grid of nodes (16-texel
+  = 320 m windows, stride 8), each view's window is phase-correlated
+  against a reference mosaic, the mean of the normalised orthos. The
+  matched ortho location, lifted onto the surface and projected through
+  the same view, is the observed image coordinate. About 500 tracks with
+  5-6 views each.
+- Bundle adjustment of track points and per-exposure pose corrections
+  (App. 3 priors), Huber loss, L-BFGS, outlier rejection at 6 px.
+- Iteration: grid the points (sigma-weighted Gaussian, 150 m), rebuild
+  orthos and reference, re-match, re-adjust (8 cycles).
+- Tilt: a profile over the point cloud's plane slope. Each grid value is
+  held by a constraint while everything else is re-optimised; a quadratic
+  fit to the cost gives the minimum. The free adjustment barely moves the
+  plane because the cost is nearly flat along the tilt/pose degeneracy.
+- Per-point height sigma from each point's 3x3 normal matrix.
+
+Settings were chosen on synthetic injection data only (the IPGP reference
+had already been opened, so tuning on real data was ruled out):
+- Pixel sigma 0.5 px under-weighted the navigation priors (actual
+  residuals were about 3x larger). With the tilted truth plus 0.5 deg /
+  50 m pose error, the profile returned -13 m/km (truth -75).
+- 1.5 px gave (-53, +18) for truth (-75, +19); 2.5 px gave (-63, +17),
+  and (-7, -11) for level truth. 2.5 px adopted.
+- Clean case (no pose error, no noise), 15 cycles: profile (-67 +- 6,
+  +22 +- 5) m/km against truth (-75, +20).
+
+Real data (frozen before comparison: `products/sfm_v2`, commit 164f496):
+523 points, median 5 views, median sigma_h 102 m. Profile minimum
+dh/dE +0.2, dh/dN +16.0 m/km (formal +-13). Against IPGP after
+registration: plane (+0.3, +15.2) vs IPGP (-76.2, +16.2); relief
+correlation after plane removal 0.09.
+
+Monte Carlo over pose-error draws (0.5 deg, 50 m, 1% noise; `logs/sfm/`),
+profile dh/dE:
+
+| truth | draws | estimates (m/km) | mean +- sd |
+|---|---|---|---|
+| IPGP full, -75 | 6 | -62.6, +24.2, -40.6, -25.3, +33.1, +26.4 | -7.5 +- 39 |
+| level, ~0 | 5 | -7.2, -21.7, +1.8, -5.6, -3.6 | -7.3 +- 9 |
+
+With realistic navigation errors, the SfM tilt estimate does not
+separate a 75 m/km slope from level ground. The formal +-13 m/km is far
+too small. Relief accuracy on synthetic data (`logs/sfm/point_accuracy.txt`)
+is also weak: correlation with truth after plane removal 0.05-0.30,
+regression slope 0.13-0.56. The SfM v2 real-data output is therefore not
+evidence about the tilt, and its heights are not a usable DTM.
+
+In contrast, the dense photometric CV test (IPGP plane held fixed against
+flat, poses refit) keeps its power on a second pose-error draw: +0.095
+[+0.044, +0.164], tilt preferred in 34/37 held-out views
+(`logs/cv/injection_tilt_cv_seed11.txt`; first draw: 37/37). The dense
+test uses every textured pixel, not about 500 window matches. It remains
+the basis for the statement that IPGP's regional tilt is disfavoured.
+
+Why sparse SfM is weak here: the parallax the tilt produces between
+views is a few pixels spread smoothly across the field. Per-exposure
+pose errors of 0.5 deg produce smooth shifts of similar size and pattern.
+With about 500 noisy tracks (1-2 px), the adjustment cannot tell them
+apart, and the result depends on which local minimum the iteration
+reaches.

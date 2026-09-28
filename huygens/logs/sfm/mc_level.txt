@@ -1,0 +1,4 @@
+level seed 21 min dE -21.7 dN -30.9
+level seed 22 min dE 1.8 dN -14.0
+level seed 23 min dE -5.6 dN 8.5
+level seed 24 min dE -3.6 dN 3.1
