@@ -113,6 +113,17 @@ site than the eight-image photogrammetric DTM of Daudon et al. (2020,
    heights remain too noisy for a DTM. Frozen output:
    `products/sfm_colmap_v1`.
 
+8. Presentable model (DTM v2, `products/dtm_v2`, viewer
+   `viewer/huygens_terrain.html`). COLMAP-track points seed a dense fit,
+   smoothed to 300 m. On synthetic terrain at that scale: relief
+   correlation 0.54-0.65, amplitude 0.68-0.83, and the stated uncertainty
+   matches the actual error (factor 1.05). Real: 20 km^2, median 1-sigma
+   19 m, slope +8 E / +10 N m/km, relief 23 m rms. It shows a trough
+   about 60 m deep along the lakebed south of the shoreline and the
+   highland rising to the north, consistent with Karkoschka & Schröder
+   2016. Against IPGP at the same scale: r = 0.52. Features below a few
+   hundred metres are not resolved.
+
 ## Novelty (per the project's A-D scale)
 
 - (C) Additional observations and constraints: 40 views instead of 8, in

@@ -1,0 +1,46 @@
+{
+ "lede": "A terrain model of 20 square kilometres of Titan, rebuilt from 40 frames taken by the Huygens probe's descent imager in January 2005. Heights are reliable at the kilometre scale; finer detail is not. The image drape is a 20 m mosaic from the same frames.",
+ "method": "Learned features (DISK) matched with LightGlue across all 40 frames give about 2,000 multi-view tracks. They are adjusted together with the probe's published position and attitude, then gridded. That surface seeds a dense fit that compares every textured pixel across the frames. The result is smoothed to 300 m, the scale at which synthetic tests with known terrain show it can be trusted.",
+ "panel_note": "Heights are relative to the mean of the mapped area. The regional slope carries an extra uncertainty of about \u00b125 m/km east\u2013west, not included in the cell uncertainty.",
+ "validation": [
+  [
+   "Area mapped",
+   "20.0 km\u00b2"
+  ],
+  [
+   "Grid / product scale",
+   "20 m / 300 m smoothing"
+  ],
+  [
+   "Median 1\u03c3 height",
+   "19 m"
+  ],
+  [
+   "Relief after slope removed",
+   "23 m rms"
+  ],
+  [
+   "Regional slope",
+   "+8 E, +10 N m/km"
+  ],
+  [
+   "Synthetic tests: relief r",
+   "0.54 to 0.65"
+  ],
+  [
+   "Synthetic tests: error/\u03c3",
+   "1.04 to 1.06"
+  ],
+  [
+   "vs IPGP 2020 at 300 m",
+   "r 0.52 (slopes removed)"
+  ]
+ ],
+ "caveats": [
+  "Features smaller than a few hundred metres are not resolved. The smooth look is the true resolution of the result, not a styling choice.",
+  "Relief amplitude is likely underestimated by 20 to 30 percent, based on the synthetic tests.",
+  "The regional slope depends on the probe's navigation, which was itself fitted assuming a flat surface; it is only partly independent of that assumption.",
+  "The IPGP 2020 surface is shown for comparison. Its map frame was re-registered here; its own regional slope (about 4.5\u00b0) was chosen from river routing, and the images favour a gentler slope."
+ ],
+ "footer": "Data: ESA Planetary Science Archive, DISR images processed by E. Karkoschka. Comparison DTM: Daudon et al. 2020, Earth and Space Science, doi:10.1029/2020EA001127 (CC BY). Code and full record: github.com/danbri/regolithic, huygens/ (NOTEBOOK.md, REPORT.md). Frame: km east and north of the landing site."
+}

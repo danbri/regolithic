@@ -34,6 +34,8 @@ IPGP_Titan_Huygens_V1.0 (ESA PSA).
 | 13_lightglue_matches_real_hri.png | DISK + LightGlue matches between real HRI #420 and #462 (IPGP stereo frames) | modern toolchain |
 | 14_colmap_inputs_contact_sheet.png | all 40 exported toolchain input frames | modern toolchain |
 | 15_synthetic_vs_real_views.png | real frames vs synthetic renderings (tilted truth, outside masked) | injection tests |
+| 16_dtm_v2_overview.png | DTM v2: mosaic, heights (10 m contours), 1-sigma uncertainty, IPGP smoothed to 300 m | presentable model |
+| 17_viewer_screenshot.png | the 3D viewer page (headless Chromium render) | presentable model |
 | colmap_inputs/ | the 40 PNG frames exactly as fed to DISK/COLMAP (8-bit, rows flipped) | modern toolchain |
 
 Frozen reconstruction files (not figures) are under `products/`:

@@ -19,6 +19,7 @@
   --accent:#e0a04a; --accent-soft:#3a2c18; --canvas:#0c1015; color-scheme:dark;
 }
 body{background:var(--bg);color:var(--ink);font:15px/1.55 var(--sans);}
+[hidden]{display:none!important}
 .wrap{max-width:1180px;margin:0 auto;padding-inline:16px;padding-block:28px 48px;display:grid;gap:22px}
 header{display:grid;gap:6px}
 .eyebrow{font:500 12px/1.2 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
@@ -128,7 +129,8 @@ const DATA = /*__DATA__*/null;
   try{const s=JSON.parse(localStorage.getItem('huygens-view')||'{}');Object.assign(state,s);}catch(e){}
 
   const view=document.getElementById('view');
-  const renderer=new THREE.WebGLRenderer({antialias:true});
+  const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+  renderer.setClearColor(0x000000,0);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
   view.prepend(renderer.domElement);
   const scene=new THREE.Scene();

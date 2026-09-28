@@ -681,3 +681,57 @@ directions consistent over a noisy DTM, as the USGS result (+21 points
 after a 3-4 deg tilt) suggests. That is a hypothesis, not tested here.
 Testing it would mean running the same routing score on the IPGP DTM
 with its regional slope removed.
+
+## 2026-09-28: DTM v2, a presentable model
+
+Goal: a terrain model that can be shown, with an honest resolution and a
+calibrated uncertainty.
+
+Chain (settings fixed on synthetic data only; frozen before comparison):
+1. COLMAP / LightGlue tracks + navigation-constrained BA
+   (`colmap_prior_ba.py`, now also writes per-point height sigma and the
+   max ray intersection angle). Real data: 1,382 points, median point
+   sigma 83 m (synthetic: 114-126 m, whose texture is blurrier).
+2. Robust, inverse-variance Gaussian gridding (`grid_points.py`, 200 m
+   kernel, Huber reweighting; uncertainty = max of propagated and
+   empirical scatter). Real: 20.0 km^2 supported.
+3. Dense photometric fit seeded from that grid (`reconstruct.py
+   --h-init`, smoothing 30).
+4. Product (`make_product.py`): smoothing to 300 m within the support
+   mask; uncertainty = gridding sigma x calibration factor.
+
+Synthetic evaluation (masked views, 0.5 deg / 50 m pose error), scale
+dependence for the seeded dense fit (`eval_scales.py`), tilted truth:
+r = 0.34 / 0.48 / 0.60 / 0.78 at 0 / 200 / 400 / 800 m smoothing, amplitude
+0.28 / 0.56 / 0.80 / 1.13; level truth: r = 0.44 / 0.61 / 0.68 / 0.81.
+Seeding helps mainly the amplitude and the regional slope (seeded -60 vs
+flat-start -10 m/km for truth -76).
+At the 300 m product scale (`make_product.py calibrate`): relief r 0.54
+and 0.65, amplitude 0.68 and 0.83, rms error 21-23 m against 20-21 m truth
+relief, err/sigma rms 1.04 and 1.06 -> calibration factor 1.05. Regional
+slope: truth (-73, 17) est (-58, 15); truth (1, -2) est (23, -2) m/km.
+
+Real product `products/dtm_v2` (commit b43ed93): 20.0 km^2, relief after
+plane 23 m rms, plane (+8, +10) m/km, median sigma 19 m,
+p5/p95 -60/+35 m. Figure 16.
+
+Checks after freezing (`logs/dtm_v2_checks.txt`):
+- Bright highland (y > 3.4 km) minus dark lakebed (2.0-3.3 km): +27 m,
+  conservative 1-sigma 36 m. The sign agrees with Karkoschka & Schröder
+  2016 (highland elevated); the magnitude is not significant under the
+  conservative error, and is likely underestimated (amplitude 0.7-0.8).
+- The most prominent feature is a trough about 60 m deep along the
+  dark lakebed just south of the shoreline, with the highland rising to
+  the north. This matches the steep shoreline front described by K&S 2016.
+- Against IPGP (both at 300 m, planes removed, 11.2 km^2): r = 0.52;
+  our relief is 0.37 of IPGP's.
+
+Viewer: `viewer/huygens_terrain.html` (built by `build_viewer.py` from
+`viewer/template.html`), published as a private artifact. It shows the
+model draped with the 20 m mosaic, height and uncertainty colourings, the
+IPGP surface for comparison, and dims low-confidence cells.
+
+What this model is and is not: a kilometre-scale terrain model with
+calibrated uncertainty and a measured regional slope. It does not
+resolve the channel-scale relief visible in the images; the IPGP DTM has
+finer (if noisier) detail.
