@@ -441,3 +441,84 @@ pose errors of 0.5 deg produce smooth shifts of similar size and pattern.
 With about 500 noisy tracks (1-2 px), the adjustment cannot tell them
 apart, and the result depends on which local minimum the iteration
 reaches.
+
+## 2026-09-28: modern SfM toolchain (DISK + LightGlue + COLMAP)
+
+Aim: replace the hand-built matcher with a standard current toolchain and
+test it on the real descent images.
+
+Toolchain (`scripts/colmap_sfm.py`, pycolmap 4.2, kornia 0.8.3):
+- Export: the 40 region views (7 SLI, 14 MRI, 19 HRI) as 8-bit PNG. The
+  G-image camera is exactly COLMAP PINHOLE (f = 1/SC, cx = W/2, cy = 128)
+  once rows are flipped. As stored, the column, row and optical axes form
+  a left-handed frame. Flipping the rows makes it right-handed and puts
+  the SLI horizon at the top, as expected.
+- Features: DISK (depth weights), images upsampled 2x, median 855
+  keypoints per image. (ALIKED weights could not be downloaded: GitHub
+  raw returned 403.)
+- Matching: LightGlue (DISK weights) on 358 candidate pairs chosen by
+  footprint overlap under the App. 3 poses. Median 30 matches per pair.
+  COLMAP geometric verification: 337 pairs, 25,817 inlier matches.
+- COLMAP incremental mapping with position priors registered 37 of 40
+  views: 1,714 points, mean track length 6.2, reprojection 1.13 px.
+  Automated matching of DISR images is therefore feasible with current
+  learned features; the USGS work (as summarised by Daudon et al.) found
+  automated matching unsuccessful.
+- COLMAP's own adjusters, however, do not give usable geometry here. On
+  synthetic views with known terrain, both the incremental model
+  (aligned to the prior camera centres by a weighted similarity,
+  `scripts/colmap_eval.py`) and the prior-pose model after COLMAP bundle
+  adjustment came out tilted by hundreds of m/km, with 300-800 m
+  camera-centre residuals. COLMAP's pose-prior adjustment supports only
+  position priors. Attitude priors, which the tilt/attitude degeneracy
+  needs, are not available.
+- Therefore: COLMAP tracks (triangulated at the App. 3 poses, before any
+  COLMAP adjustment) + our navigation-constrained bundle adjustment
+  (`scripts/colmap_prior_ba.py`; 1 deg attitude, 200/50 m position
+  priors, shared per exposure; Huber, 2.5 px) + the tilt profile.
+
+Test fix: synthetic views previously kept real pixels outside the 5 x 5 km
+region. Whole-frame matchers pick up those real features and mix real
+and synthetic geometry. `synth_views.py --mask-outside` now blanks them.
+
+Real data (frozen before comparison: `products/sfm_colmap_v1`, commit
+10af208): 2,060 tracks (>= 3 views), 11,100 observations, 1.55 px RMS;
+pose corrections 0.4 deg / 54 m RMS. Tilt profile grid minimum at (0, 0)
+m/km (quadratic minimum +1.9, -3.8). Cells near IPGP's plane cost
+100-130 units more. Points in region: 1,381.
+
+Monte Carlo, masked synthetic views, 0.5 deg / 50 m pose error
+(`logs/colmap/mcc_*.txt`), east slope of the profile minimum:
+
+| truth | draws | dh/dE estimates (m/km) | mean +- sd |
+|---|---|---|---|
+| IPGP full, -80 | 4 | -92, -115, -40, -60 | -77 +- 33 |
+| level, ~0 | 4 | +32, -8, +25, +10 | +15 +- 18 |
+| real data | | +1.9 | |
+
+The east component is recovered without bias for tilted truth, and it
+separates the two cases in all 8 draws. The real-data value lies inside
+the level distribution (z = -0.7) and outside the tilted one (z = +2.4).
+Gaussian likelihood ratio, level versus IPGP's slope: about 25. This is
+moderate evidence from 4 draws per class. The north component is not
+reliable (estimates -34 to -183 m/km for truths near +10 and 0) and is not
+reported.
+
+Relief against IPGP (`logs/colmap/point_accuracy.txt`): correlation after
+plane removal 0.16 (977 points), against 0.09 for the hand-built SfM v2
+and -0.03 for the dense v1 height field. On synthetic truth: 0.31
+(tilted) and 0.20 (level), regression slope 0.6-0.7. Point heights are
+still too noisy (68-110 m scatter against 35 m relief) for a DTM product.
+
+Caveat: synthetic frames are rendered from the 20 m brightness map and
+are blurrier than real frames (median 2 LightGlue matches per pair
+against 30 on real data). The Monte Carlo spread probably overstates the
+real-data uncertainty. The best available real-data calibration would
+come from rendering at native resolution, which needs a sharper texture
+model than the 20 m mosaic.
+
+Summary across methods: dense photometric CV (two draws, 37/37 and
+34/37), and now the COLMAP-track SfM (east slope, 8/8 draws separated),
+both indicate that the images plus the descent navigation favour
+near-level ground over IPGP's 4.5 deg east-down slope. The hand-built
+SfM v2 had no power for this question.

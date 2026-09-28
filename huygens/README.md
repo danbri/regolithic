@@ -11,6 +11,16 @@ A result is not called new merely because it was regenerated. We distinguish: (A
 ## Status
 See `REPORT.md` for current findings and `NOTEBOOK.md` for the full record.
 
+## SfM toolchain (DISK + LightGlue + COLMAP)
+
+    python3 scripts/colmap_sfm.py work/colmap_real          # export, features, match, map
+    python3 scripts/colmap_prior_ba.py work/colmap_real --tilt-scan=-120,-80,-40,0,40,80
+    python3 scripts/eval_points.py work/colmap_real/priorba derived/ipgp_h_on_grid.npz
+
+Requires `pip install pycolmap kornia` (pycolmap 4.2 used). Synthetic
+injection runs: set `HDTM_SYNTH` to a `synth_views.py --mask-outside` output.
+Monte Carlo: `scripts/mc_colmap.sh`.
+
 ## Layout
 - `NOTEBOOK.md`: dated log of steps, findings and open questions.
 - `scripts/fetch.py`, `scripts/fetch_all.sh`: download with provenance. `data/` itself is not committed; `data/MANIFEST.jsonl` is.

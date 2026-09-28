@@ -1,0 +1,13 @@
+export: 40 views ({'SLI': 7, 'MRI': 14, 'HRI': 19})
+features: DISK x2 upsampling, median 855 keypoints/image, 14 s
+match: 358 candidate pairs of 780 possible
+LightGlue: 358 pairs, median 30 matches, 337 pairs with >= 8, 52 s
+geometric verification: 337 verified pairs, 25817 inlier matches
+incremental mapping with position priors: 1 models, 28 s
+  model 0: 37 images, 1714 points, mean track 6.16, mean reproj 1.13 px, camera-centre deviation from prior median 328 m
+prior-pose triangulation: 3076 points, mean track 4.27, mean reproj 1.32 px, 0 s
+  after BA: 3076 points, mean reproj 0.97 px, camera-centre shift from prior median 332 m (BA gauge free; see alignment)
+incremental mapping with position priors: 1 models, 33 s
+  model 0: 37 images, 1604 points, mean track 6.52, mean reproj 1.19 px, camera-centre deviation from prior median 304 m
+prior-pose triangulation: 3076 points, mean track 4.27, mean reproj 1.32 px, 0 s
+  after BA: 3076 points, mean reproj 0.97 px, camera-centre shift from prior median 332 m (BA gauge free; see alignment)

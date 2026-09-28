@@ -1,0 +1,3 @@
+level seed 21: quadratic min dE -7.7 dN -119.4 | grid argmin (0, -120)
+level seed 22: quadratic min dE 24.7 dN -63.4 | grid argmin (40, -40)
+level seed 23: quadratic min dE 10.5 dN -54.6 | grid argmin (0, -40)

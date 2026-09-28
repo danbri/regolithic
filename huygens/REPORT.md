@@ -85,6 +85,19 @@ site than the eight-image photogrammetric DTM of Daudon et al. (2020,
    cross-validation test, in contrast, detects a true tilt on two
    independent pose-error draws (37/37 and 34/37 views).
 
+7. Modern toolchain. DISK features + LightGlue matching + COLMAP
+   (verification, incremental mapping with position priors) work on the
+   real DISR frames: 37 of 40 views register automatically, 1,714 points,
+   1.1 px reprojection. COLMAP's adjusters lack attitude priors, and on
+   synthetic tests their geometry is unusable. COLMAP tracks with our
+   navigation-constrained adjustment are usable: on 8 synthetic pose-error
+   draws the east slope separates IPGP's tilt (mean -77 +- 33 m/km) from
+   level ground (+15 +- 18). Real data give +1.9 m/km, consistent with
+   level (likelihood ratio about 25 against IPGP's slope). Relief
+   correlation with IPGP is 0.16, the best of the methods tried, but point
+   heights remain too noisy for a DTM. Frozen output:
+   `products/sfm_colmap_v1`.
+
 ## Novelty (per the project's A-D scale)
 
 - (C) Additional observations and constraints: 40 views instead of 8, in
@@ -110,6 +123,11 @@ site than the eight-image photogrammetric DTM of Daudon et al. (2020,
   (fetched) were not reprocessed.
 
 ## Next steps
+
+00. Toolchain: add pairwise matching at native resolution between HRI
+    frames (the IPGP stereo base), multi-scale LightGlue across the
+    20:1 altitude range, and render synthetic frames at native
+    resolution for calibration.
 
 0. SfM: the limiting factor is tie-point precision (1-2 px from 320 m
    windows) against smooth pose-error shifts of similar size. Options are

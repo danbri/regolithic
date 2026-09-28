@@ -1,0 +1,3 @@
+tilt seed 21: quadratic min dE -115.1 dN -34.0 | grid argmin (-120, -40)
+tilt seed 22: quadratic min dE -39.8 dN -66.0 | grid argmin (-40, -80)
+tilt seed 23: quadratic min dE -60.2 dN -183.4 | grid argmin (-40, -120)

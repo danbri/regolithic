@@ -1,0 +1,41 @@
+tracks 2060 (length >= 3), observations 11100
+  profile (-120, -120) m/km: cost 2566.7
+  profile (-120, -80) m/km: cost 2419.2
+  profile (-120, -40) m/km: cost 2392.0
+  profile (-120, +0) m/km: cost 2377.5
+  profile (-120, +40) m/km: cost 2414.8
+  profile (-120, +80) m/km: cost 2507.9
+  profile (-80, -120) m/km: cost 2502.7
+  profile (-80, -80) m/km: cost 2363.4
+  profile (-80, -40) m/km: cost 2275.5
+  profile (-80, +0) m/km: cost 2255.6
+  profile (-80, +40) m/km: cost 2287.9
+  profile (-80, +80) m/km: cost 2379.0
+  profile (-40, -120) m/km: cost 2319.8
+  profile (-40, -80) m/km: cost 2233.6
+  profile (-40, -40) m/km: cost 2204.2
+  profile (-40, +0) m/km: cost 2180.4
+  profile (-40, +40) m/km: cost 2209.7
+  profile (-40, +80) m/km: cost 2266.1
+  profile (+0, -120) m/km: cost 2302.0
+  profile (+0, -80) m/km: cost 2259.1
+  profile (+0, -40) m/km: cost 2177.0
+  profile (+0, +0) m/km: cost 2153.6
+  profile (+0, +40) m/km: cost 2219.3
+  profile (+0, +80) m/km: cost 2268.3
+  profile (+40, -120) m/km: cost 2414.8
+  profile (+40, -80) m/km: cost 2250.2
+  profile (+40, -40) m/km: cost 2250.1
+  profile (+40, +0) m/km: cost 2203.5
+  profile (+40, +40) m/km: cost 2248.4
+  profile (+40, +80) m/km: cost 2281.0
+  profile (+80, -120) m/km: cost 2373.2
+  profile (+80, -80) m/km: cost 2308.4
+  profile (+80, -40) m/km: cost 2346.8
+  profile (+80, +0) m/km: cost 2294.7
+  profile (+80, +40) m/km: cost 2254.7
+  profile (+80, +80) m/km: cost 2294.9
+profile minimum dh/dE 1.9 dh/dN -3.8 m/km; formal 1-sigma 5.8 6.4; fit rms 31.0
+  round 0: RMS 1.56 px on 11100 obs (-> 11099 kept); rot rms 0.34 deg; dC rms 45 m
+  round 1: RMS 1.55 px on 11099 obs (-> 11099 kept); rot rms 0.41 deg; dC rms 54 m
+points in region 1381; plane dE 13.2 dN 4.2 m/km; relief std after plane 64 m

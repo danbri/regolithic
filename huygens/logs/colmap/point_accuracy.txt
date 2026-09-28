@@ -1,0 +1,3 @@
+real_colmap_vs_IPGP n=977  plane (dE,dN m/km) truth (-83.5, 18.3) sfm (10.6, 15.3) | after plane removal: corr 0.161, regression slope sfm~truth 0.31, std truth 35 sfm 68, rms diff 71 m, median sigma 1 m, normalised residual rms 71.18
+synth_full_s7      n=1370  plane (dE,dN m/km) truth (-80.3, 9.9) sfm (-90.8, 18.2) | after plane removal: corr 0.311, regression slope sfm~truth 0.72, std truth 34 sfm 79, rms diff 75 m, median sigma 1 m, normalised residual rms 75.35
+synth_level_s7     n=1372  plane (dE,dN m/km) truth (-0.5, -10.6) sfm (16.0, -7.2) | after plane removal: corr 0.196, regression slope sfm~truth 0.61, std truth 36 sfm 111, rms diff 110 m, median sigma 1 m, normalised residual rms 109.62
