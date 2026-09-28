@@ -1,0 +1,3 @@
+rendered 172 views; pose perturbation rot 0.50 deg pos 0.050 km
+s300: truth plane slope (m/texel) [ 0. -0.] recovered [-0. -0.]; relief std truth 34 rec 5; corr after plane removal 0.111; raw corr 0.111
+s30: truth plane slope (m/texel) [ 0. -0.] recovered [ 0.04 -0.01]; relief std truth 34 rec 21; corr after plane removal 0.209; raw corr 0.208

@@ -5,6 +5,10 @@ from .pose import load_appx3
 
 
 def load_views(alt_min=0.0, alt_max=1e9, imagers=("SLI", "MRI", "HRI")):
+    """If the environment variable HDTM_SYNTH names an npz (view number -> image),
+    those synthetic images replace the archive images (injection tests)."""
+    import os
+    synth = np.load(os.environ["HDTM_SYNTH"]) if os.environ.get("HDTM_SYNTH") else None
     recs = load_appx3()
     mts = np.array([r["mt_s"] for r in recs])
     out = []
@@ -19,6 +23,10 @@ def load_views(alt_min=0.0, alt_max=1e9, imagers=("SLI", "MRI", "HRI")):
         im = IMAGER_BY_WIDTH[img.shape[1]]
         if im not in imagers or not (alt_min <= r["alt_km"] <= alt_max):
             continue
+        if synth is not None:
+            if str(d["num"]) not in synth.files:
+                continue
+            img = synth[str(d["num"])]
         out.append(dict(num=d["num"], mt=d["mt"], imager=im, img=img,
                         C=np.array([r["x_east_km"], r["y_north_km"], r["alt_km"]]),
                         az=r["azimuth_deg"], pitch=r["pitch_deg"], roll=r["roll_deg"]))

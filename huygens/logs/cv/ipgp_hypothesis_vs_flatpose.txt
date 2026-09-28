@@ -1,0 +1,4 @@
+ipgp_full   vs flat+pose-refit: -0.0680  95% CI [-0.1214, -0.0284]  better in 4/37 views
+ipgp_detr   vs flat+pose-refit: -0.0024  95% CI [-0.0052, +0.0001]  better in 19/37 views
+ipgp_plane  vs flat+pose-refit: -0.0691  95% CI [-0.1246, -0.0271]  better in 3/37 views
+s300_p50    vs flat+pose-refit: +0.0006  95% CI [-0.0002, +0.0014]  better in 21/37 views

@@ -124,6 +124,8 @@ class Model(torch.nn.Module):
         self.dC = torch.nn.Parameter(torch.zeros(n_exp, 3))
         self.gain = torch.nn.Parameter(torch.ones(n_v))
         self.off = torch.nn.Parameter(torch.zeros(n_v, 3))
+        self.plane = torch.nn.Parameter(torch.zeros(2))   # dh/dx, dh/dy (km/km); used when fitting a plane
+        self.xc = float(scene.X.mean()); self.yc = float(scene.Y.mean())
 
 
 def resample(t, shape):
@@ -156,7 +158,9 @@ def view_residuals(scene, model, i, img_sigma=0.0, with_pred=False):
     pad = max(1, int(math.ceil(3 * sig)))
     ny, nx = scene.X.shape
     R0, R1, C0, C1 = max(r0 - pad, 0), min(r1 + pad, ny), max(c0 - pad, 0), min(c1 + pad, nx)
-    P = torch.stack([scene.X[r0:r1, c0:c1], scene.Y[r0:r1, c0:c1], model.h[r0:r1, c0:c1]], -1)
+    Xs, Ys = scene.X[r0:r1, c0:c1], scene.Y[r0:r1, c0:c1]
+    hh = model.h[r0:r1, c0:c1] + model.plane[0] * (Xs - model.xc) + model.plane[1] * (Ys - model.yc)
+    P = torch.stack([Xs, Ys, hh], -1)
     gx, gy, valid = scene.project(i, P, model.w, model.dC)
     img = scene.images[i]
     if img_sigma > 0:
@@ -189,13 +193,14 @@ def charbonnier(r, eps=0.02):
 
 
 def fit(scene, model, iters, lr=0.01, img_sigma=0.0, w_smooth=1.0, w_tv=0.01,
-        sig_rot_deg=1.0, sig_pos_h=0.2, sig_pos_v=0.05, train=None, fix_geometry=False, log=print, w_prior=50.0, fix_height=False):
+        sig_rot_deg=1.0, sig_pos_h=0.2, sig_pos_v=0.05, train=None, fix_geometry=False, log=print, w_prior=50.0, fix_height=False, fit_plane=False):
     train = list(range(len(scene.views))) if train is None else train
     geo = [model.h, model.w, model.dC]
     params = [model.A, model.gain, model.off] + ([] if fix_geometry else geo)
     opt = torch.optim.Adam([{"params": [model.A, model.gain, model.off], "lr": lr},
                             {"params": [] if (fix_geometry or fix_height) else [model.h], "lr": lr * 0.5},
-                            {"params": [] if fix_geometry else [model.w, model.dC], "lr": lr * 0.1}])
+                            {"params": [] if fix_geometry else [model.w, model.dC], "lr": lr * 0.1},
+                            {"params": [model.plane] if fit_plane else [], "lr": lr * 0.1}])
     sr = math.radians(sig_rot_deg)
     for it in range(iters):
         opt.zero_grad()
@@ -218,9 +223,12 @@ def fit(scene, model, iters, lr=0.01, img_sigma=0.0, w_smooth=1.0, w_tv=0.01,
         loss = data + w_smooth * smooth * 1e-3 + w_tv * tv + prior / max(n, 1) * w_prior
         loss.backward()
         opt.step()
-        with torch.no_grad():
-            model.h -= model.h.mean()   # vertical datum is a free gauge; fix mean to 0
+        if not (fix_geometry or fix_height):
+            with torch.no_grad():
+                model.h -= model.h.mean()   # vertical datum is a free gauge; fix mean to 0
         if it % 25 == 0 or it == iters - 1:
+            if fit_plane:
+                log("   plane slope dE %.1f dN %.1f m/km" % tuple((model.plane.detach() * 1e3).tolist()))
             log("it %4d data %.5f smooth %.4g tv %.4f prior %.2f  h[p5,p95]=[%.0f,%.0f] m  rot rms %.2f deg  dC rms %.0f m" % (
                 it, float(data.detach()), float(smooth.detach()), float(tv.detach()), float(prior.detach()),
                 float(torch.quantile(model.h.detach(), 0.05)) * 1e3, float(torch.quantile(model.h.detach(), 0.95)) * 1e3,
@@ -234,6 +242,7 @@ def upsample_model(scene_new, model_old):
     shape = scene_new.X.shape
     with torch.no_grad():
         m.h.copy_(resample(model_old.h.detach(), shape))
+        m.plane.copy_(model_old.plane.detach())
         m.A.copy_(resample(model_old.A.detach(), shape))
         m.w.copy_(model_old.w.detach())
         m.dC.copy_(model_old.dC.detach())

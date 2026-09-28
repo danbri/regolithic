@@ -28,6 +28,8 @@ ap.add_argument("--fold", type=int, default=-1)
 ap.add_argument("--subset", type=float, default=1.0)
 ap.add_argument("--baseline", action="store_true")
 ap.add_argument("--flat", action="store_true", help="refine poses but keep h = 0")
+ap.add_argument("--plane", action="store_true", help="fit a plane (2 params) plus flat, poses refined")
+ap.add_argument("--h-file", default=None, help="npz with h_m on the final grid; held fixed (hypothesis test)")
 ap.add_argument("--alt-max", type=float, default=20.0)
 ap.add_argument("--imagers", default="SLI,MRI,HRI")
 ap.add_argument("--levels", type=int, default=3)
@@ -80,9 +82,13 @@ for li, (res, isig, iters) in enumerate(LEVELS[:args.levels]):
         recon.init_albedo(scene, model, isig)
     else:
         model = recon.upsample_model(scene, model)
+    if args.h_file:
+        hf = torch.tensor(np.load(args.h_file)["h_m"] / 1e3, dtype=torch.float32)
+        with torch.no_grad():
+            model.h.copy_(recon.resample(hf, tuple(scene.X.shape)))
     log(f"level {li}: res {res*1e3:.0f} m grid {tuple(scene.X.shape)} image blur {isig}")
     recon.fit(scene, model, iters, img_sigma=isig, train=train, fix_geometry=args.baseline, log=log,
-              w_smooth=args.w_smooth, w_prior=args.w_prior, sig_rot_deg=args.sig_rot, fix_height=args.flat)
+              w_smooth=args.w_smooth, w_prior=args.w_prior, sig_rot_deg=args.sig_rot, fix_height=args.flat or args.plane or bool(args.h_file), fit_plane=args.plane)
 log("fit time %.0f s" % (time.time() - t0))
 
 
@@ -124,5 +130,5 @@ json.dump(ev0, open(os.path.join(args.out, "heldout_priorpose.json"), "w"), inde
 np.savez_compressed(os.path.join(args.out, "result.npz"), h=model.h.detach().numpy(), A=model.A.detach().numpy(),
                     xs=scene.xs.numpy(), ys=scene.ys.numpy(), w=model.w.detach().numpy(), dC=model.dC.detach().numpy(),
                     gain=model.gain.detach().numpy(), exps=np.array(sorted(scene.exp_index, key=scene.exp_index.get)),
-                    view_nums=np.array([v["num"] for v in views]), res=res)
+                    view_nums=np.array([v["num"] for v in views]), res=res, plane=model.plane.detach().numpy())
 json.dump(vars(args), open(os.path.join(args.out, "args.json"), "w"))

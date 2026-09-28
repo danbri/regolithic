@@ -210,3 +210,128 @@ Plan: freeze the geometry (config s300, all exposures, plus an 80%
 exposure-subset ensemble), record hashes, then open the IPGP reference
 and test its heights as a hypothesis in the same forward model and
 parallax test.
+
+## 2026-09-28: geometry frozen; reference opened
+
+Frozen products: `products/v1` (commit bd2d108, code commit 8e8765b,
+`products/v1/FREEZE.json` with SHA-256 of each file). Config s300,
+all 29 exposures; 5-member ensemble on random 80% exposure subsets.
+Height range p1/p99 -17/+12 m; ensemble std median 1.1 m. The spread
+reflects the strong smoothing, not accuracy. The IPGP files were opened
+only after this commit was pushed.
+
+### Registration (`scripts/register_ipgp.py`, `logs/reference/ipgp_to_ours.json`)
+IPGP_Ortho was matched to our brightness map by rotation/mirror search
+plus ECC affine refinement. Band-passed NCC 0.70 over 10.7 km^2. The
+IPGP world axes (from the .tfw files) are rotated -108.8 deg (proper
+rotation) from our east/north frame, with scale factors 1.012 and 1.053.
+The IPGP guide describes its frame as a local tangent plane with
+north/east axes, so either the stored axes are not north-aligned, or the
+SPICE attitude used by IPGP differs in azimuth from Karkoschka's. Our
+frame reproduces the standard DISR mosaic orientation (channels NW of the
+dark plain). This is unresolved and should be checked against Daudon
+et al. (2020) figures before being reported as a finding.
+
+### Heights (`scripts/ipgp_on_grid.py`)
+Overlap 12.0 km^2. IPGP: std 91 m; best-fit plane slope -75 m/km east,
++20 m/km north (tilt 4.5 deg); residual std after plane 46 m. Ours: tilt
+0.16 deg, residual std 3.8 m. Correlation 0.14 (0.21 after plane removal).
+
+### IPGP heights as a hypothesis in our forward model
+Same 3-fold CV, IPGP heights held fixed, poses and brightness refit;
+held-out views scored after their own pose refit
+(`logs/cv/ipgp_hypothesis_vs_flatpose.txt`), against flat + pose refit:
+
+| height map held fixed | mean diff | 95% CI | views better |
+|---|---|---|---|
+| IPGP full | -0.068 | [-0.121, -0.028] | 4/37 |
+| IPGP plane only | -0.069 | [-0.125, -0.027] | 3/37 |
+| IPGP with plane removed | -0.0024 | [-0.0052, +0.0001] | 19/37 |
+| ours (s300) | +0.0006 | [-0.0002, +0.0014] | 21/37 |
+
+The IPGP 4.5 deg planar tilt makes held-out DISR views clearly worse to
+predict. Its non-planar relief is neutral in this test. Caveat under
+test: a common terrain tilt is degenerate with a common camera rotation,
+so the rejection may come from the 1 deg attitude prior (Karkoschka's
+attitudes, which use the SLI horizon) rather than from the images. Runs
+with 3 and 10 deg priors are in progress.
+
+### IPGP heights against measured parallax (`logs/reference/parallax_hypothesis.txt`)
+After per-pair affine detrending (which removes planar terms), IPGP
+window heights correlate with the measured along-parallax shifts:
+r = 0.15, 95% CI [0.08, 0.23] (bootstrap over view pairs). Ours: r = -0.03.
+Best-fit amplitude of IPGP relief: 0.38 [0.17, 0.54]. Taken at face
+value, the images support IPGP's window-scale relief pattern at under
+half its amplitude. Two effects could lower this estimate: random error
+in IPGP heights (errors in the predictor), and bias in our shift
+measurement. An injection test with synthetic views of a known surface
+is set up (`scripts/synth_views.py`) to calibrate the measurement.
+
+Current reading: IPGP captures some real window-scale relief that our
+height-field method did not recover (ours is too smooth). The data do not
+support IPGP's 4.5 deg tilt given Karkoschka's attitudes.
+
+### Tilt: sensitivity to the attitude prior (`logs/cv/tilt_prior_sensitivity.txt`)
+
+| attitude prior sigma | IPGP plane minus flat | 95% CI | plane better |
+|---|---|---|---|
+| 1 deg  | -0.069 | [-0.125, -0.027] | 3/37 |
+| 3 deg  | -0.041 | [-0.089, -0.011] | 4/37 |
+| 10 deg | -0.028 | [-0.071, -0.005] | 11/38 |
+
+The penalty on IPGP's tilt shrinks as the attitude prior is loosened, but
+it stays significant with a 10 deg prior, where the cameras are nearly
+free to rotate. What still breaks the tilt/rotation degeneracy is the
+position prior. Tilting terrain and cameras together by 4.5 deg would move
+camera altitudes by 100s of m over the 5-15 km lever arms, against a 50 m
+altitude prior (App. 3 altitudes, from the DTWG descent profile). So the
+statement is: given the DISR images and the published descent altitudes
+and positions, a 4.5 deg regional tilt of the IPGP area is disfavoured
+relative to near-level ground. This conclusion inherits any systematic
+error in those altitudes.
+
+## 2026-09-28: injection tests (calibration of both tests and of the method)
+
+`scripts/synth_views.py` renders every view by tracing its pixel rays to a
+known height field and taking our frozen brightness map there (1% noise,
+optional per-exposure pose perturbation; the pipeline is given the
+unperturbed priors). `scripts/injection.sh` runs the same pipeline.
+Truth: IPGP heights in our frame, either with the plane removed
+(`detr`, relief std 34 m in the overlap) or complete (`full`, 4.5 deg tilt).
+Logs in `logs/injection/`.
+
+Parallax measurement calibration (per-pair affine removed, amplitude scale
+k of measured shifts against the TRUE heights):
+
+| scenario | k | corr |
+|---|---|---|
+| detr, no pose error | 0.46 [0.33, 0.59] | 0.22 [0.15, 0.29] |
+| detr, 0.5 deg / 50 m pose error | 0.43 [0.28, 0.61] | 0.17 [0.12, 0.23] |
+| full (tilted), 0.5 deg / 50 m | 0.27 [0.11, 0.50] | 0.12 [0.04, 0.19] |
+| real data vs IPGP (for comparison) | 0.38 [0.17, 0.54] | 0.15 [0.08, 0.23] |
+
+So the measurement recovers roughly 0.3-0.5 of the true window-scale
+amplitude, even when the truth is known exactly. The real-data values
+against IPGP fall inside the synthetic ranges. Correction to the earlier
+reading: the images do not show that IPGP overstates its relief. They are
+consistent with IPGP's window-scale relief at its full amplitude, within
+wide limits.
+
+Reconstruction recovery (our method, against truth):
+
+| scenario | config | relief std truth / recovered | corr (plane removed) | plane slope truth / recovered (m per 20 m texel) |
+|---|---|---|---|---|
+| detr, no pose error | s300 | 34 / 3 m | 0.30 | 0 / 0 |
+| detr, no pose error | s30 | 34 / 15 m | 0.47 | 0 / 0 |
+| detr, pose error | s300 | 34 / 5 m | 0.11 | 0 / 0 |
+| detr, pose error | s30 | 34 / 21 m | 0.21 | 0 / 0 |
+| full, pose error | s300 | 34 / 4 m | 0.16 | (-1.51, 0.41) / (-0.04, -0.01) |
+| full, pose error | s30 | 34 / 25 m | 0.21 | (-1.51, 0.41) / (-0.22, -0.04) |
+
+Our height-field reconstruction strongly under-recovers relief and
+recovers almost none of a real 4.5 deg tilt. Therefore:
+- the near-flat frozen product v1 is a property of the method, not
+  evidence that the terrain is flat;
+- v1's near-zero tilt is not evidence against IPGP's tilt.
+Whether the IPGP-plane-versus-flat CV test can detect a real tilt is being
+checked on the tilted synthetic views (`logs/cv/injection_tilt_cv.txt`).

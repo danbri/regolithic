@@ -1,0 +1,2 @@
+SYNTHETIC truth = IPGP full (tilted). ipgp_plane minus flat: +0.0922  95% CI [+0.0476, +0.1533]  better in 37/37
+SYNTHETIC truth = IPGP full (tilted). ipgp_full  minus flat: +0.0924  95% CI [+0.0477, +0.1538]  better in 36/37

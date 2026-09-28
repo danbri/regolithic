@@ -1,0 +1,3 @@
+flatpose                     n= 37 median 0.825 mean 0.740
+ipgp_full                    n= 37 median 0.880 mean 0.832
+ipgp_plane                   n= 37 median 0.867 mean 0.832
