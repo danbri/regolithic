@@ -74,13 +74,20 @@ site than the eight-image photogrammetric DTM of Daudon et al. (2020,
    the result, so it rests mainly on the pressure-derived altitudes and
    the horizontal trajectory. It is partly, not fully, independent of that
    assumption. For comparison, the USGS DTM (Soderblom et al. 2007) was
-   "arbitrarily leveled".
+   "arbitrarily leveled", and IPGP's slope was chosen by a river-routing
+   score on a 1 deg rotation grid (Daudon et al. 2020, Section 3.3), a
+   landform criterion rather than a navigation one.
 
 5. Frame. The IPGP world axes, as stored in its .tfw files, are rotated
    -109 deg from east/north in our frame (which reproduces the standard
-   DISR mosaic orientation), with 1-5% scale differences. This is not yet
-   explained; it should be checked against the figures of Daudon et al.
-   (2020), whose full text could not be retrieved from this environment.
+   DISR mosaic orientation), with 1-5% scale differences. Explanation
+   (Daudon et al. 2020, Section 3.2.2, plus a check here): IPGP fixed the
+   absolute orientation by a similarity fitted to SPICE camera positions
+   alone (stated accuracy about 10 km), plus shoreline points levelled to
+   equal height. The eight cameras lie almost on one near-vertical line
+   (singular values 10.3, 0.63, 0.024 km), so rotation about that line,
+   which is mostly azimuth, is not determined. Levelling fixes tilt, not
+   north.
 
 6. A new SfM pipeline (tie-point tracks, bundle adjustment, tilt
    profile; `scripts/sfm.py`, frozen real-data output in
@@ -133,6 +140,10 @@ site than the eight-image photogrammetric DTM of Daudon et al. (2020,
 
 ## Next steps
 
+000. Run IPGP's river-routing score on the IPGP DTM with its regional
+     slope removed, to test whether the routing criterion itself favours
+     a few degrees of slope over noisy terrain.
+
 00. Toolchain: add pairwise matching at native resolution between HRI
     frames (the IPGP stereo base), multi-scale LightGlue across the
     20:1 altitude range, and render synthetic frames at native
@@ -150,7 +161,7 @@ site than the eight-image photogrammetric DTM of Daudon et al. (2020,
 2. Replace the per-texel height parameters with a multi-scale basis, and
    select smoothing by the injection tests (known truth) rather than only
    by held-out NCC. The held-out metric is blind to smooth relief.
-3. Read the full Daudon et al. (2020) (done for Karkoschka 2007, 2016 and
+3. Done: Daudon et al. (2020) read (and for Karkoschka 2007, 2016 and
    Karkoschka & Schröder 2016, Soderblom 2007). Request the 2016
    per-exposure orientation angles, which are not tabulated in the paper.
 4. Extend to the landing-site plain and to lower-altitude views with an

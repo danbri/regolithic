@@ -620,3 +620,64 @@ findings are a check any DTM here should pass.
   features (37/40 registered) contrasts with the failure reported by
   USGS. Both are new, within the caveats above.
 - The tilt statement must carry the partial-circularity caveat.
+
+## 2026-09-28: Daudon et al. (2020), the IPGP DTM paper
+
+Full text: open access (CC BY), University of Arizona repository copy;
+reference and fetch script in `third_party/papers/`.
+
+### How IPGP fixed position, orientation and tilt
+- Camera positions and orientations from ESA's recomputed SPICE kernels,
+  described as accurate only to "larger than 0.24 deg in longitude and
+  0.17 deg in latitude" (about 10 and 8 km on Titan), "inadequate for
+  photogrammetry".
+- MicMac relative orientation, then an absolute orientation by a 3D
+  similarity ("homothety") fitted to the SPICE camera *positions*, then
+  ground control points on the shoreline constrained to equal elevation
+  ("the shoreline being an equipotential"), then bundle adjustment.
+- The result still had a global tilt of about 9.5 deg, with the lakebed
+  above the hills. The authors attribute this to "an intrinsic
+  mathematical indeterminacy" in the global orientation.
+- Tilt chosen by river routing: the DTM was rotated about x and y from
+  -20 to +20 deg in 1 deg steps; for each rotation, flow routing
+  (TopoToolbox) was compared with a hand-drawn river mask; best score
+  62% at -10 deg about y and +3 deg about x. The result is described as
+  "close to horizontal, with only a remaining gentle global slope and
+  rivers going down the slope". That remaining slope is the 4.5 deg plane
+  measured here (after registration: -75 m/km east, +20 m/km north in
+  our frame).
+- The same routing test on the USGS DTM (score 35% as published) rose to
+  56% after tilting it 4 deg about y and 3 deg about x. So the routing
+  criterion tends to prefer a few degrees of regional slope in both DTMs.
+
+### Explanation for the -109 deg frame rotation (new, checked here)
+The eight IPGP cameras (App. 3 positions) are almost exactly coplanar
+and nearly collinear: singular values of the centred positions
+10.28, 0.63 and 0.024 km; the principal axis runs east and down at 74 deg
+elevation; RMS distance from that line 224 m; all eight lie within 70 m of
+one north-south position. A similarity fitted to camera positions alone
+cannot determine rotation about a line through the cameras. With SPICE
+position errors of several km, rotation about this near-vertical axis,
+which is mostly an azimuth rotation, is effectively free. Levelled
+shoreline points then fix tilt, but nothing fixes north. This accounts
+for the -109 deg rotation and the 1-5% scale difference found by
+registration (`derived/ipgp_to_ours.json`). The paper's Appendix A
+defines the local tangent frame with north and east axes; the stored
+data axes are not north-aligned, consistent with this degeneracy. (A
+109 deg rotation about an axis 16 deg from vertical also tilts the
+surface by about 24 deg; the shoreline levelling and the routing
+rotation act on tilt only, not on azimuth.)
+
+### Relation to this project's tilt result
+IPGP's final slope comes from a landform criterion (rivers must flow
+downhill along the mapped channels), not from navigation. This
+project's result comes from the images plus pressure altitudes and
+Karkoschka's trajectory. The two are different kinds of evidence. A
+nearly level regional surface with an elevated highland (Karkoschka &
+Schröder 2016: highland more than 100 m above the lakebed) is also
+compatible with rivers flowing from the highland to the plain. The
+routing score may reward a regional slope because it makes flow
+directions consistent over a noisy DTM, as the USGS result (+21 points
+after a 3-4 deg tilt) suggests. That is a hypothesis, not tested here.
+Testing it would mean running the same routing score on the IPGP DTM
+with its regional slope removed.
