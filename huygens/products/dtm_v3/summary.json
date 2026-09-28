@@ -1,0 +1,42 @@
+{
+ "lede": "A terrain model of Titan's surface north of the Huygens landing site, rebuilt from 40 frames taken by the probe's descent imager in January 2005. Heights are mapped where the images carry enough texture to measure them: 7 square kilometres of bright highland, at 70 m resolution. The image drape is a 20 m mosaic from the same frames.",
+ "method": "Learned features (DISK) matched with LightGlue across all 40 frames give about 2,000 multi-view tracks. They are adjusted together with the probe's published position and attitude, then gridded with a 70 m kernel, weighting each point by its own height uncertainty. Areas without enough texture, mainly the dark lakebed, are left unmapped and shown dimmed.",
+ "panel_note": "Heights are relative to the mean of the mapped area. Dimmed areas are not measured; they show a smooth continuation for context only.",
+ "validation": [
+  [
+   "Area mapped",
+   "7.0 km\u00b2"
+  ],
+  [
+   "Resolution",
+   "70 m gridding kernel"
+  ],
+  [
+   "Median 1\u03c3 height",
+   "34 m (calibrated)"
+  ],
+  [
+   "Relief after slope removed",
+   "23 m rms"
+  ],
+  [
+   "Synthetic tests, 5 draws: r at 100 m",
+   "0.32 to 0.88 (median 0.47)"
+  ],
+  [
+   "Real data, split halves: r at 100 m",
+   "0.66 over 5.4 km\u00b2"
+  ],
+  [
+   "vs IPGP 2020: r at 100 m",
+   "0.68 (slopes removed)"
+  ]
+ ],
+ "caveats": [
+  "Accuracy depends on the pattern of errors in the probe's navigation. In synthetic tests the same method gave good results for some error patterns and poor ones for others. Two consistency checks on the real data point to the good case, but do not prove it.",
+  "Relief amplitude here is about half that of the IPGP 2020 model at the same scales. Synthetic tests suggest this method recovers 50 to 100 percent of true amplitude at 100 m, so part of the difference may be in the IPGP model.",
+  "The regional slope depends on the probe's navigation, which was itself fitted assuming a flat surface.",
+  "The IPGP 2020 surface is shown for comparison, re-registered to this map's frame."
+ ],
+ "footer": "Data: ESA Planetary Science Archive, DISR images processed by E. Karkoschka. Comparison DTM: Daudon et al. 2020, Earth and Space Science, doi:10.1029/2020EA001127 (CC BY). Code and full record: github.com/danbri/regolithic, huygens/ (NOTEBOOK.md, REPORT.md). Frame: km east and north of the landing site."
+}

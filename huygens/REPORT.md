@@ -122,7 +122,24 @@ site than the eight-image photogrammetric DTM of Daudon et al. (2020,
    about 60 m deep along the lakebed south of the shoreline and the
    highland rising to the north, consistent with Karkoschka & Schröder
    2016. Against IPGP at the same scale: r = 0.52. Features below a few
-   hundred metres are not resolved.
+   hundred metres are not resolved. Superseded by finding 9: the dense
+   stage does not hold up on realistic synthetic frames.
+
+9. DTM v3 (`products/dtm_v3`, supersedes v2 as the presented model).
+   Synthetic frames rendered from a 5 m texture, supersampled and
+   contrast-matched to the real frames, showed that v2's dense stage
+   diverges under realistic image content; v2's relief amplitude and its
+   60 m lakebed trough are not supported. v3 grids the navigation-adjusted
+   COLMAP tracks directly with a 70 m kernel. Over five synthetic
+   pose-error draws, correlation with truth at 100 m is 0.32-0.88 (median
+   0.47): the result depends on the navigation-error pattern. On real
+   data, two checks agree with the favourable draws: split-half
+   reproducibility r 0.66 at 100 m (favourable synthetic draw 0.72, poor
+   draw about 0) and agreement with IPGP r 0.68 at 100 m. Real: 7.0 km^2
+   of highland, median 1-sigma 34 m, relief 23 m rms, about half of
+   IPGP's amplitude. The lakebed-minus-highland difference is -21 m
+   (1-sigma 46 m). Log: `logs/v3_montecarlo.txt`, `logs/dtm_v3_checks.txt`,
+   `logs/v3_split_half.txt`.
 
 ## Novelty (per the project's A-D scale)
 

@@ -735,3 +735,74 @@ What this model is and is not: a kilometre-scale terrain model with
 calibrated uncertainty and a measured regional slope. It does not
 resolve the channel-scale relief visible in the images; the IPGP DTM has
 finer (if noisier) detail.
+
+## Sharper synthetic tests and DTM v3 (70 m)
+
+Motivation: DTM v2 was validated on synthetic frames rendered from the
+20 m brightness map. Those frames are smoother than the real ones, so
+the matcher saw an easier problem. The tests below make the synthetic
+frames resemble the real ones before trusting any finer product.
+
+Rendering changes (`scripts/make_texture.py`, `scripts/synth_views.py`):
+- 5 m texture: low frequencies (above 150 m) from the 20 m mosaic, fine
+  detail from the sharpest real view covering each texel (weight
+  gsd^-4, feathered view edges).
+- 3x3 supersampling per pixel.
+- `--match-contrast`: the rendered 1-4 px band is scaled to the real
+  frame's amplitude in the same footprint. Without it the synthetic
+  frames looked blurrier than the real ones; the difference was contrast
+  (haze-reduced real detail vs texture detail), not resolution.
+- Noise 0.005 of median; pixels outside the region masked.
+
+Result 1: the dense photometric stage used in v2 diverges on these
+frames (relief grows, correlation with truth falls). v2's dense-stage
+amplitude, including its 60 m lakebed trough, is therefore not supported.
+v3 drops the dense stage.
+
+Result 2: v3 chain (`scripts/chain_synth_v3.sh`): DISK + LightGlue
+(1024 keypoints for speed; 2048 on draws 7 and 21), COLMAP verification
+and triangulation, navigation-constrained adjustment
+(`colmap_prior_ba.py`), inverse-variance gridding with a 70 m kernel
+(`grid_points.py`). Truth: IPGP relief with its tilt. Five pose-error
+draws (0.5 deg, 50 m), `logs/v3_montecarlo.txt`:
+
+| draw | area km^2 | r 0 m | r 100 m | r 200 m | k 100 m |
+|---|---|---|---|---|---|
+| 7  | 10.0 | 0.69 | 0.84 | 0.90 | 1.01 |
+| 21 |  -   | 0.27 | 0.33 | 0.34 | 0.61 |
+| 22 |  1.7 | 0.29 | 0.32 | 0.29 | 0.52 |
+| 23 |  3.0 | 0.70 | 0.88 | 0.94 | 0.92 |
+| 24 |  4.8 | 0.44 | 0.47 | 0.42 | 0.75 |
+
+Median r at 100 m 0.47. Outcome depends strongly on the draw, that is on
+the pattern of navigation error, not on the terrain. On the poor draws
+the stated sigma is too small by about 1.55x (error/sigma rms 1.54, 1.59);
+on draw 23 it is conservative (0.79). The calibration factor 1.24 used for
+v3 lies between these. Level truth on draw 7: r 0.61/0.73/0.80 at
+0/100/200 m.
+
+Result 3: split-half consistency (`scripts/split_half.py`, exposures
+split in two, each half gridded separately, relaxed mask). Real data:
+r 0.57 native, 0.66 at 100 m over 5.4 km^2. Synthetic draw 7 (good):
+0.62/0.72. Draw 21 (poor): about 0. Draws 22-24: overlap too small to
+test (`logs/v3_split_half.txt`). The real value sits with the good draw.
+This is evidence, not proof, that the real navigation errors fall in
+the favourable regime.
+
+Real product `products/dtm_v3` (commit d39d5d6, frozen before
+comparison): 7.0 km^2 of highland, median sigma 34 m, relief after
+plane 23 m rms, plane (+5.0, +0.7) m/km. Figure 18. Checks after freezing
+(`logs/dtm_v3_checks.txt`):
+- vs IPGP (planes removed, 5.6 km^2): r 0.53 native, 0.68 at 100 m,
+  0.72 at 200 m; v3 relief 0.41-0.52 of IPGP's.
+- vs v2 on the v3 mask: r 0.63.
+- Lakebed band minus highland band: v3 -21 m (1-sigma 46 m), v2 -59 m.
+  The v2 trough is not reproduced at significance.
+
+Amplitude: on synthetic draws v3 recovers 0.5-1.0 of true relief at
+100 m. The real v3/IPGP ratio (about 0.5) is at the low end of that
+range, so part of the difference may lie in the IPGP model; this is not
+established.
+
+Viewer updated to v3 (`viewer/huygens_terrain.html`, same artifact URL).
+Unmapped areas show a smoothed, dimmed continuation labelled as such.

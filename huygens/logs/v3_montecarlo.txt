@@ -1,0 +1,13 @@
+# DTM v3 chain (scripts/chain_synth_v3.sh) on synthetic views of derived/h_ipgp_full.npz (IPGP relief with its 4.5 deg tilt),
+# 5 m texture, 3x3 supersampling, contrast matched, noise 0.005, pose error 0.5 deg / 50 m; draw = seed. Truth-relative scale k = slope of estimate on truth.
+sharpc_full         0m: r 0.69 k 0.72 rms 31/39 |  100m: r 0.84 k 1.01 rms 20/31 |  200m: r 0.90 k 1.13 rms 15/27 |  400m: r 0.93 k 1.19 rms 10/19 |  800m: r 0.89 k 1.07 rms 4/8
+sharpc_full_s21     0m: r 0.27 k 0.47 rms 59/34 |  100m: r 0.33 k 0.61 rms 49/27 |  200m: r 0.34 k 0.58 rms 39/23 |  400m: r 0.36 k 0.65 rms 28/16 |  800m: r 0.84 k 2.09 rms 19/11
+sharpc_full_s22     0m: r 0.29 k 0.46 rms 47/29 |  100m: r 0.32 k 0.52 rms 41/25 |  200m: r 0.29 k 0.46 rms 37/23 |  400m: r 0.13 k 0.24 rms 29/15 |  800m: r 0.43 k 0.85 rms 12/7
+sharpc_full_s23     0m: r 0.70 k 0.63 rms 22/30 |  100m: r 0.88 k 0.92 rms 11/23 |  200m: r 0.94 k 1.01 rms 7/19 |  400m: r 0.95 k 1.08 rms 5/12 |  800m: r 0.98 k 1.36 rms 2/5
+sharpc_full_s24     0m: r 0.44 k 0.63 rms 44/32 |  100m: r 0.47 k 0.75 rms 38/27 |  200m: r 0.42 k 0.70 rms 34/22 |  400m: r 0.24 k 0.41 rms 29/16 |  800m: r 0.19 k 0.12 rms 17/16
+
+# gridding summaries (coverage, planes, stated-sigma calibration)
+sharpc_full_s22: vs truth on 1.7 km^2: plane truth (-97.8, 21.8) grid (-36.0, -22.4) m/km; after plane removal corr 0.290 (vs truth smoothed at kernel scale 0.318), slope 0.46, rms error 47 m, median stated sigma 33 m, error/sigma rms 1.54
+sharpc_full_s23: vs truth on 3.0 km^2: plane truth (-87.5, 43.5) grid (-114.1, 59.0) m/km; after plane removal corr 0.702 (vs truth smoothed at kernel scale 0.807), slope 0.63, rms error 22 m, median stated sigma 26 m, error/sigma rms 0.79
+sharpc_full_s24: vs truth on 4.8 km^2: plane truth (-79.3, 22.7) grid (-122.8, -2.9) m/km; after plane removal corr 0.435 (vs truth smoothed at kernel scale 0.493), slope 0.63, rms error 44 m, median stated sigma 30 m, error/sigma rms 1.59
+# sharpc_full = seed 7; sharpc_full_sNN = seed NN

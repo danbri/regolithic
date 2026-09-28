@@ -36,6 +36,8 @@ IPGP_Titan_Huygens_V1.0 (ESA PSA).
 | 15_synthetic_vs_real_views.png | real frames vs synthetic renderings (tilted truth, outside masked) | injection tests |
 | 16_dtm_v2_overview.png | DTM v2: mosaic, heights (10 m contours), 1-sigma uncertainty, IPGP smoothed to 300 m | presentable model |
 | 17_viewer_screenshot.png | the 3D viewer page (headless Chromium render) | presentable model |
+| 18_dtm_v3_overview.png | DTM v3 heights (70 m), calibrated 1-sigma, IPGP (100 m smoothing, with its tilt) and v2 on the v3 mask | finer validated DTM |
+| 19_viewer_v3_screenshot.png | the 3D viewer page with DTM v3 (headless Chromium render) | finer validated DTM |
 | colmap_inputs/ | the 40 PNG frames exactly as fed to DISK/COLMAP (8-bit, rows flipped) | modern toolchain |
 
 Frozen reconstruction files (not figures) are under `products/`:
