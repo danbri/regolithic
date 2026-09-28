@@ -1,0 +1,41 @@
+{
+ "frozen_utc": "2026-09-28T00:47:09+00:00",
+ "code_commit": "8e8765b3ff331c84c9254fa8a85f1cedb8a692d4",
+ "code_dirty": false,
+ "reference_opened": false,
+ "files": {
+  "products/v1/height_m.tif": "59df57358e0797615f418dec5af7ec49991326d5d96f0164a77e30d87eb4618f",
+  "products/v1/height_ensemble_std_m.tif": "2eff435f3e626ac3fc325cbb9fd49fbf003aee241700b880b70374ee86180cd7",
+  "products/v1/brightness.tif": "439d7e90503feedfd5672fd64624442192fbe65ac96626c4b7cf17fefb1ea9ac",
+  "products/v1/support_nviews.tif": "8272c6d9fa12249604aed69042a78f7a3ef4b4bf53977de16dc2705d6abd4deb",
+  "products/v1/support_parallax_deg.tif": "c2d33aecfe39e6f6f9b525d5ff92b9e02b8137c21ea480d469f2cbe921b14034",
+  "products/v1/support_texture.tif": "5c328e3e0682a6c2b05034e1ccb1b22219a806ad30e2a2a2d9741bd243f114b9",
+  "products/v1/poses_refined.npz": "dd0f46af18c49c66c404ef700db240417b2ee9af1a06528e14d05ce59a8d0ac8"
+ },
+ "meta": {
+  "frame": "local east/north (km) relative to the Huygens landing site as used by Karkoschka et al. 2007 (DISR Users' Guide App. 3); height relative to the mean over the grid",
+  "rows_are": "north, increasing with row index (row 0 = southernmost)",
+  "x_centres_km": [
+   -3.490000009536743,
+   1.4900000095367432
+  ],
+  "y_centres_km": [
+   1.5099999904632568,
+   6.489999771118164
+  ],
+  "grid_m": 20.0,
+  "shape": [
+   250,
+   250
+  ]
+ },
+ "config": "reconstruct.py --w-smooth 300 (levels 80/40/20 m); ensemble: --subset 0.8 seeds 1-5",
+ "summary": {
+  "height_p1_p99_m": [
+   -17.305580139160156,
+   12.1868896484375
+  ],
+  "ensemble_std_median_m": 1.0697102546691895,
+  "ensemble_std_p95_m": 3.3532662391662598
+ }
+}
