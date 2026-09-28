@@ -1,0 +1,2 @@
+s100_p50       n=43  mean diff +0.0127  95% CI [+0.0028, +0.0223]  better in 29/43 views
+s300_p50       n=43  mean diff +0.0130  95% CI [+0.0036, +0.0228]  better in 30/43 views

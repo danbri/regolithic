@@ -27,14 +27,17 @@ ap.add_argument("--seed", type=int, default=0)
 ap.add_argument("--fold", type=int, default=-1)
 ap.add_argument("--subset", type=float, default=1.0)
 ap.add_argument("--baseline", action="store_true")
+ap.add_argument("--flat", action="store_true", help="refine poses but keep h = 0")
 ap.add_argument("--alt-max", type=float, default=20.0)
 ap.add_argument("--imagers", default="SLI,MRI,HRI")
 ap.add_argument("--levels", type=int, default=3)
 ap.add_argument("--w-smooth", type=float, default=1.0)
+ap.add_argument("--highpass", type=float, default=0.0)
 ap.add_argument("--w-prior", type=float, default=50.0)
 ap.add_argument("--sig-rot", type=float, default=1.0)
 args = ap.parse_args()
 os.makedirs(args.out, exist_ok=True)
+recon.HIGHPASS_SIGMA = args.highpass
 logf = open(os.path.join(args.out, "log.txt"), "w")
 
 
@@ -79,7 +82,7 @@ for li, (res, isig, iters) in enumerate(LEVELS[:args.levels]):
         model = recon.upsample_model(scene, model)
     log(f"level {li}: res {res*1e3:.0f} m grid {tuple(scene.X.shape)} image blur {isig}")
     recon.fit(scene, model, iters, img_sigma=isig, train=train, fix_geometry=args.baseline, log=log,
-              w_smooth=args.w_smooth, w_prior=args.w_prior, sig_rot_deg=args.sig_rot)
+              w_smooth=args.w_smooth, w_prior=args.w_prior, sig_rot_deg=args.sig_rot, fix_height=args.flat)
 log("fit time %.0f s" % (time.time() - t0))
 
 

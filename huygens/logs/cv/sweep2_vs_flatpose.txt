@@ -1,0 +1,6 @@
+s10_p50 vs flat+pose-refit: -0.0154 CI [-0.0323,-0.0032] better 18/37
+s100_p50 vs flat+pose-refit: -0.0005 CI [-0.0035,+0.0018] better 23/37
+s300_p50 vs flat+pose-refit: +0.0006 CI [-0.0002,+0.0014] better 21/37
+s1000_p50 vs flat+pose-refit: +0.0006 CI [+0.0003,+0.0010] better 24/37
+hp3_s10 vs flat+pose-refit: -0.0996 CI [-0.1716,-0.0427] better 9/37
+hp3_s100 vs flat+pose-refit: -0.0883 CI [-0.1612,-0.0293] better 13/37

@@ -1,0 +1,10 @@
+baseline                     n= 37 median 0.880 mean 0.826
+flatpose                     n= 37 median 0.906 mean 0.845
+hp3_s10                      n= 37 median 0.833 mean 0.746
+hp3_s100                     n= 37 median 0.844 mean 0.757
+s1000_p50                    n= 37 median 0.906 mean 0.846
+s100_p50                     n= 37 median 0.901 mean 0.845
+s10_p5                       n= 38 median 0.904 mean 0.840
+s10_p50                      n= 37 median 0.890 mean 0.830
+s1_p50                       n= 37 median 0.856 mean 0.806
+s300_p50                     n= 37 median 0.907 mean 0.846

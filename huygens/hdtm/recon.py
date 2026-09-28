@@ -164,10 +164,24 @@ def view_residuals(scene, model, i, img_sigma=0.0, with_pred=False):
     obs = Fn.grid_sample(img, torch.stack([gx, gy], -1)[None], mode="bilinear", align_corners=True)[0, 0]
     Ab = blur(model.A[R0:R1, C0:C1][None, None], sig)[0, 0][r0 - R0:r1 - R0, c0 - C0:c1 - C0]
     pred = model.gain[i] * Ab + model.off[i, 0] + model.off[i, 1] * gx + model.off[i, 2] * gy
+    if HIGHPASS_SIGMA > 0 and not with_pred:
+        s_hp = HIGHPASS_SIGMA * max(1.0, sig)
+        return masked_highpass(obs, valid, s_hp) - masked_highpass(pred, valid, s_hp), valid
     if with_pred:
         full = lambda t, fill: Fn.pad(t, (c0, nx - c1, r0, ny - r1), value=fill)
         return full(obs, 0.0), full(pred, 0.0), full(valid.float(), 0.0) > 0
     return (obs - pred), valid
+
+
+HIGHPASS_SIGMA = 0.0   # texels; > 0 compares locally high-passed obs and pred
+
+
+def masked_highpass(t, m, sigma):
+    """t - local mean of t within mask m (normalised convolution)."""
+    mf = m.float()[None, None]
+    num = blur(t[None, None] * mf, sigma)
+    den = blur(mf, sigma).clamp_min(1e-3)
+    return t - (num / den)[0, 0]
 
 
 def charbonnier(r, eps=0.02):
@@ -175,12 +189,12 @@ def charbonnier(r, eps=0.02):
 
 
 def fit(scene, model, iters, lr=0.01, img_sigma=0.0, w_smooth=1.0, w_tv=0.01,
-        sig_rot_deg=1.0, sig_pos_h=0.2, sig_pos_v=0.05, train=None, fix_geometry=False, log=print, w_prior=50.0):
+        sig_rot_deg=1.0, sig_pos_h=0.2, sig_pos_v=0.05, train=None, fix_geometry=False, log=print, w_prior=50.0, fix_height=False):
     train = list(range(len(scene.views))) if train is None else train
     geo = [model.h, model.w, model.dC]
     params = [model.A, model.gain, model.off] + ([] if fix_geometry else geo)
     opt = torch.optim.Adam([{"params": [model.A, model.gain, model.off], "lr": lr},
-                            {"params": [] if fix_geometry else [model.h], "lr": lr * 0.5},
+                            {"params": [] if (fix_geometry or fix_height) else [model.h], "lr": lr * 0.5},
                             {"params": [] if fix_geometry else [model.w, model.dC], "lr": lr * 0.1}])
     sr = math.radians(sig_rot_deg)
     for it in range(iters):

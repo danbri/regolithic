@@ -1,0 +1,5 @@
+views 40 windows 196 pair measurements 1988
+shift RMS along parallax 43.2 m, across 46.7 m (robust: MAD*1.48 along 22.3, across 19.6)
+split-half correlation of window heights, 20 random splits by exposure (no view shared): median 0.358 [min -0.103, max 0.704], windows used ~24
+null (shifts rotated 90 deg): split-half correlation median 0.340 [min -0.102, max 0.715]
+window heights: 159 windows, height RMS 76 m, median formal sigma 22 m

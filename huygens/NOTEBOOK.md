@@ -147,3 +147,66 @@ With enough smoothing, the recovered height field predicts unseen views
 better than a flat surface does, with a confidence interval that excludes
 zero. Weak smoothing overfits. The effect is small in NCC terms, which
 is consistent with parallax of only a few pixels.
+
+## 2026-09-28: controls: the CV gain came from pose refinement
+
+Further configs (`logs/cv/sweep2_paired.txt`): w_smooth 300 and 1000
+give the same +0.020 as 100. Using views up to 40 km
+(`logs/cv/sweep3_alt40_paired.txt`) gives +0.013 over its own baseline.
+It does not help, so the 20 km set is kept.
+
+Missing control added: flat ground (h = 0) with pose refinement
+(`--flat`). It scores +0.0193 [+0.010, +0.029] over the frozen-pose
+baseline, the same as the height fields. Height fields against this
+control (`logs/cv/sweep2_vs_flatpose.txt`):
+
+| config | mean diff vs flat + pose refit | 95% CI |
+|---|---|---|
+| s10  | -0.015 | [-0.032, -0.003] |
+| s100 | -0.0005 | [-0.0035, +0.0018] |
+| s300 | +0.0006 | [-0.0002, +0.0014] |
+| s1000 | +0.0006 | [+0.0003, +0.0010] |
+| high-pass loss, s10 / s100 | -0.10 / -0.09 | both exclude 0 |
+
+Conclusion: under this validation, no recovered height field predicts
+unseen views better than flat ground by a meaningful margin. The earlier
++0.02 was pose refinement. Caveat: refitting each held-out view's pose
+(6 dof) can absorb smooth, long-wavelength relief, so this test is blind
+to it.
+
+## 2026-09-28: direct parallax test
+
+`scripts/parallax.py`: all 40 views ortho-projected on z = 0 with
+refined flat-ground poses (`work/flat_all`), shifts between view pairs
+measured by phase correlation (with one refinement step; validated on
+synthetic shifts) in 640 m windows. Relief of height h must produce a
+shift h * e_ij along a known direction per pair. Noise and most pose
+errors do not prefer that direction.
+
+- All pairs: robust shift RMS along e 22.3 m, across 19.6 m. Little
+  excess.
+- By parallax strength |e| (`logs/parallax/`): along/across ratio about
+  1.0-1.2 for |e| < 0.7. For |e| >= 0.7 (mostly HRI-SLI and MRI-SLI
+  pairs with the SLI at a median 2.7 km altitude) ratio 1.40, 95% CI
+  [1.16, 1.72].
+- After removing a per-pair affine shift field (which would absorb
+  residual pose error, and also planar relief), the top-bin ratio is
+  1.15 [0.97, 1.44], not significant.
+- Split-half reproducibility of window heights, splitting by exposure so
+  that no view is shared, is not distinguishable from a null with shifts
+  rotated 90 deg (0.36 vs 0.34; detrended 0.41 vs 0.25; only about 24
+  windows per split).
+
+Reading: the only significant parallax signal is long-wavelength and
+appears in pairs with low oblique SLI views, where a pitch error moves
+the footprint along the same direction as parallax. At these scales,
+relief and attitude error are not separable with the present priors.
+This is the tilt ambiguity noted by Daudon et al. (2020), extended
+beyond a single plane. Window-scale (about 0.3-1 km) relief is not
+detected; the along-excess at |e| >= 0.7 bounds it at roughly 15-30 m
+RMS for those windows.
+
+Plan: freeze the geometry (config s300, all exposures, plus an 80%
+exposure-subset ensemble), record hashes, then open the IPGP reference
+and test its heights as a hypothesis in the same forward model and
+parallax test.

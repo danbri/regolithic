@@ -1,0 +1,3 @@
+baseline                     n= 43 median 0.848 mean 0.779
+s100_p50                     n= 43 median 0.867 mean 0.791
+s300_p50                     n= 43 median 0.877 mean 0.792

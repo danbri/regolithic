@@ -1,5 +1,9 @@
-s100_p50       n=37  mean diff +0.0188  95% CI [+0.0091, +0.0288]  better in 27/37 views
-s10_p5         n=37  mean diff +0.0107  95% CI [-0.0055, +0.0262]  better in 26/37 views
-s10_p50        n=37  mean diff +0.0039  95% CI [-0.0144, +0.0194]  better in 23/37 views
-s1_p50         n=37  mean diff -0.0194  95% CI [-0.0580, +0.0080]  better in 18/37 views
-s300_p50       n=0  mean diff +nan  95% CI [+nan, +nan]  better in 0/0 views
+flatpose       n=37  mean diff +0.0193  95% CI [+0.0102, +0.0286]  better in 29/37 views
+hp3_s10        n=37  mean diff -0.0802  95% CI [-0.1501, -0.0218]  better in 16/37 views
+hp3_s100       n=37  mean diff -0.0690  95% CI [-0.1424, -0.0100]  better in 16/37 views
+s1000_p50      n=37  mean diff +0.0200  95% CI [+0.0111, +0.0293]  better in 29/37 views
+s100_p50       n=37  mean diff +0.0188  95% CI [+0.0092, +0.0292]  better in 27/37 views
+s10_p5         n=37  mean diff +0.0107  95% CI [-0.0066, +0.0263]  better in 26/37 views
+s10_p50        n=37  mean diff +0.0039  95% CI [-0.0138, +0.0194]  better in 23/37 views
+s1_p50         n=37  mean diff -0.0194  95% CI [-0.0565, +0.0081]  better in 18/37 views
+s300_p50       n=37  mean diff +0.0199  95% CI [+0.0112, +0.0296]  better in 28/37 views
