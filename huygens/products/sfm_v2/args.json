@@ -1,0 +1,1 @@
+{"run": "work/flat_all", "out": "work/sfm_real_v2", "win": 16, "stride": 8, "min_resp": 0.15, "min_views": 3, "px_sigma": 2.5, "huber": 2.0, "reject": 6.0, "sig_rot": 1.0, "sig_pos_h": 0.2, "sig_pos_v": 0.05, "dtm_sigma_m": 150.0, "iters": 8, "init_h": null, "init_flat_poses": false, "tilt_scan": "-120,-80,-40,0,40,80", "profile": true}
