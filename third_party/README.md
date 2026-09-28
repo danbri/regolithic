@@ -8,6 +8,7 @@ downloads from upstream and verifies SHA-256 checksums.
 
 ```
 third_party/
+  papers/                # literature PDFs (not committed; SOURCE.md, SHA256SUMS)
   splats/
     <source>-<slug>-<id>/
       SOURCE.md     # attribution, license, upstream URL
