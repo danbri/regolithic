@@ -34,9 +34,10 @@ ap.add_argument("--sig-h", type=float, default=0.2)
 ap.add_argument("--sig-v", type=float, default=0.05)
 ap.add_argument("--min-track", type=int, default=3)
 ap.add_argument("--tilt-scan", default="")
+ap.add_argument("--half", default="", help="SEED:K (K = 0 or 1): use only the exposures in random half K (split-half test)")
 a = ap.parse_args()
 REGION = (-3.5, 1.5, 1.5, 6.5)
-od = os.path.join(a.out, "priorba"); os.makedirs(od, exist_ok=True)
+od = os.path.join(a.out, "priorba" + ("_half" + a.half.replace(":", "_") if a.half else "")); os.makedirs(od, exist_ok=True)
 logf = open(os.path.join(od, "log.txt"), "w")
 
 
@@ -54,13 +55,21 @@ name_to_idx = {m["name"]: i for i, m in enumerate(meta)}
 rec = pycolmap.Reconstruction(os.path.join(a.out, a.model))
 
 # tracks -> observations in hdtm pixel convention (col = x - 0.5, row = 255.5 - y)
+use_view = np.ones(len(meta), bool)
+if a.half:
+    hs, hk = (int(x) for x in a.half.split(":"))
+    exps_ = sorted(scene.exp_index)
+    side = np.random.default_rng(hs).permutation(len(exps_)) % 2
+    exp_side = {e: side[i] for i, e in enumerate(exps_)}
+    use_view = np.array([exp_side[round(v["mt"], 1)] == hk for v in views])
 tid, vi, uv, X0 = [], [], [], []
 for pid, p in rec.points3D.items():
-    if p.track.length() < a.min_track:
+    els = [el for el in p.track.elements if use_view[name_to_idx[rec.images[el.image_id].name]]]
+    if len(els) < a.min_track:
         continue
     t = len(X0)
     X0.append(p.xyz / 1e3)
-    for el in p.track.elements:
+    for el in els:
         im = rec.images[el.image_id]
         xy = im.points2D[el.point2D_idx].xy
         tid.append(t); vi.append(name_to_idx[im.name]); uv.append((xy[0] - 0.5, 255.5 - xy[1]))

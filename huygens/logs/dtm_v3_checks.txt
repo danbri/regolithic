@@ -1,0 +1,7 @@
+v3 vs IPGP, native (planes removed)    5.6 km2: corr 0.53, v3-relative scale 0.41, rms diff 27 m, relief v3 24 / other 31 m
+v3 vs IPGP, both smoothed 100 m        5.6 km2: corr 0.68, v3-relative scale 0.52, rms diff 18 m, relief v3 19 / other 25 m
+v3 vs IPGP, both smoothed 200 m        5.6 km2: corr 0.72, v3-relative scale 0.52, rms diff 14 m, relief v3 15 / other 21 m
+v3 vs v2 (on v3 mask)                  7.0 km2: corr 0.63, v3-relative scale 0.71, rms diff 19 m, relief v3 23 / other 21 m
+v3: mean height lakebed band (2.5-3.2 km N, 1.0 km2) minus highland band (3.6-4.5 km N, 2.5 km2): -21 m
+v2: mean height lakebed band (2.5-3.2 km N, 1.0 km2) minus highland band (3.6-4.5 km N, 2.5 km2): -59 m
+v3 1-sigma (conservative, correlated) for that difference: 46 m
